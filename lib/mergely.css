@@ -1,0 +1,33 @@
+/**
+ * Copyright (c) 2012 by Jamie Peabody, http://www.mergely.com/
+ * All rights reserved.
+ * Version: 2.3 2012-02-07
+ */
+/* required */
+.mergely-column textarea { width: 80px; height: 200px; }
+.mergely-column { float: left; }
+.mergely-margin { float: left; }
+.mergely-canvas { float: left; width: 28px; }
+
+/* resizeable */
+.mergely-resizer { width: 100%; height: 100%; }
+
+/* style configuration */
+.mergely-column { border: 1px solid #ccc; }
+.mergely-active { border: 1px solid #4ba3fa; }
+
+/* markup */
+.mergely-c-start { border-top: 1px solid #ccc !important; }
+.mergely-c-end { border-bottom: 1px solid #ccc !important; }
+.mergely-a-start { border-top: 1px solid #4ba3fa !important; background-color: #ddeeff !important; }
+.mergely-a-mid { background-color: #ddeeff !important; }
+.mergely-a-end { border-bottom: 1px solid #4ba3fa !important; background-color: #ddeeff !important; }
+.mergely-d-start { border-top: 1px solid #ff7f7f !important; background-color: #f9e9e9 !important; }
+.mergely-d-mid { background-color: #f9e9e9 !important; }
+.mergely-d-end { border-bottom: 1px solid #ff7f7f !important; background-color: #f9e9e9 !important; }
+.mergely-c-rem { text-decoration: line-through; color: #888; background-color: #f9e9e9; }
+.mergely-c-add { background-color: #ddeeff; }
+.mergely-d-start-rhs { border-top: 1px solid #ff7f7f !important; }
+.mergely-d-end-rhs { border-bottom: 1px solid #ff7f7f !important; }
+.mergely-a-start-lhs { border-top: 1px solid #4ba3fa !important; }
+.mergely-a-end-lhs { border-bottom: 1px solid #4ba3fa !important; }

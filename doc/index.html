@@ -1,0 +1,234 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="utf-8" /><title>Mergely Manual</title>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta name="description" content="Merge and Diff your documents with diff online and share" />
+	<meta name="keywords" content="diff,merge,compare,jsdiff,comparison,difference,file,text,unix,patch,algorithm,saas,longest common subsequence" />
+	<meta name="author" content="Jamie Peabody" />
+	<link rel="shortcut icon" href="http://www.mergely.com/favicon.ico" />
+	<link rel="canonical" href="http://www.mergely.com" />
+	
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="/style/mergely-theme/jquery-ui-1.8.16.custom.css" />
+	
+	<script src="/api/examples/jquery.corner.js" type="text/javascript"></script>
+	<link type="text/css" rel="stylesheet" href="/api/lib/mergely.css" />
+	<link type="text/css" rel="stylesheet" href="/style/editor.css" />
+	<link type="text/css" rel="stylesheet" href="/style/screen.css" />
+	<style type="text/css">
+		body { font-family: Droid Sans, Arial, sans-serif; }
+		pre.code { border: 1px solid #37AFFF; background-color: #efefef; padding: 12px; }
+		dt { color: #3FA6EA; font-weight: bold; }
+		dd { margin-bottom: 1em; }
+		h1 { margin-top: 0px; }
+	</style>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('.code').corner('8px');
+			$('#editor,#download').css({'visibility':'visible'}).button().click(function(){
+				window.location.href = $(this).attr('formaction');
+			});
+			$('#editor').css({'float':'right'});
+		});
+	</script>
+	
+	<script src="http://www.mergely.com/js/gatag.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-85576-5']);
+		_gaq.push(['_trackPageview']);
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+	<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+</head>
+<body>
+
+	<div class="main">
+	
+		<div id="header">
+			<div id="info">
+				<h3>Mergely - Diff online!</h3>
+				<div id="logo"></div>
+				<button id="editor" class="button-editor" title="Switch to Mergely Editor" type="submit" formaction="/index.php" formmethod="get">Editor</button>
+				<div style="float:right;width:80px;padding-top:6px;height:30px;display:inline-block;">
+					<g:plusone></g:plusone>
+				</div>
+			</div>
+		</div>
+
+		<div id="body">
+			<div id="bodycontent" style="margin-right:0px;">
+				<h1>Mergely Manual</h1>
+				
+				<h2>Overview</h2>
+				<p>
+					The core of mergely is a javascript-based diff and customizable markup engine.  
+					Mergely provides a rich API that enables integration into your own application.  It
+					can be used as a diff tool (read-only) or as both a diff and merge 
+					tool for plain text, CSS, HTML, XML, javascript, PHP, C, C++, etc.
+				</p>
+				<p>
+					
+				</p>
+				
+				<h2>Basic Usage</h2>
+				<p>
+					Mergely requires <a href="http://jquery.com">jQuery</a> and <a href="http://codemirror.net">CodeMirror</a>.
+					A supported implementation of CodeMirror is provided in the Mergely download.
+				</p>
+				<p>
+					To use Mergely, you need to first load the required javascript and css files:
+				</p>
+				<pre class="code">
+&lt;script type="text/javascript"
+ src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"&gt;&lt;/script&gt;
+
+&lt;script type="text/javascript" src="../lib/codemirror.min.js"&gt;&lt;/script&gt;
+&lt;link type="text/css" rel="stylesheet" href="../lib/codemirror.css" /&gt;
+
+&lt;script type="text/javascript" src="../lib/mergely.js"&gt;&lt;/script&gt;
+&lt;link type="text/css" rel="stylesheet" href="../lib/mergely.css" /&gt;
+				</pre>
+				<p>
+					Then, create a div for the editor:
+				</p>
+				<pre class="code">
+&lt;div id="compare"&gt;&lt;div&gt;
+				</pre>
+				<p>
+					Then, initialize the 'compare' div with the mergely jquery plugin, setting
+					options as required:
+				</p>
+				<pre class="code">
+$(document).ready(function () {
+	$('#compare').mergely({
+		cmsettings: { readOnly: false, lineNumbers: true },
+		lhs: function(setValue) {
+			setValue('the quick red fox\njumped over the hairy dog');
+		},
+		rhs: function(setValue) {
+			setValue('the quick brown fox\njumped over the lazy dog');
+		}
+	});
+});
+				</pre>
+				
+				<h2>Options</h2>
+				<p>
+					The following options are available on initialization:
+				</p>
+				<dl>
+					<dt>autoresize</dt>
+					<dd>Enables/disables the auto-resizing of the editor. Defaults to <span class="code">true</span>.</dd>
+					<dt>cmsettings</dt>
+					<dd>CodeMirror settings (see <a href="http://codemirror.net/doc/manual.html#option_value">CodeMirror</a>).  Defaults to <span class="code">{mode: 'application/xml', readOnly: false, lineWrapping: false, lineNumbers: true}</span>.</dd>
+					<dt>editor_width</dt>
+					<dd>Starting width.  Defaults to <span class="code">'400px'</span>.</dd>
+					<dt>editor_height</dt>
+					<dd>Starting height.  Defaults to <span class="code">'400px'</span>.</dd>
+					<dt>resize_timeout</dt>
+					<dd>The timeout, after a resize, before Mergely auto-resizes.  Only used when autoresize enabled.  Defaults to <span class="code">500</span>.</dd>
+					<dt>change_timeout</dt>
+					<dd>The timeout, after a text change, before Mergely calcualtes a diff.  Only used when readonly enabled.  Defaults to <span class="code">500</span>.</dd>
+					<dt>fgcolor</dt>
+					<dd>The foreground color that mergely marks changes with on the canvas.  Defaults to <span class="code">'#4ba3fa'</span></dd>
+					<dt>bgcolor</dt>
+					<dd>The background color that mergely fills the margin canvas with.  Defaults to <span class="code">'#eeeeee'<span></dd>
+					<dt>fadein</dt>
+					<dd>A jQuery fade-in value to enable the editor to fade in.  Set to empty string to disable.  Defaults to <span class="code">'fast'<span></dd>
+				</dl>
+				
+				<h2>Callbacks</h2>
+				<p>
+					The following callbacks are available on initialization:
+				<p>
+				<dl>
+					<dt>lhs(setValue)</dt>
+					<dd>Allows the opportunity to set the value of the left-hand editor on initialization.  A handle to a <span class="code">setValue</span> function is passed as an argument.</dd>
+					<dt>rhs(setValue)</dt>
+					<dd>Allows the opportunity to set the value of the right-hand editor on initialization.  A handle to a <span class="code">setValue</span> function is passed as an argument.</dd>
+					<dt>height(h)</dt>
+					<dd>Allows the opportunity to adjust the height when then the editor is resized.  Return the adjusted height.</dd>
+					<dt>width(w)</dt>
+					<dd>Allows the opportunity to adjust the width when the editor is resized.  Return the adjusted width.</dd>
+					<dt>loaded()</dt>
+					<dd>A callback to indicate that Mergely has finished initializing and is loaded.</dd>
+					<dt>resized()</dt>
+					<dd>A callback to indicate that Mergely has been resized.</dd>
+				</dl>
+
+				<h2>Methods</h2>
+				<p>
+					The following methods are available after initialization:
+				<p>
+				<dl>
+					<dt>$(selector).mergely('lhs', value)</dt>
+					<dd>Set the value of the left-hand editor.  Best used with ajax.</dd>
+					<dt>$(selector).mergely('rhs', value)</dt>
+					<dd>Set the value of the right-hand editor.  Best used with ajax.</dd>
+					<dt>$(selector).mergely('swap')</dt>
+					<dd>Swap the content of the left and right editors.</dd>
+					<dt>$(selector).mergely('merge', side)</dt>
+					<dd>Merge from <span class="code">side</span> to the opposite side.</dd>
+					<dt>$(selector).mergely('get', side)</dt>
+					<dd>Gets the editor contents.</dd>
+					<dt>$(selector).mergely('clear', side)</dt>
+					<dd>Clears the editor contents.</dd>
+					<dt>$(selector).mergely('search', side, text)</dt>
+					<dd>Search the editor for <span class="code">text</span>.  Repeating the call will find the next available token.</dd>
+					<dt>$(selector).resize()</dt>
+					<dd>Resize the editor.</dd>
+				</dl>
+				
+				<h2>Styles</h2>
+				<p>
+					The following styles will allow you to brand your own editor:
+				</p>
+				<dl>
+					<dt>.mergely-column</dt>
+					<dd>The editors.</dd>
+					<dt>.mergely-active</dt>
+					<dd>The active editor.</dd>
+					<dt>mergely-c-start</dt>
+					<dd>Styles the starting line of a change.</dd>
+					<dt>mergely-c-end</dt>
+					<dd>Styles the ending line of a change.</dd>
+					<dt>mergely-a-start</dt>
+					<dd>Styles the starting line of an addition.</dd>
+					<dt>mergely-a-mid</dt>
+					<dd>Styles the middle text region of an addition.</dd>
+					<dt>mergely-a-end</dt>
+					<dd>Styles the ending line of an addition.</dd>
+					<dt>mergely-d-start</dt>
+					<dd>Styles the starting line of a deletion.</dd>
+					<dt>mergely-d-mid</dt>
+					<dd>Styles the middle text region of a deletion.</dd>
+					<dt>mergely-d-end</dt>
+					<dd>Styles the ending line of a deletion.</dd>
+					<dt>mergely-c-rem</dt>
+					<dd>Styles the middle text region of a deletion.</dd>
+					<dt>mergely-c-add</dt>
+					<dd>Styles the middle text region of an addition.</dd>
+					<dt>mergely-a-start-lhs</dt>
+					<dd>Styles the start of an addition on the left-hand side.</dd>
+					<dt>mergely-a-end-lhs</dt>
+					<dd>Styles the end of an addition on the  left-hand side.</dd>
+					<dt>mergely-d-start-rhs</dt>
+					<dd>Styles the start of an deletion on the right-hand side.</dd>
+					<dt>mergely-d-end-rhs</dt>
+					<dd>Styles the start of an deletion on the right-hand side.</dd>
+				</dl>
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>
