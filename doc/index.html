@@ -8,65 +8,24 @@
 	<meta name="author" content="Jamie Peabody" />
 	<link rel="shortcut icon" href="http://www.mergely.com/favicon.ico" />
 	<link rel="canonical" href="http://www.mergely.com" />
-	
 	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-	<link type="text/css" rel="stylesheet" href="/style/mergely-theme/jquery-ui-1.8.16.custom.css" />
 	
-	<script src="/api/examples/jquery.corner.js" type="text/javascript"></script>
-	<link type="text/css" rel="stylesheet" href="/api/lib/mergely.css" />
-	<link type="text/css" rel="stylesheet" href="/style/editor.css" />
-	<link type="text/css" rel="stylesheet" href="/style/screen.css" />
 	<style type="text/css">
 		body { font-family: Droid Sans, Arial, sans-serif; }
 		pre.code { border: 1px solid #37AFFF; background-color: #efefef; padding: 12px; }
 		dt { color: #3FA6EA; font-weight: bold; }
 		dd { margin-bottom: 1em; }
 		h1 { margin-top: 0px; }
+		.code { border-radius: 8px; }
 	</style>
-	<script type="text/javascript">
-		$(document).ready(function(){
-			$('.code').corner('8px');
-			$('#editor,#download').css({'visibility':'visible'}).button().click(function(){
-				window.location.href = $(this).attr('formaction');
-			});
-			$('#editor').css({'float':'right'});
-		});
-	</script>
-	
-	<script src="http://www.mergely.com/js/gatag.js" type="text/javascript"></script>
-	<script type="text/javascript">
-		var _gaq = _gaq || [];
-		_gaq.push(['_setAccount', 'UA-85576-5']);
-		_gaq.push(['_trackPageview']);
-		(function() {
-			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		})();
-	</script>
-	<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
 </head>
 <body>
 
 	<div class="main">
 	
-		<div id="header">
-			<div id="info">
-				<h3>Mergely - Diff online!</h3>
-				<div id="logo"></div>
-				<button id="editor" class="button-editor" title="Switch to Mergely Editor" type="submit" formaction="/index.php" formmethod="get">Editor</button>
-				<div style="float:right;width:80px;padding-top:6px;height:30px;display:inline-block;">
-					<g:plusone></g:plusone>
-				</div>
-			</div>
-		</div>
-
 		<div id="body">
 			<div id="bodycontent" style="margin-right:0px;">
-				<h1>Mergely Manual</h1>
+				<h1>Mergely Reference Manual</h1>
 				
 				<h2>Overview</h2>
 				<p>
