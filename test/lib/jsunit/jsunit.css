@@ -1,0 +1,15 @@
+body { font-family: courier new; font-size: 0.75em; }
+table { border-collapse: collapse; width: 100%; text-align: left; vertical-align: top; }
+
+.stack span,
+.failed span,
+.passed span {
+	width: 60px;
+	display: block;
+	text-align: center;
+	font-size: 0.85em;
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+.failed span { background-color: #FFCC66; border: 1px solid black; color: black; cursor: help; }
+.passed span { background-color: #66BB66; border: 1px solid green; color: green; }
+.stack span { background-color: #efefef; border: 1px solid #444; color: #444;  cursor: help; }
