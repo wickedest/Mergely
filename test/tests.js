@@ -70,33 +70,33 @@ $(document).ready(function(){
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
             var classes = lhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'a', 'lhs', 'start'];
-            var notok_classes = ['d', 'c', 'bg', 'end'];
+            var notok_classes = ['d', 'c', 'end'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
 			
             // test rhs classes
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
             var classes = rhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'a', 'rhs', 'start', 'bg', 'end'];
+            var ok_classes = ['mergely', 'a', 'rhs', 'start', 'end'];
             var notok_classes = ['d', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
             var classes = lhs_info.bgClass.split(' ');
-            for (var clazz in ['mergely', 'a', 'rhs', 'start', 'bg', 'end']) {
+            for (var clazz in ['mergely', 'a', 'rhs', 'start', 'end']) {
                 JsUnit.okay($.inArray(clazz, classes), 'Expected lhs row to have class, "' + clazz + '"');
             }
             
@@ -158,28 +158,28 @@ $(document).ready(function(){
 			var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
 			var classes = lhs_info.bgClass.split(' ');
 			var ok_classes = ['mergely', 'a', 'lhs', 'start', 'end'];
-			var notok_classes = ['d', 'c', 'bg'];
+			var notok_classes = ['d', 'c'];
 			for (var i in ok_classes) {
 				var clazz = ok_classes[i];
 				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
 			}
 			for (var i in notok_classes) {
-				var clazz = ok_classes[i];
-				JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
 			}
 			
 			// test rhs classes
 			var rhs_info = mergely.editor['mergely-rhs'].lineInfo(1);
 			var classes = rhs_info.bgClass.split(' ');
-			var ok_classes = ['mergely', 'a', 'rhs', 'start', 'bg', 'end'];
+			var ok_classes = ['mergely', 'a', 'rhs', 'start', 'end'];
 			var notok_classes = ['d', 'c'];
 			for (var i in ok_classes) {
 				var clazz = ok_classes[i];
 				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
 			}
 			for (var i in notok_classes) {
-				var clazz = ok_classes[i];
-				JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
 			}
 			
 			var extents = mergely._get_extents();
@@ -241,28 +241,28 @@ $(document).ready(function(){
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
             var classes = lhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'a', 'lhs', 'start'];
-            var notok_classes = ['d', 'c', 'bg', 'end'];
+            var notok_classes = ['d', 'c', 'end'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             
             // test rhs classes
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
             var classes = rhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'a', 'rhs', 'start', 'bg', 'end'];
+            var ok_classes = ['mergely', 'a', 'rhs', 'start', 'end'];
             var notok_classes = ['d', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             
             var extents = mergely._get_extents();
@@ -328,28 +328,28 @@ $(document).ready(function(){
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
             var classes = lhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'a', 'lhs', 'start', 'end'];
-            var notok_classes = ['d', 'c', 'bg'];
+            var notok_classes = ['d', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             
             // test rhs classes
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(1);
             var classes = rhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'a', 'rhs', 'start', 'bg', 'end'];
+            var ok_classes = ['mergely', 'a', 'rhs', 'start', 'end'];
             var notok_classes = ['d', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             
             var extents = mergely._get_extents();
@@ -383,8 +383,7 @@ $(document).ready(function(){
         // description:
         //      This tests inserting three lines in the rhs only in the middle of text.  The visual markup 
         //      change for the lhs starts at the end of the lhs change (normal case), and the rhs 
-        //      markup starts on line one of the first change, the next line of the change has 'bg' markup
-        //      and the final line has 'end' markup
+        //      markup starts on line one of the first change, and the final line has 'end' markup
         // example:
         //      one         one
         //      five        two
@@ -420,52 +419,52 @@ $(document).ready(function(){
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
             var classes = lhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'a', 'lhs', 'start', 'end'];
-            var notok_classes = ['d', 'c', 'bg'];
+            var notok_classes = ['d', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             
             // test rhs classes
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(1);
             var classes = rhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'a', 'rhs', 'start'];
-            var notok_classes = ['d', 'c', 'bg', 'end'];
+            var notok_classes = ['d', 'c', 'end'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(2);
             var classes = rhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'a', 'rhs', 'bg'];
+            var ok_classes = ['mergely', 'a', 'rhs'];
             var notok_classes = ['d', 'c', 'start', 'end'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(3);
             var classes = rhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'a', 'rhs', 'end'];
-            var notok_classes = ['d', 'c', 'start', 'bg'];
+            var notok_classes = ['d', 'c', 'start'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
 
             var extents = mergely._get_extents();
@@ -531,34 +530,34 @@ $(document).ready(function(){
             // test lhs classes
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
             var classes = lhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'd', 'lhs', 'start', 'end', 'bg'];
+            var ok_classes = ['mergely', 'd', 'lhs', 'start', 'end'];
             var notok_classes = ['a', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             
             // test rhs classes
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
             var classes = rhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'd', 'rhs', 'start'];
-            var notok_classes = ['a', 'c', 'bg', 'end'];
+            var notok_classes = ['a', 'c', 'end'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
             var classes = lhs_info.bgClass.split(' ');
-            for (var clazz in ['mergely', 'a', 'rhs', 'start', 'bg', 'end']) {
+            for (var clazz in ['mergely', 'a', 'rhs', 'start', 'end']) {
                 JsUnit.okay($.inArray(clazz, classes), 'Expected lhs row to have class, "' + clazz + '"');
             }
             
@@ -624,28 +623,28 @@ $(document).ready(function(){
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(1);
             var classes = lhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'd', 'lhs', 'start', 'end'];
-            var notok_classes = ['a', 'c', 'bg'];
+            var notok_classes = ['a', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             
             // test rhs classes
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
             var classes = rhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'd', 'rhs', 'start', 'bg', 'end'];
+            var ok_classes = ['mergely', 'd', 'rhs', 'start', 'end'];
             var notok_classes = ['a', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             
             var extents = mergely._get_extents();
@@ -710,15 +709,15 @@ $(document).ready(function(){
             // test lhs classes
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
             var classes = lhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'd', 'lhs', 'start', 'end', 'bg'];
+            var ok_classes = ['mergely', 'd', 'lhs', 'start', 'end'];
             var notok_classes = ['a', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             
             // test rhs classes
@@ -731,8 +730,8 @@ $(document).ready(function(){
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             
             var extents = mergely._get_extents();
@@ -797,29 +796,29 @@ $(document).ready(function(){
             // test lhs classes
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(1);
             var classes = lhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'd', 'lhs', 'start', 'bg', 'end'];
+            var ok_classes = ['mergely', 'd', 'lhs', 'start', 'end'];
             var notok_classes = ['a', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             
             // test rhs classes
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
             var classes = rhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'd', 'rhs', 'start', 'bg', 'end'];
+            var ok_classes = ['mergely', 'd', 'rhs', 'start', 'end'];
             var notok_classes = ['a', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
             
             var extents = mergely._get_extents();
@@ -855,8 +854,7 @@ $(document).ready(function(){
         //      
         //      This tests inserting three lines in the rhs only in the middle of text.  The visual markup 
         //      change for the lhs starts at the end of the lhs change (normal case), and the rhs 
-        //      markup starts on line one of the first change, the next line of the change has 'bg' markup
-        //      and the final line has 'end' markup
+        //      markup starts on line one of the first change, and the final line has 'end' markup.
         // example:
         //      one         one
         //      two         five
@@ -892,52 +890,52 @@ $(document).ready(function(){
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(1);
             var classes = lhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'd', 'lhs', 'start'];
-            var notok_classes = ['a', 'c', 'bg', 'end'];
+            var notok_classes = ['a', 'c', 'end'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(2);
             var classes = lhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'd', 'lhs', 'bg'];
+            var ok_classes = ['mergely', 'd', 'lhs'];
             var notok_classes = ['a', 'c', 'start', 'end'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             var lhs_info = mergely.editor['mergely-lhs'].lineInfo(3);
             var classes = lhs_info.bgClass.split(' ');
             var ok_classes = ['mergely', 'd', 'lhs', 'end'];
-            var notok_classes = ['a', 'c', 'bg', 'start'];
+            var notok_classes = ['a', 'c', 'start'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs row to have class, "' + clazz + '"');
             }
             
             // test rhs classes
             var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
             var classes = rhs_info.bgClass.split(' ');
-            var ok_classes = ['mergely', 'd', 'rhs', 'start', 'bg', 'end'];
+            var ok_classes = ['mergely', 'd', 'rhs', 'start', 'end'];
             var notok_classes = ['a', 'c'];
             for (var i in ok_classes) {
                 var clazz = ok_classes[i];
                 JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
             }
             for (var i in notok_classes) {
-                var clazz = ok_classes[i];
-                JsUnit.okay($.inArray(clazz, notok_classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
+                var clazz = notok_classes[i];
+                JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs row to have class, "' + clazz + '"');
             }
 
             var extents = mergely._get_extents();
@@ -974,117 +972,18 @@ $(document).ready(function(){
 			var t1 = new Date().getTime();
 			console.log('diff', diff, 'time: ' + (t1 - t0));
 		});
-		
-		JsUnit.test('case-11-diff-file-100k-50-changes', function() {
-			var data = macbeth.join('\n');
-			
-			// array swap 50 lines
-			var mcopy = [];
-			for (var i = 0; i < macbeth.length; ++i) {
-				mcopy[i] = macbeth[i];
-			}
-			for (var i = 0; i < 50; ++i) {
-				var x1 = Math.floor((Math.random()*macbeth.length));
-				var x2 = Math.floor((Math.random()*macbeth.length));
-				var t = mcopy[x1];
-				mcopy[x1] = mcopy[x2];
-				mcopy[x2] = t;
-			}
-			var data2 = mcopy.join('\n');
-			console.log('size', data.length);
-			
-			var t0 = new Date().getTime();
-			var diff = new Mgly.diff(data, data);
-			var t1 = new Date().getTime();
-			console.log('diff', diff, 'time: ' + (t1 - t0));
-		});
-		
-		JsUnit.test('case-11-diff-file-1000k-same', function() {
+
+		JsUnit.test('case-11-diff-file-500k-many-changes', function() {
 			var data = '';
-			for (var i = 0; i < 10; ++i) {
+			for (var i = 0; i < 5; ++i) {
 				data += macbeth.join('\n');
 			}
+			// replace ',' with '$' in all lines
+			var data2 = data.replace(/,/g, '$');
 			console.log('size', data.length);
+			console.log('size', data2.length);
 			var t0 = new Date().getTime();
-			var diff = new Mgly.diff(data, data);
-			var t1 = new Date().getTime();
-			console.log('diff', diff, 'time: ' + (t1 - t0));
-		});
-		
-		JsUnit.test('case-11-diff-file-1000k-500-changes', function() {
-			var data = '';
-			for (var i = 0; i < 10; ++i) {
-				data += macbeth.join('\n');
-			}
-			var mcopy = [];
-			for (var i = 0; i < macbeth.length; ++i) {
-				mcopy[i] = macbeth[i];
-			}
-			// array swap 50 lines
-			for (var i = 0; i < 500; ++i) {
-				var x1 = Math.floor((Math.random()*macbeth.length));
-				var x2 = Math.floor((Math.random()*macbeth.length));
-				var t = mcopy[x1];
-				mcopy[x1] = mcopy[x2];
-				mcopy[x2] = t;
-			}
-			var data2 = mcopy.join('\n');
-			console.log('size', data.length);
-			
-			var t0 = new Date().getTime();
-			var diff = new Mgly.diff(data, data);
-			var t1 = new Date().getTime();
-			console.log('diff', diff, 'time: ' + (t1 - t0));
-		});
-		
-		JsUnit.test('case-11-diff-file-10MB-500-changes', function() {
-			var data = '';
-			for (var i = 0; i < 100; ++i) {
-				data += macbeth.join('\n');
-			}
-			var mcopy = [];
-			for (var i = 0; i < macbeth.length; ++i) {
-				mcopy[i] = macbeth[i];
-			}
-			// array swap 50 lines
-			for (var i = 0; i < 500; ++i) {
-				var x1 = Math.floor((Math.random()*macbeth.length));
-				var x2 = Math.floor((Math.random()*macbeth.length));
-				var t = mcopy[x1];
-				mcopy[x1] = mcopy[x2];
-				mcopy[x2] = t;
-			}
-			var data2 = mcopy.join('\n');
-			console.log('size', data.length);
-			
-			var t0 = new Date().getTime();
-			var diff = new Mgly.diff(data, data);
-			var t1 = new Date().getTime();
-			console.log('diff', diff, 'time: ' + (t1 - t0));
-		});
-		
-		JsUnit.test('case-11-diff-file-20MB-500-changes', function() {
-			var data = '';
-			for (var i = 0; i < 200; ++i) {
-				data += macbeth.join('\n');
-			}
-			var mcopy = [];
-			for (var i = 0; i < macbeth.length; ++i) {
-				mcopy[i] = macbeth[i];
-			}
-			// array swap 50 lines
-			for (var i = 0; i < 500; ++i) {
-				var x1 = Math.floor((Math.random()*macbeth.length));
-				var x2 = Math.floor((Math.random()*macbeth.length));
-				var t = mcopy[x1];
-				mcopy[x1] = mcopy[x2];
-				mcopy[x2] = t;
-			}
-			var data2 = mcopy.join('\n');
-			console.log('size', data.length);
-			
-			var t0 = new Date().getTime();
-			var diff = new Mgly.diff(data, data);
+			var diff = new Mgly.diff(data, data2);
 			var t1 = new Date().getTime();
 			console.log('diff', diff, 'time: ' + (t1 - t0));
 		});
@@ -1092,3 +991,5 @@ $(document).ready(function(){
 		JsUnit.start();
 	}(JsUnit));
 });
+
+
