@@ -137,20 +137,39 @@ $(document).ready(function () {
 				<dl>
 					<dt>$(selector).mergely('lhs', value)</dt>
 					<dd>Set the value of the left-hand editor.  Best used with ajax.</dd>
+					
 					<dt>$(selector).mergely('rhs', value)</dt>
 					<dd>Set the value of the right-hand editor.  Best used with ajax.</dd>
+					
 					<dt>$(selector).mergely('swap')</dt>
 					<dd>Swap the content of the left and right editors.</dd>
+					
 					<dt>$(selector).mergely('merge', side)</dt>
 					<dd>Merge from <span class="code">side</span> to the opposite side.</dd>
+					
 					<dt>$(selector).mergely('get', side)</dt>
 					<dd>Gets the editor contents.</dd>
+					
 					<dt>$(selector).mergely('clear', side)</dt>
 					<dd>Clears the editor contents.</dd>
+					
 					<dt>$(selector).mergely('search', side, text)</dt>
 					<dd>Search the editor for <span class="code">text</span>.  Repeating the call will find the next available token.</dd>
+					
 					<dt>$(selector).resize()</dt>
 					<dd>Resize the editor.</dd>
+					
+					<dt>$(selector).mergely('update')</dt>
+					<dd>Manual update; recalculates diff and applies new settings.</dd>
+					
+					<dt>$(selector).mergely('options', options)</dt>
+					<dd>Sets the editor options.  After setting, call "update".</dd>
+					
+					<dt>$(selector).mergely('options')</dt>
+					<dd>Gets the current editor options.</dd>
+					
+					<dt>$(selector).mergely('cm', side)</dt>
+					<dd>Gets the CodeMirror editor from <span class="code">side</span>.</dd>
 				</dl>
 				
 				<h2>Styles</h2>
