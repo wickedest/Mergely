@@ -11,7 +11,6 @@
 .mergely-column { border: 1px solid #ccc; }
 .mergely-active { border: 1px solid #4ba3fa; }
 
-
 .mergely.a.rhs.start { border-top: 1px solid #4ba3fa; }
 .mergely.a.lhs.start.end,
 .mergely.a.rhs.end { border-bottom: 1px solid #4ba3fa; }
