@@ -21,11 +21,12 @@ $(document).ready(function(){
 	<div style="width:100%" id="mergely"></div>\
 </div>');
 	
-	var init = function() {
+	var init = function(options) {
 		$('body').append(DMERGELY);
 		console.log($('#test-mergely').length);
 		var mergely = new Mgly.mergely();
 		mergely.init($('#mergely'), {
+			ignorews: (options && options['ignorews']) || false,
 			height: function(h) { return 400; }
 		});
 		return mergely;
@@ -33,7 +34,6 @@ $(document).ready(function(){
 
 	(function (JsUnit) {
 		JsUnit.module('Tests');
-		
 		
 		// Summary:
 		//      Add one line to the rhs where the lhs is empty.
@@ -986,6 +986,215 @@ $(document).ready(function(){
 			var diff = new Mgly.diff(data, data2);
 			var t1 = new Date().getTime();
 			console.log('diff', diff, 'time: ' + (t1 - t0));
+		});
+
+		// Summary:
+		//      Compare two lines where only difference is white-space, with ignore white-space disabled.
+		// Description:
+		//      This tests comparing two lines that differ only in white-space, without ignoring 
+		//		white-space.
+		// Example:
+		//      one         one.
+		//      two         .two
+		JsUnit.test('case-12-whitespace-not-ignore', function() {
+			mergely = init();
+			mergely.lhs('one\ntwo');
+			mergely.rhs('one\t\n two');
+			JsUnit.okay(mergely.get('lhs') == 'one\ntwo', 'Expected "one\ntwo"');
+			JsUnit.okay(mergely.get('rhs') == 'one\t\n two', 'Expected "one\t\n two"');
+			var diff = '1,2c1,2\n' +
+				'< one\n' +
+				'< two\n' +
+				'---\n' +
+				'> one\t\n' +
+				'>  two\n';
+			JsUnit.okay(mergely.diff() == diff, 'Unexpected change diff');
+			console.log('diff', mergely.diff());
+			
+			var d = new Mgly.diff(mergely.get('lhs'), mergely.get('rhs'));
+			var changes = mergely._parse_diff('#mergely-lhs', '#mergely-rhs', d.normal_form());
+			console.log('changes', changes);
+			changes = mergely._calculate_offsets('mergely-lhs', 'mergely-rhs', changes);
+			mergely._markup_changes('mergely-lhs', 'mergely-rhs', changes);
+			console.log('changes', changes);
+			JsUnit.okay(changes.length == 1, 'Expected 1 change');
+			
+			// test lhs classes
+			var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
+			var classes = lhs_info.bgClass.split(' ');
+			var ok_classes = ['mergely', 'c', 'lhs', 'start'];
+			var notok_classes = ['d', 'a', 'end'];
+			for (var i in ok_classes) {
+				var clazz = ok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs[0] row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
+			}
+			for (var i in notok_classes) {
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs[0] row to have class, "' + clazz + '"');
+			}
+			lhs_info = mergely.editor['mergely-lhs'].lineInfo(1);
+			classes = lhs_info.bgClass.split(' ');
+			ok_classes = ['mergely', 'c', 'lhs', 'end'];
+			notok_classes = ['d', 'a', 'start'];
+			for (var i in ok_classes) {
+				var clazz = ok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs[1] row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
+			}
+			for (var i in notok_classes) {
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs[1] row to have class, "' + clazz + '"');
+			}
+			
+			// test rhs classes
+			var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
+			var classes = rhs_info.bgClass.split(' ');
+			var ok_classes = ['mergely', 'c', 'rhs', 'start'];
+			var notok_classes = ['d', 'a', 'end'];
+			for (var i in ok_classes) {
+				var clazz = ok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row[0] to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
+			}
+			for (var i in notok_classes) {
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs[0] row to have class, "' + clazz + '"');
+			}
+			var rhs_info = mergely.editor['mergely-rhs'].lineInfo(1);
+			classes = rhs_info.bgClass.split(' ');
+			ok_classes = ['mergely', 'a', 'rhs', 'end'];
+			notok_classes = ['d', 'start'];
+			for (var i in ok_classes) {
+				var clazz = ok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row[1] to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
+			}
+			for (var i in notok_classes) {
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs[1] row to have class, "' + clazz + '"');
+			}
+			
+			var extents = mergely._get_extents();
+			console.log('extents', extents);
+			var valign = 2.0;//vertical, esthetic alignment
+			var change = changes[0];
+			// diff
+			JsUnit.okay(change['lhs-line-from'] == 0, 'Expected lhs change to be start from 0');
+			JsUnit.okay(change['lhs-line-to'] == 1, 'Expected lhs change to be finish at 1');
+			JsUnit.okay(change['rhs-line-from'] == 0, 'Expected rhs change to be finish at 0');
+			JsUnit.okay(change['rhs-line-to'] == 1, 'Expected rhs change to be finish at 1');
+			// markup
+			JsUnit.okay(change['lhs-y-start'] == change['rhs-y-start'], 'Expected lhs/rhs start to be the same');
+			JsUnit.okay(change['lhs-y-end'] == change['rhs-y-end'], 'Expected lhs/rhs end to be the same');
+			JsUnit.okay(change['lhs-y-start'] > 0.0, 'Expected lhs start to be more than 0');
+			JsUnit.okay(change['lhs-y-end'] > 0.0, 'Expected lhs end to be more than 0');
+			JsUnit.okay(change['rhs-y-start'] > 0.0, 'Expected rhs start to be more than 0');
+			JsUnit.okay(change['rhs-y-end'] > 0.0, 'Expected rhs end to be more than 0');
+
+			if (window[this.name] != true) {
+				mergely.unbind();
+				$('#test-mergely').remove();
+			}
+			window[this.name] = true;
+		});
+
+		// Summary:
+		//      Compare two lines where only difference is white-space, with ignore white-space.
+		// Description:
+		//      This tests comparing two lines that differ only in white-space, ignoring 
+		//		white-space.
+		// Example:
+		//      one         one.
+		//      two         .two
+		JsUnit.test('case-13-whitespace-ignore', function() {
+			mergely = init({ignorews: true});
+			mergely.lhs('one\ntwo');
+			mergely.rhs('one\t\n two');
+			JsUnit.okay(mergely.get('lhs') == 'one\ntwo', 'Expected "one\ntwo"');
+			JsUnit.okay(mergely.get('rhs') == 'one\t\n two', 'Expected "one\t\n two"');
+			var diff = '';
+			JsUnit.okay(mergely.diff() == diff, 'Unexpected change diff');
+			console.log('diff', mergely.diff());
+			
+			var d = new Mgly.diff(mergely.get('lhs'), mergely.get('rhs'));
+			var changes = mergely._parse_diff('#mergely-lhs', '#mergely-rhs', d.normal_form());
+			console.log('changes', changes);
+			changes = mergely._calculate_offsets('mergely-lhs', 'mergely-rhs', changes);
+			mergely._markup_changes('mergely-lhs', 'mergely-rhs', changes);
+			console.log('changes', changes);
+			JsUnit.okay(changes.length == 1, 'Expected 1 change');
+			
+			// test lhs classes
+			var lhs_info = mergely.editor['mergely-lhs'].lineInfo(0);
+			var classes = lhs_info.bgClass.split(' ');
+			var ok_classes = ['mergely', 'c', 'lhs', 'start'];
+			var notok_classes = ['d', 'a', 'end'];
+			for (var i in ok_classes) {
+				var clazz = ok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs[0] row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
+			}
+			for (var i in notok_classes) {
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs[0] row to have class, "' + clazz + '"');
+			}
+			lhs_info = mergely.editor['mergely-lhs'].lineInfo(1);
+			classes = lhs_info.bgClass.split(' ');
+			ok_classes = ['mergely', 'c', 'lhs', 'end'];
+			notok_classes = ['d', 'a', 'start'];
+			for (var i in ok_classes) {
+				var clazz = ok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected lhs[1] row to have class, "' + clazz + '", classes: ' + lhs_info.bgClass);
+			}
+			for (var i in notok_classes) {
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect lhs[1] row to have class, "' + clazz + '"');
+			}
+			
+			// test rhs classes
+			var rhs_info = mergely.editor['mergely-rhs'].lineInfo(0);
+			var classes = rhs_info.bgClass.split(' ');
+			var ok_classes = ['mergely', 'c', 'rhs', 'start'];
+			var notok_classes = ['d', 'a', 'end'];
+			for (var i in ok_classes) {
+				var clazz = ok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row[0] to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
+			}
+			for (var i in notok_classes) {
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs[0] row to have class, "' + clazz + '"');
+			}
+			var rhs_info = mergely.editor['mergely-rhs'].lineInfo(1);
+			classes = rhs_info.bgClass.split(' ');
+			ok_classes = ['mergely', 'a', 'rhs', 'end'];
+			notok_classes = ['d', 'start'];
+			for (var i in ok_classes) {
+				var clazz = ok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) >= 0, 'Expected rhs row[1] to have class, "' + clazz + '", classes: ' + rhs_info.bgClass);
+			}
+			for (var i in notok_classes) {
+				var clazz = notok_classes[i];
+				JsUnit.okay($.inArray(clazz, classes) < 0, 'Did not expect rhs[1] row to have class, "' + clazz + '"');
+			}
+			
+			var extents = mergely._get_extents();
+			console.log('extents', extents);
+			var valign = 2.0;//vertical, esthetic alignment
+			var change = changes[0];
+			// diff
+			JsUnit.okay(change['lhs-line-from'] == 0, 'Expected lhs change to be start from 0');
+			JsUnit.okay(change['lhs-line-to'] == 1, 'Expected lhs change to be finish at 1');
+			JsUnit.okay(change['rhs-line-from'] == 0, 'Expected rhs change to be finish at 0');
+			JsUnit.okay(change['rhs-line-to'] == 1, 'Expected rhs change to be finish at 1');
+			// markup
+			JsUnit.okay(change['lhs-y-start'] == change['rhs-y-start'], 'Expected lhs/rhs start to be the same');
+			JsUnit.okay(change['lhs-y-end'] == change['rhs-y-end'], 'Expected lhs/rhs end to be the same');
+			JsUnit.okay(change['lhs-y-start'] > 0.0, 'Expected lhs start to be more than 0');
+			JsUnit.okay(change['lhs-y-end'] > 0.0, 'Expected lhs end to be more than 0');
+			JsUnit.okay(change['rhs-y-start'] > 0.0, 'Expected rhs start to be more than 0');
+			JsUnit.okay(change['rhs-y-end'] > 0.0, 'Expected rhs end to be more than 0');
+
+			if (window[this.name] != true) {
+				mergely.unbind();
+				$('#test-mergely').remove();
+			}
+			window[this.name] = true;
 		});
 		
 		JsUnit.start();

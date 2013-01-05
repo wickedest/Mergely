@@ -251,7 +251,7 @@ $(document).ready(function () {
 	var dlg = $('#dialog-settings').css('visibility','visible').hide();
     var f = $.farbtastic('#picker');
 	var sd = $('<span style="display:none" class="mergely ch d lhs">C</span>');
-	var sa = $('<span style="display:none" class="mergely a rhs start end">C</span>');
+	var sa = $('<span style="display:none" class="mergely bg a rhs start end">C</span>');
 	var sc = $('<span style="display:none" class="mergely c rhs start end">C</span>');
 	$('body').append(sd);
 	$('body').append(sa);
@@ -265,10 +265,11 @@ $(document).ready(function () {
 	};
 	
 	$.each(conf, function(key, item){ $(item.id).val(item.getColor()); });
+	$('#ignore-ws').prop('checked', $('#compare').mergely('options').ignorews);
 	
 	$('#settings').click(function(){
 		dlg.dialog({
-			height: 330, width: 450, modal: true,
+			height: 350, width: 450, modal: true,
 			buttons: {
 				Apply: function() {
 					var cborder = $('#c-border').val();
@@ -277,11 +278,12 @@ $(document).ready(function () {
 					var abg = $('#a-bg').val();
 					var dbg = $('#d-bg').val();
 					var cbg = $('#c-bg').val();
+					var ignorews = $('#ignore-ws').prop('checked');
 					var text =
 						'.mergely.a.rhs.start { border-top: 1px solid ' + aborder + ' }\n\
 						.mergely.a.lhs.start.end,\n\
 						.mergely.a.rhs.end { border-bottom: 1px solid ' + aborder + ' }\n\
-						.mergely.a.rhs { background-color: ' + abg + ' }\n\
+						.mergely.bg.a.rhs { background-color: ' + abg + ' }\n\
 						.mergely.d.lhs { background-color: ' + dbg + ' }\n\
 						.mergely.d.lhs.end,\n\
 						.mergely.d.rhs.start.end { border-bottom: 1px solid ' + dborder + '; }\n\
@@ -296,7 +298,7 @@ $(document).ready(function () {
 						.mergely.ch.d.lhs { background-color: ' + dbg + ';  text-decoration: line-through; color: #888; }\n'
 					$('<style type="text/css">' + text + '</style>').appendTo('head');
 					
-					$('#compare').mergely('options', {fgcolor:{a:aborder,c:cborder,d:dborder}});
+					$('#compare').mergely('options', {ignorews: ignorews, fgcolor:{a:aborder,c:cborder,d:dborder}});
 					$('#compare').mergely('update');
 				},
 				Reset: function() {
