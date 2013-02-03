@@ -19,14 +19,14 @@ $(document).ready(function () {
 	$('.button-share').button({icons:{primary:'ui-icon-triangle-1-s'}, text:true});
 	$('.button-download-diff').button({icons:{primary:'ui-icon-script'}, text:false});
 	
-	$('#share').live({
+	$('#share').on({
 		mouseenter: function () { $('#share-menu').fadeIn(500); },
 		mouseleave: function () {
 			if (hover_timeout) clearTimeout(hover_timeout);
 			hover_timeout = setTimeout(function(){$('#share-menu').hide();}, 100);
 		}
 	});
-	$('#share-menu').live({
+	$('#share-menu').on({
 		mouseenter: function () { if (hover_timeout) clearTimeout(hover_timeout); },
 		mouseleave: function () { 
 			if (hover_timeout) clearTimeout(hover_timeout);

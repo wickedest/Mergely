@@ -20,7 +20,7 @@
                     if (options) $.extend(settings, options);
 					var container = $('<div style="display: inline-block;overflow:hidden;"></div>');
 					var input = $('<input type="file" name="files[]" multiple="" style="float:left;position:relative;left:-19px;height:16px;width:18px;cursor:pointer;opacity:0;-moz-opacity:0; filter:alpha(opacity=20)" />');
-					if ($.browser.mozilla) {
+					if (navigator && navigator.appCodeName == 'Mozilla') {
 						input.css({'left':'-190px','height':'16px'});
 					}
 					var button = tthis.clone();
