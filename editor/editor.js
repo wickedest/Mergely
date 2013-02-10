@@ -87,8 +87,7 @@ $(document).ready(function () {
 		},
 		cmsettings: {
 			mode: 'text/plain'
-		},
-        _debug: ''
+		}
 	});
 	if (key.length == 8) {
         $.when(
@@ -257,11 +256,12 @@ $(document).ready(function () {
 	$('body').append(sa);
 	$('body').append(sc);
 	var conf = {
-		'c-border': {id: '#c-border', defaultColor: '#cccccc', getColor: function() { return sc.css('border-top-color'); } },
-		'a-border': {id: '#a-border', defaultColor: '#4ba3fa', getColor: function() { return sa.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+		'c-border': {id: '#c-border', defaultColor: '#cccccc', getColor: function() { return sc.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+		'c-bg': 	{id: '#c-bg', 	  defaultColor: '#fafafa', getColor: function() { return sc.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+		'a-border': {id: '#a-border', defaultColor: '#a3d1ff', getColor: function() { return sa.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
 		'd-border': {id: '#d-border', defaultColor: '#ff7f7f', getColor: function() { return sd.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
 		'a-bg': 	{id: '#a-bg', 	  defaultColor: '#ddeeff', getColor: function() { return sa.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
-		'd-bg': 	{id: '#d-bg', 	  defaultColor: '#f9e9e9', getColor: function() { return sd.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+		'd-bg': 	{id: '#d-bg', 	  defaultColor: '#edc0c0', getColor: function() { return sd.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
 	};
 	
 	$.each(conf, function(key, item){ $(item.id).val(item.getColor()); });

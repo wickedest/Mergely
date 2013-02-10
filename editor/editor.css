@@ -1,0 +1,36 @@
+body { margin: 0px; font-family: "trebuchet ms"; }
+#header { width: 100%; height: 40px; background: #ececec url(/images/banner_bg.png); border-bottom: 1px solid #888; line-height: 40px; }
+#compare .ui-button { width: 1em; height: 1em; margin-right: 5px; }
+#info { width: 100%; }
+#logo { background: transparent url(/images/mergely_sm.png) no-repeat; width: 113px; height:30px; display: inline-block; top: 5px; left: 5px; position: relative; float: left; margin-right: 77px; }
+#info h3, #info p { display: none; }
+#info button { visibility: hidden; font-size: 0.75em; }
+#about, .button-editor, #settings { float: right !important; margin: 6px 5px 0 0; }
+#settings { display: inline-block; height: 16px; }
+#settings img { display: inline-block; height: 16px; }
+
+.toolbar { display: none; margin: 0px; background: #e2e8ec url(../../images/toolbar_bg.png); border-bottom: 1px solid #A7BCC8; line-height: 14px; }
+.title { display: none; font-weight: bold; }
+.toolbar .ui-button { width: 1em; }
+.toolbar input[type=text] { float: left; border: 1px solid #888; font-size: 12px; font-weight: bold; font-family: tahoma; letter-spacing: 1px; width: 150px; color: #444; margin-right: 2px; }
+.toolbar .buttonset { display: inline-block; padding-top:5px; }
+.toolbar .buttonset .ui-button { padding: 2px 14px 2px 7px; float: left; }
+#share-menu { display: none; background-color:white;border: 3px solid #606060;left:340px;top:33px;position:absolute;width:280px;z-index:50; padding: 5px; height: 40px; }
+#share-menu label {font-weight: bold; font-size: .80em; color: #37AFFF; width: 80px; display: inline; padding-right: 5px; }
+#share-menu input { width: 200px; border: 1px solid #606060;}
+#dialog-confirm { display:none; }
+.ui-dialog { font-size:0.75em; }
+.toolbar .ui-button { margin-right: 1px; }
+#download { font-size: 1.1em; }
+.mbutton {
+	font: normal 0.8em Verdana,Arial,sans-serif; text-decoration: none; 
+	background: url('mergely-theme/images/ui-bg_flat_100_808080_40x100.png') repeat-x scroll 50% 50% #808080;
+	border: 1px solid #575757; color: #fff; font-weight: normal; display: inline-block; margin-right: 0.1em; overflow: visible; padding: 5px 6px; position: relative;
+    text-align: center; cursor: pointer; border-radius: 3px;
+}
+.mbutton:hover { background: url('mergely-theme/images/ui-bg_highlight-soft_25_37afff_1x100.png') repeat-x scroll 50% 50% #808080; }
+#dialog-settings { visibility: hidden; }
+#dialog-settings label { width: 85px; display: inline-block; font-weight: bold; padding: 5px; }
+#dialog-settings input[type=text] { width: 70px; border: 1px solid #444; float:right; }
+#dialog-settings label.checkbox { width: auto; }
+#dialog-settings fieldset { -webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px; border: 1px solid #ccc; width: 175px; padding-right: 15px; }
