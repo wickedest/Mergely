@@ -1,0 +1,96 @@
+<!--
+This example demonstrates how to enable line wrapping
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" /><title>Mergely - Simple Example</title>
+	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta name="description" content="Merge and Diff your documents with diff online and share" />
+	<meta name="keywords" content="diff,merge,compare,jsdiff,comparison,difference,file,text,unix,patch,algorithm,saas,longest common subsequence" />
+	<meta name="author" content="Jamie Peabody" />
+
+	<!-- Requires jQuery -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" type="text/javascript"></script>
+	
+	<!-- Requires CodeMirror -->
+	<script type="text/javascript" src="../lib/codemirror.js"></script>
+	<link type="text/css" rel="stylesheet" href="../lib/codemirror.css" />
+	
+	<!-- Requires Mergely -->
+	<script type="text/javascript" src="../lib/mergely.js"></script>
+	<link type="text/css" rel="stylesheet" href="../lib/mergely.css" />
+	
+	<script type="text/javascript">
+
+        $(document).ready(function () {
+			$('#compare1').mergely({
+				width: 'auto',
+				height: 200,
+				cmsettings: {
+					readOnly: false, 
+					lineWrapping: true,
+				}
+			});
+			$('#compare2').mergely({
+				width: 'auto',
+				height: 200,
+				cmsettings: {
+					readOnly: false, 
+					lineWrapping: true,
+				}
+			});
+			$('#compare3').mergely({
+				width: 500,
+				height: 200,
+				cmsettings: {
+					readOnly: false, 
+					lineWrapping: true,
+				}
+			});
+			$('#compare4').mergely({
+				width: 500,
+				height: 200,
+				cmsettings: {
+					readOnly: false, 
+					lineWrapping: true,
+				}
+			});
+			$.ajax({
+				type: 'GET', async: true, dataType: 'text',
+				url: 'lhs_long.txt',
+				success: function (response) {
+					$('#compare1').mergely('lhs', response);
+					$('#compare2').mergely('lhs', response);
+					$('#compare3').mergely('lhs', response);
+					$('#compare4').mergely('lhs', response);
+				}
+			});
+			$.ajax({
+				type: 'GET', async: true, dataType: 'text',
+				url: 'rhs_long.txt',
+				success: function (response) {
+					$('#compare1').mergely('rhs', response);
+					$('#compare2').mergely('rhs', response);
+					$('#compare3').mergely('rhs', response);
+					$('#compare4').mergely('rhs', response);
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+
+	<div id="compare1"></div>
+	<div id="compare2"></div>
+
+	<table style="width:100%">
+		<tr>
+			<td><div id="compare3"></div></td>
+			<td><div id="compare4"></div></td>
+		</tr>
+	</table>
+	
+</body>
+</html>
