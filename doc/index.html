@@ -113,6 +113,8 @@ $(document).ready(function () {
 					</dd>
 					<dt>bgcolor</dt>
 					<dd>The background color that mergely fills the margin canvas with.  Defaults to <span class="code">'#eeeeee'<span></dd>
+					<dt>vwcolor</dt>
+					<dd>The margin/viewport indicator color.  Defaults to <span class="code">'rgba(0, 0, 200, 0.5)'<span></dd>
 					<dt>fadein</dt>
 					<dd>A jQuery fade-in value to enable the editor to fade in.  Set to empty string to disable.  Defaults to <span class="code">'fast'<span></dd>
 				</dl>
@@ -159,10 +161,13 @@ $(document).ready(function () {
 					<dt>$(selector).mergely('clear', side)</dt>
 					<dd>Clears the editor contents.</dd>
 					
+					<dt>$(selector).mergely('unmarkup')</dt>
+					<dd>Clears the editor markup.</dd>
+					
 					<dt>$(selector).mergely('search', side, text)</dt>
 					<dd>Search the editor for <span class="code">text</span>.  Repeating the call will find the next available token.</dd>
 					
-					<dt>$(selector).resize()</dt>
+					<dt>$(selector).mergely('resize')</dt>
 					<dd>Resize the editor.</dd>
 					
 					<dt>$(selector).mergely('update')</dt>

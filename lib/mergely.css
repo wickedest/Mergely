@@ -1,3 +1,4 @@
+
 /* required */
 .mergely-column textarea { width: 80px; height: 200px; }
 .mergely-column { float: left; }
@@ -15,6 +16,7 @@
 .mergely.a.lhs.start.end,
 .mergely.a.rhs.end { border-bottom: 1px solid #a3d1ff; }
 .mergely.a.rhs { background-color: #ddeeff; }
+.mergely.a.lhs.start.end.first { border-bottom: 0; border-top: 1px solid #a3d1ff; }
 
 .mergely.d.lhs { background-color: #edc0c0; }
 .mergely.d.lhs.end,

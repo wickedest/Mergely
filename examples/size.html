@@ -57,24 +57,36 @@ This example demonstrates how to enable line wrapping
 					lineWrapping: true,
 				}
 			});
+			$('#compare5').mergely({
+				width: 'auto',
+				height: 200,
+				autoresize: false,
+				cmsettings: {
+					readOnly: false, 
+					lineWrapping: true,
+				}
+			});
+			
 			$.ajax({
 				type: 'GET', async: true, dataType: 'text',
-				url: 'lhs_long.txt',
+				url: 'lhs.txt',
 				success: function (response) {
 					$('#compare1').mergely('lhs', response);
 					$('#compare2').mergely('lhs', response);
 					$('#compare3').mergely('lhs', response);
 					$('#compare4').mergely('lhs', response);
+					$('#compare5').mergely('lhs', response);
 				}
 			});
 			$.ajax({
 				type: 'GET', async: true, dataType: 'text',
-				url: 'rhs_long.txt',
+				url: 'rhs.txt',
 				success: function (response) {
 					$('#compare1').mergely('rhs', response);
 					$('#compare2').mergely('rhs', response);
 					$('#compare3').mergely('rhs', response);
 					$('#compare4').mergely('rhs', response);
+					$('#compare5').mergely('rhs', response);
 				}
 			});
 		});
@@ -91,6 +103,8 @@ This example demonstrates how to enable line wrapping
 			<td><div id="compare4"></div></td>
 		</tr>
 	</table>
+
+	<div id="compare5"></div>
 	
 </body>
 </html>

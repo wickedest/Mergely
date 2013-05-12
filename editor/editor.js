@@ -93,26 +93,26 @@ $(document).ready(function () {
 		ignorews: parameters.get('ws', false),
 		lcs: parameters.get('lcs', true),
 		sidebar: parameters.get('sb', true),
-		height: function(h) {
-			return h - 100;
-		},
 		loaded: function() {
-			$('.toolbar, .title').fadeIn('fast');
+			$('.toolbar').fadeIn('fast');
 			$('button').css({'visibility':'visible'});
 		},
 		resized: function() {
-			var lhsx = $('#compare-editor-lhs .CodeMirror-gutter').offset().left + $('#compare-editor-lhs .CodeMirror-gutter').width() + 1;
-			var rhsx = $('#compare-editor-rhs .CodeMirror-gutter').offset().left + $('#compare-editor-rhs .CodeMirror-gutter').width() + 1 - $('#lhs-toolbar').width();
+			var lhsx = $('.mergely-margin:first-child').width();
+			var rhsx = lhsx + $('#compare-editor-rhs .CodeMirror').width() + 25 - $('#lhs-toolbar').width();
 			$('#lhs-toolbar, #title-lhs').css({'position':'relative', 'left':lhsx});
 			$('#rhs-toolbar, #title-rhs').css({'position':'relative', 'left':rhsx});
 			$('#title-rhs').css({'left':rhsx});
 		},
+		height: 'auto',
+		width: 'auto',
 		cmsettings: {
 			mode: 'text/plain',
 			lineWrapping: parameters.get('wrap') || false,
 			readOnly: (key == '4qsmsDyb') || parameters.get('ro')
 		}
 	});
+	
 	if (key.length == 8) {
         $.when(
             $.ajax({
@@ -293,6 +293,7 @@ $(document).ready(function () {
 	var readOnly = $('#compare').mergely('cm', 'lhs').getOption('readOnly') || $('#compare').mergely('cm', 'rhs').getOption('readOnly');
 	var lcs = $('#compare').mergely('options').lcs;
 	var sidebar = $('#compare').mergely('options').sidebar;
+	var ignoreunchanged = $('#compare').mergely('options').ignoreunchanged;
 	
 	$.each(conf, function(key, item){ $(item.id).val(item.getColor()); });
 	$('#ignore-ws').prop('checked', ignorews);
@@ -300,6 +301,9 @@ $(document).ready(function () {
 	$('#readonly').prop('checked', readOnly);
 	$('#lcs').prop('checked', lcs);
 	$('#sidebar').prop('checked', sidebar);
+	/*
+	$('#ignoreunchanged').prop('checked', ignoreunchanged);
+	*/
 	
 	$('#settings').click(function(){
 		dlg.dialog({
@@ -317,6 +321,9 @@ $(document).ready(function () {
 					var readonly = $('#readonly').prop('checked');
 					var lcs = $('#lcs').prop('checked');
 					var sidebar = $('#sidebar').prop('checked');
+					/*
+					var ignoreunchanged = $('#ignoreunchanged').prop('checked');
+					*/
 					var text =
 						'.mergely.a.rhs.start { border-top: 1px solid ' + aborder + '; }\n\
 						.mergely.a.lhs.start.end,\n\
@@ -337,7 +344,7 @@ $(document).ready(function () {
 						.mergely.ch.d.lhs { background-color: ' + dbg + '; text-decoration: line-through; color: #888; }';
 					$('<style type="text/css">' + text + '</style>').appendTo('head');
 					
-					$('#compare').mergely('options', {ignorews: ignorews, lcs: lcs, sidebar: sidebar, fgcolor:{a:aborder,c:cborder,d:dborder}});
+					$('#compare').mergely('options', {ignorews: ignorews, lcs: lcs, sidebar: sidebar, ignoreunchanged: ignoreunchanged, fgcolor:{a:aborder,c:cborder,d:dborder}});
 					$('#compare').mergely('cm', 'lhs').setOption('lineWrapping', wraplines);
 					$('#compare').mergely('cm', 'rhs').setOption('lineWrapping', wraplines);
 					$('#compare').mergely('cm', 'lhs').setOption('readOnly', readonly);
