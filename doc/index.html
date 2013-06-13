@@ -85,38 +85,42 @@ $(document).ready(function () {
 					The following options are available on initialization:
 				</p>
 				<dl>
-					<dt>autoresize</dt>
+					<dt id="autoresize">autoresize</dt>
 					<dd>Enables/disables the auto-resizing of the editor. Defaults to <span class="code">true</span>.</dd>
-					<dt>autoupdate</dt>
+					<dt id="autoupdate">autoupdate</dt>
 					<dd>Enables/disables the auto-updating of the editor when changes are made.  Defaults to <span class="code">true</span></dd>
-					<dt>cmsettings</dt>
-					<dd>CodeMirror settings (see <a href="http://codemirror.net/doc/manual.html#option_value">CodeMirror</a>).  Defaults to <span class="code">{mode: 'application/xml', readOnly: false, lineWrapping: false, lineNumbers: true}</span>.</dd>
-					<dt>editor_width</dt>
-					<dd>Starting width.  Defaults to <span class="code">'400px'</span>.</dd>
-					<dt>editor_height</dt>
-					<dd>Starting height.  Defaults to <span class="code">'400px'</span>.</dd>
-					<dt>ignorews</dt>
-					<dd>Ignore white-space. Defaults to <span class="code">false</span>.</dd>
-					<dt>lcs</dt>
-					<dd>Enables/disables LCS computation for paragraphs (word-by-word changes).  Disabling can give a performance gain for large documents. Defaults to <span class="code">true</span>.</dd>
-					<dt>sidebar</dt>
-					<dd>Enables/disables sidebar markers.  Disabling can give a performance gain for large documents. Defaults to <span class="code">true</span>.</dd>
-					<dt>resize_timeout</dt>
-					<dd>The timeout, after a resize, before Mergely auto-resizes.  Only used when autoresize enabled.  Defaults to <span class="code">500</span>.</dd>
-					<dt>change_timeout</dt>
+					<dt id="bgcolor">bgcolor</dt>
+					<dd>The background color that mergely fills the margin canvas with.  Defaults to <span class="code">'#eeeeee'<span></dd>
+					<dt id="change_timeout">change_timeout</dt>
 					<dd>The timeout, after a text change, before Mergely calcualtes a diff.  Only used when readonly enabled.  Defaults to <span class="code">500</span>.</dd>
-					<dt>fgcolor</dt>
+					<dt id="cmsettings">cmsettings</dt>
+					<dd>CodeMirror settings (see <a href="http://codemirror.net/doc/manual.html#option_value">CodeMirror</a>).  Defaults to <span class="code">{mode: 'application/xml', readOnly: false, lineWrapping: false, lineNumbers: true}</span>.</dd>
+					<dt id="editor_width">editor_width</dt>
+					<dd>Starting width.  Defaults to <span class="code">'400px'</span>.</dd>
+					<dt id="editor_height">editor_height</dt>
+					<dd>Starting height.  Defaults to <span class="code">'400px'</span>.</dd>
+					<dt id="fadein">fadein</dt>
+					<dd>A jQuery fade-in value to enable the editor to fade in.  Set to empty string to disable.  Defaults to <span class="code">'fast'<span></dd>
+					<dt id="fgcolor">fgcolor</dt>
 					<dd>
 						The foreground color that mergely marks changes with on the canvas.  Defaults to <span class="code">{a:'#4ba3fa',c:'#cccccc',d:'#ff7f7f'}</span>.
 						The '<span class="code">a</span>' option is the color for additions, the '<span class="code">c</span>' option is the color for
 						changes, and the '<span class="code">d</span>' option is the color for deletions.
 					</dd>
-					<dt>bgcolor</dt>
-					<dd>The background color that mergely fills the margin canvas with.  Defaults to <span class="code">'#eeeeee'<span></dd>
-					<dt>vwcolor</dt>
+					<dt id="ignorews">ignorews</dt>
+					<dd>Ignore white-space. Defaults to <span class="code">false</span>.</dd>
+					<dt id="lcs">lcs</dt>
+					<dd>Enables/disables LCS computation for paragraphs (word-by-word changes).  Disabling can give a performance gain for large documents. Defaults to <span class="code">true</span>.</dd>
+					<dt id="resize_timeout">resize_timeout</dt>
+					<dd>The timeout, after a resize, before Mergely auto-resizes.  Only used when autoresize enabled.  Defaults to <span class="code">500</span>.</dd>
+					<dt id="rhs_margin">rhs_margin</dt>
+					<dd>Location for the rhs markup margin is either right or left.  Defaults to <span class="code">right</span>.</dd>
+					<dt id="sidebar">sidebar</dt>
+					<dd>Enables/disables sidebar markers.  Disabling can give a performance gain for large documents. Defaults to <span class="code">true</span>.</dd>
+					<dt id="vwcolor">vwcolor</dt>
 					<dd>The margin/viewport indicator color.  Defaults to <span class="code">'rgba(0, 0, 200, 0.5)'<span></dd>
-					<dt>fadein</dt>
-					<dd>A jQuery fade-in value to enable the editor to fade in.  Set to empty string to disable.  Defaults to <span class="code">'fast'<span></dd>
+					<dt id="viewport">viewport</dt>
+					<dd>Enables/disables the viewport.  Enabling the viewport can give a performance gain for large documents. Defaults to <span class="code">false</span>.</dd>
 				</dl>
 				
 				<h2>Callbacks</h2>

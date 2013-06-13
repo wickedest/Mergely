@@ -93,6 +93,7 @@ $(document).ready(function () {
 		ignorews: parameters.get('ws', false),
 		lcs: parameters.get('lcs', true),
 		sidebar: parameters.get('sb', true),
+		viewport: parameters.get('vp', false),
 		loaded: function() {
 			$('.toolbar').fadeIn('fast');
 			$('button').css({'visibility':'visible'});
@@ -293,6 +294,7 @@ $(document).ready(function () {
 	var readOnly = $('#compare').mergely('cm', 'lhs').getOption('readOnly') || $('#compare').mergely('cm', 'rhs').getOption('readOnly');
 	var lcs = $('#compare').mergely('options').lcs;
 	var sidebar = $('#compare').mergely('options').sidebar;
+	var viewport = $('#compare').mergely('options').viewport;
 	var ignoreunchanged = $('#compare').mergely('options').ignoreunchanged;
 	
 	$.each(conf, function(key, item){ $(item.id).val(item.getColor()); });
@@ -301,6 +303,7 @@ $(document).ready(function () {
 	$('#readonly').prop('checked', readOnly);
 	$('#lcs').prop('checked', lcs);
 	$('#sidebar').prop('checked', sidebar);
+	$('#viewport').prop('checked', viewport);
 	/*
 	$('#ignoreunchanged').prop('checked', ignoreunchanged);
 	*/
@@ -321,6 +324,7 @@ $(document).ready(function () {
 					var readonly = $('#readonly').prop('checked');
 					var lcs = $('#lcs').prop('checked');
 					var sidebar = $('#sidebar').prop('checked');
+					var viewport = $('#viewport').prop('checked');
 					/*
 					var ignoreunchanged = $('#ignoreunchanged').prop('checked');
 					*/
@@ -344,7 +348,14 @@ $(document).ready(function () {
 						.mergely.ch.d.lhs { background-color: ' + dbg + '; text-decoration: line-through; color: #888; }';
 					$('<style type="text/css">' + text + '</style>').appendTo('head');
 					
-					$('#compare').mergely('options', {ignorews: ignorews, lcs: lcs, sidebar: sidebar, ignoreunchanged: ignoreunchanged, fgcolor:{a:aborder,c:cborder,d:dborder}});
+					$('#compare').mergely('options', {
+						ignorews: ignorews,
+						lcs: lcs,
+						sidebar: sidebar,
+						viewport: viewport,
+						ignoreunchanged: ignoreunchanged, 
+						fgcolor:{a:aborder,c:cborder,d:dborder}
+					});
 					$('#compare').mergely('cm', 'lhs').setOption('lineWrapping', wraplines);
 					$('#compare').mergely('cm', 'rhs').setOption('lineWrapping', wraplines);
 					$('#compare').mergely('cm', 'lhs').setOption('readOnly', readonly);
