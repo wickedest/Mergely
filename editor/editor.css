@@ -1,31 +1,83 @@
-body { margin: 0px; font-family: "trebuchet ms"; }
-#header { width: 100%; height: 40px; background: #ececec url(/images/banner_bg.png); border-bottom: 1px solid #888; line-height: 40px; }
-#compare .ui-button { width: 1em; height: 1em; margin-right: 5px; }
-#info { width: 100%; }
-#logo { background: transparent url(/images/mergely_sm.png) no-repeat; width: 113px; height:30px; display: inline-block; top: 5px; left: 5px; position: relative; float: left; margin-right: 77px; }
-#info h3, #info p { display: none; }
-#info button { visibility: hidden; font-size: 0.75em; }
-#about, #editor, #settings { float: right !important; margin: 6px 5px 0 5px; }
-#settings img { display: inline-block; height: 16px; vertical-align: middle; padding-bottom: 3px; }
+body { margin: 0; }
+#banner { background: transparent url(images/banner.png); width: 33px; height: 30px; position: absolute; left: 3px; top: 3px; }
+.wicked-menu { font-family: 'Noto Sans', sans-serif; margin: 2px 0 2px 40px; }
+.wicked-menu a.link { margin-left: 10px; }
+.ui-widget { font-size:13px; }
 
-.toolbar { display: none; margin: 0px; background: #e2e8ec url(../../images/toolbar_bg.png); line-height: 15px; }
-.title { display: none; font-weight: bold; }
-.toolbar .ui-button { width: 1em; }
-.toolbar input[type=text] { float: left; border: 1px solid #888; font-size: 12px; font-weight: bold; font-family: tahoma; letter-spacing: 1px; width: 150px; color: #444; margin-right: 2px; }
-.toolbar .buttonset { display: inline-block; padding-top:5px; }
-.toolbar .buttonset .ui-button { padding: 2px 14px 2px 7px; float: left; }
-#share-menu { display: none; background-color:white;border: 3px solid #606060;left:382px;top:34px;position:absolute;width:280px;z-index:50; padding: 5px; height: 40px; }
-#share-menu label {font-weight: bold; font-size: .80em; color: #37AFFF; width: 80px; display: inline; padding-right: 5px; }
-#share-menu input { width: 200px; border: 1px solid #606060;}
-#dialog-confirm { display:none; }
-.ui-dialog { font-size:0.75em; }
-.toolbar .ui-button { margin-right: 1px; }
-#download { font-size: 1.1em; }
-.mbutton { font-size: 12px; line-height: 24px; padding: 0 5px; border-width: 2px; border-radius: 4px; }
-.mbutton:hover { text-decoration: underline; }
-#dialog-settings { visibility: hidden; }
-#dialog-settings label { width: 85px; display: inline-block; font-weight: bold; padding: 5px; }
-#dialog-settings input[type=text] { width: 70px; border: 1px solid #444; float:right; }
-#dialog-settings label.checkbox { width: auto; }
-#dialog-settings fieldset { -webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px; border: 1px solid #ccc; width: 222px; padding-right: 15px; }
-#mergely-resizer { position: fixed; bottom: 0; top: 73px; width: 100%;}
+/* color dialog */
+#dialog-colors { }
+#dialog-colors label { width: 85px; display: inline-block; font-weight: bold; padding: 5px; }
+#dialog-colors input[type=text] { width: 70px; border: 1px solid #444; float:right; }
+#dialog-colors fieldset { -webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px; border: 1px solid #ccc; width: 222px; padding-right: 15px; }
+
+/* import dialog */
+#dialog-upload label { font-weight: bold; display: inline-block; width: 80px; line-height: 1.5em; }
+.no-title .ui-dialog-titlebar { display:none; }
+.no-title .ui-dialog-content { padding: 0; }
+#file-lhs-progress,
+#file-rhs-progress { height: 22px; width: 240px; vertical-align: middle; line-height: 1.5em; display: none; }
+.progress-label { float: left; width: 100%; color: #fff; font-weight: bold; font-size: .8em; padding-left: 10px; }
+
+/* icons */        
+.icon-undo { background-image: url(images/undo.png); }
+.icon-redo { background-image: url(images/redo.png); }
+.icon-save { background-image: url(images/download.png); }
+.icon-check { background-image: url(images/check.png); }
+.icon-import { background-image: url(images/upload.png); }
+.icon-swap { background-image: url(images/swap.png); }
+.icon-arrow-right { background-image: url(images/arrow-right.png); }
+.icon-arrow-right-v { background-image: url(images/arrow-right-v.png); }
+.icon-arrow-left-v { background-image: url(images/arrow-left-v.png); }
+.icon-arrow-up { background-image: url(images/arrow-up-v.png); }
+.icon-arrow-down { background-image: url(images/arrow-down-v.png); }
+.icon-x-mark { background-image: url(images/x-mark.png); }
+.icon-share { background-image: url(images/share.png); }
+
+
+.tipsy-inner {
+	padding: 8px;
+	text-align: center;
+	max-width: 250px;
+	font-family: arial, sans-serif;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.find {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	z-index: 4;
+	padding: 10px 20px 10px 10px;
+	background-color: #f5f5f5;
+	float: right;
+	border-left: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-bottom-left-radius: 10px;
+	max-height: 26px;
+	-webkit-box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+	-moz-box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+	box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+	display: none;
+}
+.find > button {
+	padding: 3px 0px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	height: 25px;
+	width: 26px;
+	vertical-align: top;
+	cursor: pointer;
+}
+.find > button:hover {
+	background-color: #f5f5f5;
+	border: 1px solid #aaa;
+}
+
+.find > button > span.icon {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	text-align: center;
+	background-position: center center;
+}

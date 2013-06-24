@@ -28,6 +28,7 @@
 		<div id="body">
 			<div id="bodycontent" style="margin-right:0px;">
 				<a id="logo" title="Back to Mergely" href="http://www.mergely.com"><div id="logo"></div></a>
+				<!--START-->
 				<h1>Mergely Reference Manual</h1>
 				
 				<h2>Overview</h2>
@@ -40,8 +41,8 @@
 			
 				<h2>Basic Usage</h2>
 				<p>
-					Mergely requires <a href="http://jquery.com">jQuery</a> and <a href="http://codemirror.net">CodeMirror</a>.
-					A supported implementation of CodeMirror is provided in the Mergely download.
+					Mergely requires <a href="http://jquery.com">jQuery</a> and <a target="_blank" href="http://codemirror.net">CodeMirror</a>.
+					A supported implementation of CodeMirror is provided in the <a href="http://www.mergely.com/download">Mergely download</a>.
 				</p>
 				<p>
 					To use Mergely, you need to first load the required javascript and css files:
@@ -59,9 +60,7 @@
 				<p>
 					Then, create a div for the editor:
 				</p>
-				<pre class="code">
-&lt;div id="compare"&gt;&lt;div&gt;
-				</pre>
+				<pre class="code">&lt;div id="compare"&gt;&lt;div&gt;</pre>
 				<p>
 					Then, initialize the 'compare' div with the mergely jquery plugin, setting
 					options as required:
@@ -94,7 +93,7 @@ $(document).ready(function () {
 					<dt id="change_timeout">change_timeout</dt>
 					<dd>The timeout, after a text change, before Mergely calcualtes a diff.  Only used when readonly enabled.  Defaults to <span class="code">500</span>.</dd>
 					<dt id="cmsettings">cmsettings</dt>
-					<dd>CodeMirror settings (see <a href="http://codemirror.net/doc/manual.html#option_value">CodeMirror</a>).  Defaults to <span class="code">{mode: 'application/xml', readOnly: false, lineWrapping: false, lineNumbers: true}</span>.</dd>
+					<dd>CodeMirror settings (see <a target="_blank" href="http://codemirror.net/doc/manual.html#option_value">CodeMirror</a>).  Defaults to <span class="code">{mode: 'application/xml', readOnly: false, lineWrapping: false, lineNumbers: true}</span>.</dd>
 					<dt id="editor_width">editor_width</dt>
 					<dd>Starting width.  Defaults to <span class="code">'400px'</span>.</dd>
 					<dt id="editor_height">editor_height</dt>
@@ -236,6 +235,7 @@ $(document).ready(function () {
 					<dt>mergely.ch.a.lhs</dt>
 					<dd>Styles the text of a change to the right-hand side</dd>
 				</dl>
+				<!--END-->
 			</div>
 		</div>
 	</div>
