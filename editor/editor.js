@@ -101,6 +101,14 @@ $(document).ready(function() {
 			readOnly: isSample
 		}
 	});
+	if (parameters.get('lhs', null)) {
+		var url = parameters.get('lhs');
+		crossdomainGET(ed, 'lhs', url);
+	}
+	if (parameters.get('rhs', null)) {
+		var url = parameters.get('rhs');
+		crossdomainGET(ed, 'rhs', url);
+	}
 	
 	// Load
 	if (key.length == 8) {
@@ -356,6 +364,21 @@ $(document).ready(function() {
 		});
 	}
 	
+	function crossdomainGET(ed, side, url) {
+		$.ajax({
+			type: 'GET', dataType: 'text',
+			data: {url: url},
+			url: '/ajax/handle_crossdomain.php',
+			contentType: 'text/plain',
+			success: function (response) {
+				ed.mergely(side, response);
+			},
+			error: function(xhr, ajaxOptions, thrownError){
+				console.error('error', xhr, ajaxOptions, thrownError);
+			}
+		});
+	}
+	
 	function importFiles(ed) {
 		// -------------
 		// file uploader - html5 file upload to browser
@@ -422,20 +445,7 @@ $(document).ready(function() {
 					for (var side in urls) {
 						var url = urls[side];
 						if (!url) continue;
-						(function(url, side) {
-							$.ajax({
-								type: 'GET', dataType: 'text',
-								data: {url: url},
-								url: '/ajax/handle_crossdomain.php',
-								contentType: 'text/plain',
-								success: function (response) {
-									ed.mergely(side, response);
-								},
-								error: function(xhr, ajaxOptions, thrownError){
-									console.error('error', xhr, ajaxOptions, thrownError);
-								}
-							});
-						})(url, side);
+						crossdomainGET(ed, side, url);
 					}
 					
 					if (file_data.hasOwnProperty('file-lhs')) {

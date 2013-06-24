@@ -28,11 +28,11 @@ if (isset($_GET['key'])) {
 
 	<script type="text/javascript" src="/Mergely/editor/editor.js"></script>
     <link type='text/css' rel='stylesheet' href='/Mergely/editor/editor.css' />
-    
-	<script type="text/javascript" src="/Mergely/lib/mergely.min.js"></script>
+
     <!--
-	<script type="text/javascript" src="/Mergely/lib/mergely.js"></script>
+	<script type="text/javascript" src="/Mergely/lib/mergely.min.js"></script>
     -->
+	<script type="text/javascript" src="/Mergely/lib/mergely.js"></script>
 	<link type="text/css" rel="stylesheet" href="/Mergely/lib/mergely.css" />
 	<script type="text/javascript" src="/Mergely/lib/codemirror.min.js"></script>
 	<script type="text/javascript" src="/Mergely/lib/searchcursor.js"></script>
@@ -57,16 +57,6 @@ if (isset($_GET['key'])) {
     
     <!-- google +1 -->
 	<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
-    
-    <!-- stumbleupon -->
-    <script type="text/javascript">
-      (function() {
-        var li = document.createElement('script'); li.type = 'text/javascript'; li.async = true;
-        li.src = ('https:' == document.location.protocol ? 'https:' : 'http:') + '//platform.stumbleupon.com/1/widgets.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(li, s);
-      })();
-    </script>
-    
 </head>
 <body>
 <script>(function(d, s, id) {
@@ -172,9 +162,9 @@ if (isset($_GET['key'])) {
                         <div class="fb-like" data-href="http://www.mergely.com" data-send="true" data-width="200" data-show-faces="true"></div>
                     </div>
                 </li>
-                <li id="social-stumbleupon">
+                <!--li id="social-stumbleupon">
                     <div style="padding: 10px 10px 5px 10px" title="StumbleUpon"><su:badge layout="3"></su:badge></div>
-                </li>
+                </li-->
                 <li id="social-reddit">
                     <div style="padding: 10px 10px 5px 10px" title="Reddit">
                         <a target="_blank" href="http://www.reddit.com/submit" onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false"><img src="http://www.reddit.com/static/spreddit1.gif" alt="submit to reddit" border="0" /> 
@@ -186,12 +176,12 @@ if (isset($_GET['key'])) {
                         <script>function bebo_click() {u=location.href;t=document.title;window.open('http://www.bebo.com/c/share?Url='+encodeURIComponent(u)+'&Title='+encodeURIComponent(t)+'&MID=8974376238&TUUID=fc7850b8-964c-47bd-8a91-db1d2a5cad3c','sharer','toolbar=0,status=0,width=626,height=436');return false;}</script><style> html .b_share_link { padding:2px 0 0 20px; height:16px; background:url(http://s.bebo.com/img/bebo_b_16x16.gif) no-repeat top left; }</style><a style="color:black" href="http://www.bebo.com/c/share?Url=<url>" onclick="return bebo_click()" target="_blank" class="b_share_link">Share on Bebo</a>
                     </div>
                 </li>
-                <li id="delicious">
+                <!--li id="delicious">
                     <div target="_blank" style="padding: 10px 10px 5px 10px;" title="Delicious">
                         <img src="http://delicious.com/static/img/logo.png" height="16" width="16" alt="Delicious" />
                           <a style="color:black" target="_blank" href="#" onclick="window.open('http://delicious.com/save?v=5&provider=Mergely&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=550,height=550'); return false;"> Save this on Delicious</a>
                     </div>
-                </li>
+                </li-->
             </ul>
         </li>
     </ul>
