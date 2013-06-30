@@ -64,19 +64,11 @@ $(document).ready(function() {
 	}
 
 	$(document).keydown(function(event) {
-		//19 for Mac Command+S
-		console.log('pressed', event.which, event.ctrlKey);
-		//if (!( String.fromCharCode(event.which).toLowerCase() == 'f' && event.ctrlKey) && !(event.which == 70)) return true;
 		if (!( String.fromCharCode(event.which).toLowerCase() == 'f' && event.ctrlKey)) return true;
-		//alert("Ctrl-f pressed");
 		event.preventDefault();
-		
 		var range = window.getSelection().getRangeAt(0);
-		console.log('range', range);
-		
 		var column = $(range.commonAncestorContainer).parents('.mergely-column');
 		handleFind(column);
-
 		return false;
 	});
 
