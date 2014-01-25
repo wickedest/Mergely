@@ -206,11 +206,26 @@ $(document).ready(function() {
 			window.location = '/editor';
 		}
 		else if (id == 'file-save') {
+			// download directly from browser
 			var text = ed.mergely('diff');
-			if (key == '') key = ''.random(8);
-			$.post('/ajax/handle_download.php', { 'key': key, 'content': text }, function(response) {
-				window.location = response;
-			});
+			if (navigator.userAgent.toLowerCase().indexOf('msie') === -1) {
+				if (key == '') key = ''.random(8);
+				var link = jQuery('<a />', {
+					href: 'data:application/stream;base64,' + window.btoa(unescape(encodeURIComponent(text))),
+					target: '_blank',
+					text: 'clickme',
+					id: key
+				});
+				link.attr('download', key + '.diff');
+				jQuery('body').append(link);
+				var a = $('a#' + key);
+				a[0].click();
+				a.remove();
+			}
+			else {
+				var blob = new Blob([text]);
+				window.navigator.msSaveOrOpenBlob(blob, key + '.diff');
+			}
 		}
 		else if (id == 'file-share') {
 			handleShare(ed);
