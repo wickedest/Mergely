@@ -27,7 +27,9 @@ body { margin: 0; }
 .icon-swap { background-image: url(images/swap.png); }
 .icon-arrow-right { background-image: url(images/arrow-right.png); }
 .icon-arrow-right-v { background-image: url(images/arrow-right-v.png); }
+.icon-arrow-right-vv { background-image: url(images/arrow-right-vv.png); }
 .icon-arrow-left-v { background-image: url(images/arrow-left-v.png); }
+.icon-arrow-left-vv { background-image: url(images/arrow-left-vv.png); }
 .icon-arrow-up { background-image: url(images/arrow-up-v.png); }
 .icon-arrow-down { background-image: url(images/arrow-down-v.png); }
 .icon-x-mark { background-image: url(images/x-mark.png); }

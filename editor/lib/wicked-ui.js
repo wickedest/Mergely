@@ -24,6 +24,24 @@ THE SOFTWARE.
 
 ;(function( $, window, document, undefined ){
 	var pluginName = 'wickedtoolbar';
+	var SHIFT = new RegExp(/shift/i);
+	var ALT = new RegExp(/alt/i);
+	var CTRL = new RegExp(/ctrl/i);
+	var ARROW_DOWN = new RegExp(/↓/);
+	var ARROW_UP = new RegExp(/↑/);
+	var ARROW_LEFT = new RegExp(/←/);
+	var ARROW_RIGHT = new RegExp(/→/);
+	
+	var keys = {
+		shift: 16,
+		alt: 17,
+		ctrl: 18,
+		meta: 91,
+		arrow_up: 38,
+		arrow_down: 40,
+		arrow_left: 37,
+		arrow_right: 39
+	};
 
 	var defaults = {
 		hasIcon: function(id) { },
@@ -34,7 +52,8 @@ THE SOFTWARE.
 		var self = this;
 		
 		this.element = $(element);
-		this.settings = $.extend({}, defaults, options) ;
+		this.settings = $.extend({}, defaults, options);
+		this.bindings = [];
 		// for each menu item, modify and wrap in div
 		this.element.find('li').each(function () {
 			var tthis = $(this);
@@ -53,10 +72,10 @@ THE SOFTWARE.
 			
 			// change: <li>Text</li>
 			// to: <li>
-			//	   		<a>
-			//	   			<span>Text</span>
-			//	   		</a>
-			//     </li>
+			//			<a>
+			//				<span>Text</span>
+			//			</a>
+			//		</li>
 			var li = tthis;
 			var div = $('<a class="menu-item" href="#">');
 			div.click(function(ev) {
@@ -92,18 +111,50 @@ THE SOFTWARE.
 				if (hotkey) {
 					tthis.removeAttr('data-hotkey');
 					div.append('<span class="hotkey">' + hotkey + '</span>');
+
+					if (!accesskey) {
+						// add our own handler
+						var parts = hotkey.split('+');
+						var bind = {};
+						for (var i = 0; i < parts.length; ++i) {
+							if (SHIFT.test(parts[i])) {
+								bind.shiftKey = true;
+							}
+							else if (ALT.test(parts[i])) {
+								bind.altKey = true;
+							}
+							else if (CTRL.test(parts[i])) {
+								bind.ctrlKey = true;
+							}
+							else if (ARROW_DOWN.test(parts[i])) {
+								bind.which = keys.arrow_down;
+							}
+							else if (ARROW_UP.test(parts[i])) {
+								bind.which = keys.arrow_up;
+							}
+							else if (ARROW_RIGHT.test(parts[i])) {
+								bind.which = keys.arrow_right;
+							}
+							else if (ARROW_LEFT.test(parts[i])) {
+								bind.which = keys.arrow_left;
+							}
+						}
+						bind.target = div;
+						self.bindings.push(bind);
+					}
 				}
 			}
 			
 			// icon
-			var id = tthis.attr('id');
+			var id = tthis.attr('id'), icon;
 			if (self.settings.hasIcon(id)) {
 				span.addClass('icon');
-				if (icon = self.settings.getIcon(id)) {
+				icon = self.settings.getIcon(id);
+				if (icon) {
 					span.addClass(icon);
 				}
 			}
-			var icon = tthis.attr('data-icon');
+			icon = tthis.attr('data-icon');
 			if (icon) {
 				tthis.removeAttr('data-icon');
 				span.addClass('icon ' + icon);
@@ -111,22 +162,35 @@ THE SOFTWARE.
 			else if (icons) {
 				span.addClass('icon');
 			}
-			
 			li.prepend(div);
+		});
+		$(document).on('keydown', function(ev) {
+			for (var i = 0; i < self.bindings.length; ++i) {
+				var bind = self.bindings[i];
+				// handle custom key events
+				if ((bind.shiftKey === undefined ? true : (bind.shiftKey === ev.shiftKey)) &&
+					(bind.ctrlKey === undefined ? true : (bind.ctrlKey === ev.ctrlKey)) &&
+					(bind.altKey === undefined ? true : (bind.altKey === ev.altKey)) &&
+					bind.which && ev.which && (bind.which === ev.which)) {
+					bind.target.trigger('click');
+					ev.preventDefault();
+				}
+			}
 		});
 	}
 	
 	MenuBase.prototype.update = function (id) {
-		var li = this.element.find('#' + id);
+		var li = this.element.find('#' + id), icon;
 		var span = li.find('span:first-child');
 		if (this.settings.hasIcon(id)) {
 			span.removeClass(); // this could be brutally unfair
 			span.addClass('icon');
-			if (icon = this.settings.getIcon(id)) {
+			icon = this.settings.getIcon(id);
+			if (icon) {
 				span.addClass(icon);
 			}
 		}
-	}	
+	};
 	
 	// ------------
 	// Menu
@@ -139,6 +203,7 @@ THE SOFTWARE.
 
 	Menu.prototype.constructor = function () {
 		this.element.addClass('wicked-ui wicked-menu');
+		var self = this;
 		var dohover = function(ev) {
 			$(this).parent().addClass('hover');
 			if ($(this).closest('ul').hasClass('wicked-menu')) {
@@ -170,7 +235,6 @@ THE SOFTWARE.
 				}
 			);
 		});
-		var self = this;
 		this.element.find('> li > a.menu-item').hover(
 			function() {
 				if (!self.accessing) return;
@@ -178,7 +242,7 @@ THE SOFTWARE.
 				$.proxy(dohover, this)();
 			}
 		);
-	}
+	};
 	
 	// ------------
 	// Toolbar
@@ -195,12 +259,12 @@ THE SOFTWARE.
 			function(){ $(this).parent().addClass('hover'); },
 			function(){ $(this).parent().removeClass('hover'); }
 		);
-	}
+	};
 
 	var plugins = { wickedmenu: Menu, wickedtoolbar: Toolbar };
 	for (var key in plugins) {
 		(function(name, Plugin){
-			$.fn[name] = function ( options ) {
+			$.fn[name] = function (options) {
 				var args = arguments;
 				return this.each(function () {
 					if (typeof options === 'object' || !options) {
@@ -217,7 +281,7 @@ THE SOFTWARE.
 						return d[options](Array.prototype.slice.call(args, 1));
 					}
 				});
-			}
+			};
 		})(key, plugins[key])
 	}
 	

@@ -1,6 +1,6 @@
 <?php
 $key = '';
-$debug = False;
+$debug = True;
 if (isset($_GET['key'])) {
 	$key = $_GET['key'];
 }
@@ -97,7 +97,8 @@ if (isset($_GET['key'])) {
                 <li id="edit-left-redo" accesskey="y" data-hotkey="Ctrl+Y" data-icon="icon-redo">Redo</li>
                 <li id="edit-left-find">Find</li>
                 <li class="separator"></li>
-                <li id="edit-left-merge-right" data-icon="icon-arrow-right-v">Merge right</li>
+                <li id="edit-left-merge-right" data-hotkey="Alt+&rarr;" data-icon="icon-arrow-right-v">Merge change right</li>
+                <li id="edit-left-merge-right-file" data-icon="icon-arrow-right-vv">Merge file right</li>
                 <li id="edit-left-readonly">Read only</li>
                 <li class="separator"></li>
                 <li id="edit-left-clear">Clear</li>
@@ -110,7 +111,8 @@ if (isset($_GET['key'])) {
                 <li id="edit-right-redo" accesskey="y" data-hotkey="Ctrl+Y" data-icon="icon-redo">Redo</li>
                 <li id="edit-right-find">Find</li>
                 <li class="separator"></li>
-                <li id="edit-right-merge-left" data-icon="icon-arrow-left-v">Merge left</li>
+                <li id="edit-right-merge-left" data-hotkey="Alt+&larr;" data-icon="icon-arrow-left-v">Merge change left</li>
+                <li id="edit-right-merge-left-file" data-icon="icon-arrow-left-vv">Merge file left</li>
                 <li id="edit-right-readonly">Read only</li>
                 <li class="separator"></li>
                 <li id="edit-right-clear">Clear</li>
@@ -123,6 +125,9 @@ if (isset($_GET['key'])) {
                 <li class="separator"></li>
                 <li id="view-refresh" accesskey="v" data-hotkey="Alt+V" title="Generates diff markup">Render diff view</li>
                 <li id="view-clear" accesskey="c" data-hotkey="Alt+C" title="Clears diff markup">Clear render</li>
+                <li class="separator"></li>
+                <li id="view-change-prev" data-hotkey="Alt+&uarr;" title="View previous change">View prev change</li>
+                <li id="view-change-next" data-hotkey="Alt+&darr;" title="View next change">View next change</li>
             </ul>
         </li>
         <li accesskey="o">
@@ -188,8 +193,11 @@ if (isset($_GET['key'])) {
         <li id="tb-file-import" data-icon="icon-import" title="Import">Import</li>
         <li id="tb-file-save" data-icon="icon-save" title="Save .diff">Save .diff</li>
         <li class="separator"></li>
-        <li id="tb-edit-right-merge-left" data-icon="icon-arrow-left-v" title="Merge left">Merge left</li>
-        <li id="tb-edit-left-merge-right" data-icon="icon-arrow-right-v" title="Merge right">Merge right</li>
+        <li id="tb-view-change-prev" data-icon="icon-arrow-up" title="Previous change">Previous change</li>
+        <li id="tb-view-change-next" data-icon="icon-arrow-down" title="Next change">Next change</li>
+        <li class="separator"></li>
+        <li id="tb-edit-right-merge-left" data-icon="icon-arrow-left-v" title="Merge change left">Merge change left</li>
+        <li id="tb-edit-left-merge-right" data-icon="icon-arrow-right-v" title="Merge change right">Merge change right</li>
         <li id="tb-view-swap" data-icon="icon-swap" title="Swap sides">Swap sides</li>
     </ul>
 

@@ -249,6 +249,9 @@ $(document).ready(function() {
 			handleFind(ed.find('#mergely-editor-lhs'));
 		}
 		else if (id == 'edit-left-merge-right') {
+			ed.mergely('mergeCurrentDiff', 'rhs');
+		}
+		else if (id == 'edit-left-merge-right-file') {
 			ed.mergely('merge', 'rhs');
 		}
 		else if ([
@@ -272,6 +275,9 @@ $(document).ready(function() {
 			handleFind(ed.find('#mergely-editor-rhs'));
 		}
 		else if (id == 'edit-right-merge-left') {
+			ed.mergely('mergeCurrentDiff', 'lhs');
+		}
+		else if (id == 'edit-right-merge-left-file') {
 			ed.mergely('merge', 'lhs');
 		}
 		else if (id == 'edit-right-clear') {
@@ -285,6 +291,12 @@ $(document).ready(function() {
 		}
 		else if (id == 'view-refresh') {
 			ed.mergely('update');
+		}
+		else if (id == 'view-change-next') {
+			ed.mergely('scrollToDiff', 'next');
+		}
+		else if (id == 'view-change-prev') {
+			ed.mergely('scrollToDiff', 'prev');
 		}
 		else if (id == 'view-clear') {
 			ed.mergely('unmarkup');

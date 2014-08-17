@@ -75,7 +75,7 @@ THE SOFTWARE.
 .wicked-menu ul li:hover > ul { display: block; position: absolute; }
 
 /* drop menu */
-.wicked-menu ul { z-index: 7; min-width: 200px; top: 2.1em; left: -1px; }
+.wicked-menu ul { z-index: 7; min-width: 210px; top: 2.1em; left: -1px; }
 
 .wicked-menu > li.hover {
 	/* for the top-level menu, after hovering do not show background */
@@ -93,7 +93,7 @@ padding-left: 31px;
 	background-repeat: no-repeat;
 }
 
-.wicked-menu ul li:hover > ul { min-width:200px; top: 0px; left: 100%; }
+.wicked-menu ul li:hover > ul { min-width: 210px; top: 0px; left: 100%; }
 
 .wicked-menu li.separator { border-top: 1px solid #e5e5e5; height: 3px; display: block; line-height: 3em; margin-top: 3px; }
 .wicked-menu li.separator:hover { background: transparent; cursor:default; }
