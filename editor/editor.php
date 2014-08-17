@@ -1,5 +1,6 @@
 <?php
 $key = '';
+$debug = False;
 if (isset($_GET['key'])) {
 	$key = $_GET['key'];
 }
@@ -25,17 +26,21 @@ if (isset($_GET['key'])) {
 	<script type="text/javascript" src="/Mergely/editor/lib/tipsy/jquery.tipsy.js"></script>
 	<script type="text/javascript" src="/Mergely/editor/lib/farbtastic/farbtastic.js"></script>
 	<link type="text/css" rel="stylesheet" href="/Mergely/editor/lib/farbtastic/farbtastic.css" />
-
-    <!--
+<?php
+    if ($debug) {
+?>
     <script type="text/javascript" src="/Mergely/editor/editor.js"></script>
-    -->
-	<script type="text/javascript" src="/Mergely/editor/editor.min.js"></script>
+    <script type="text/javascript" src="/Mergely/lib/mergely.js"></script>
+<?php
+    }
+    else {
+?>
+    <script type="text/javascript" src="/Mergely/editor/editor.min.js"></script>
+    <script type="text/javascript" src="/Mergely/lib/mergely.min.js"></script>
+<?php
+    }
+?>
     <link type='text/css' rel='stylesheet' href='/Mergely/editor/editor.css' />
-
-	<script type="text/javascript" src="/Mergely/lib/mergely.min.js"></script>
-    <!--
-	<script type="text/javascript" src="/Mergely/lib/mergely.js"></script>
-    -->
 	<link type="text/css" rel="stylesheet" href="/Mergely/lib/mergely.css" />
 	<script type="text/javascript" src="/Mergely/lib/codemirror.min.js"></script>
 	<script type="text/javascript" src="/Mergely/lib/searchcursor.js"></script>
