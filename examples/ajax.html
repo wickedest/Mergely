@@ -12,7 +12,7 @@ This example demonstrates how to set left and right editors using ajax.
 	<meta name="author" content="Jamie Peabody" />
 
 	<!-- Requires jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" type="text/javascript"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" type="text/javascript"></script>
 
 	<!-- Requires CodeMirror -->
 	<script type="text/javascript" src="../lib/codemirror.js"></script>
@@ -37,6 +37,8 @@ This example demonstrates how to set left and right editors using ajax.
 
 		$(document).ready(function () {
 			$('#compare').mergely({
+				width: 'auto',
+				height: 'auto', // containing div must be given a height
 				cmsettings: { readOnly: false },
 			});
 			var lhs_url = 'lhs.txt';
@@ -112,7 +114,7 @@ This example demonstrates how to set left and right editors using ajax.
 		});
 	</script>
 </head>
-<body>
+<body style="width: 100%;">
 	<table  style="width: 100%;"><tr>
 		<td style="width: 50%;"><div id="drop_zone" class="drop_zone">Drop files here</div></td>
 		<td style="width: 50%;"><input type="checkbox" id="ignorews">ignore witespaces</td>
@@ -123,7 +125,8 @@ This example demonstrates how to set left and right editors using ajax.
 		<td style="width: 50%;"><tt id="path-lhs"></tt> &nbsp; <a id="save-lhs" class="save-link" href="#">save</a></td>
 		<td style="width: 50%;"><tt id="path-rhs"></tt> &nbsp; <a id="save-rhs" class="save-link" href="#">save</a></td>
 	</tr></table>
-	<div id="mergely-resizer">
+
+	<div id="mergely-resizer" style="height: 450px;"">
 		<div id="compare">
 		</div>
 	</div>
