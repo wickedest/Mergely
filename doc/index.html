@@ -146,44 +146,56 @@ $(document).ready(function () {
 					The following methods are available after initialization:
 				<p>
 				<dl>
-					<dt>$(selector).mergely('lhs', value)</dt>
+					<dt id="mergely-clear">$(selector).mergely('clear', side)</dt>
+					<dd>Clears the editor contents.</dd>
+
+					<dt id="mergely-cm">$(selector).mergely('cm', side)</dt>
+					<dd>Gets the CodeMirror editor from <span class="code">side</span>.</dd>
+
+					<dt id="mergely-diff">$(selector).mergely('diff')</dt>
+					<dd>Returns the current .diff file.</dd>
+
+					<dt id="mergely-get">$(selector).mergely('get', side)</dt>
+					<dd>Gets the editor contents.</dd>
+
+					<dt id="mergely-lhs">$(selector).mergely('lhs', value)</dt>
 					<dd>Set the value of the left-hand editor.  Best used with ajax.</dd>
 					
-					<dt>$(selector).mergely('rhs', value)</dt>
-					<dd>Set the value of the right-hand editor.  Best used with ajax.</dd>
+					<dt id="mergely-merge">$(selector).mergely('merge', side)</dt>
+					<dd>Merges whole file from <span class="code">side</span> to the opposite side.</dd>
 					
-					<dt>$(selector).mergely('swap')</dt>
-					<dd>Swap the content of the left and right editors.</dd>
+					<dt id="mergely-mergeCurrentChange">$(selector).mergely('mergeCurrentChange', side)</dt>
+					<dd>Merges current cahnge from <span class="code">side</span> to the opposite side.</dd>
 					
-					<dt>$(selector).mergely('merge', side)</dt>
-					<dd>Merge from <span class="code">side</span> to the opposite side.</dd>
-					
-					<dt>$(selector).mergely('get', side)</dt>
-					<dd>Gets the editor contents.</dd>
-					
-					<dt>$(selector).mergely('clear', side)</dt>
-					<dd>Clears the editor contents.</dd>
-					
-					<dt>$(selector).mergely('unmarkup')</dt>
-					<dd>Clears the editor markup.</dd>
-					
-					<dt>$(selector).mergely('search', side, text)</dt>
-					<dd>Search the editor for <span class="code">text</span>.  Repeating the call will find the next available token.</dd>
-					
-					<dt>$(selector).mergely('resize')</dt>
-					<dd>Resize the editor.</dd>
-					
-					<dt>$(selector).mergely('update')</dt>
-					<dd>Manual update; recalculates diff and applies new settings.</dd>
-					
-					<dt>$(selector).mergely('options', options)</dt>
+					<dt id="mergely-set-options">$(selector).mergely('options', options)</dt>
 					<dd>Sets the editor options.  After setting, call "update".</dd>
 					
-					<dt>$(selector).mergely('options')</dt>
+					<dt id="mergely-get-options">$(selector).mergely('options')</dt>
 					<dd>Gets the current editor options.</dd>
 					
-					<dt>$(selector).mergely('cm', side)</dt>
-					<dd>Gets the CodeMirror editor from <span class="code">side</span>.</dd>
+					<dt id="mergely-resize">$(selector).mergely('resize')</dt>
+					<dd>Resize the editor.</dd>
+					
+					<dt id="mergely-rhs">$(selector).mergely('rhs', value)</dt>
+					<dd>Set the value of the right-hand editor.  Best used with ajax.</dd>
+					
+					<dt id="mergely-scrollTo">$(selector).mergely('scrollTo', side, num)</dt>
+					<dd>Scrolls the <span class="code">side</span> to line number <span class="code">num</span>.</dd>
+					
+					<dt id="mergely-scrollToDiff">$(selector).mergely('scrollToDiff', direction)</dt>
+					<dd>Scrolls to the next change specified by <span class="code">direction</span>, where  <span class="code">direction</span> is either <span class="code">prev</span> or <span class="code">next</span>.</dd>
+					
+					<dt id="mergely-search">$(selector).mergely('search', side, text)</dt>
+					<dd>Search the editor for <span class="code">text</span>.  Repeating the call will find the next available token.</dd>
+					
+					<dt id="mergely-swap">$(selector).mergely('swap')</dt>
+					<dd>Swap the content of the left and right editors.</dd>
+					
+					<dt id="mergely-unmarkup">$(selector).mergely('unmarkup')</dt>
+					<dd>Clears the editor markup.</dd>
+					
+					<dt id="mergely-update">$(selector).mergely('update')</dt>
+					<dd>Manual update; recalculates diff and applies new settings.</dd>
 				</dl>
 				
 				<h2>Styles</h2>

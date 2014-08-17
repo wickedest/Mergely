@@ -249,7 +249,7 @@ $(document).ready(function() {
 			handleFind(ed.find('#mergely-editor-lhs'));
 		}
 		else if (id == 'edit-left-merge-right') {
-			ed.mergely('mergeCurrentDiff', 'rhs');
+			ed.mergely('mergeCurrentChange', 'rhs');
 		}
 		else if (id == 'edit-left-merge-right-file') {
 			ed.mergely('merge', 'rhs');
@@ -275,7 +275,7 @@ $(document).ready(function() {
 			handleFind(ed.find('#mergely-editor-rhs'));
 		}
 		else if (id == 'edit-right-merge-left') {
-			ed.mergely('mergeCurrentDiff', 'lhs');
+			ed.mergely('mergeCurrentChange', 'lhs');
 		}
 		else if (id == 'edit-right-merge-left-file') {
 			ed.mergely('merge', 'lhs');
