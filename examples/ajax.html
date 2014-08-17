@@ -104,9 +104,6 @@ This example demonstrates how to set left and right editors using ajax.
 			}
 			document.getElementById('save-lhs').addEventListener('mouseover', function() { download_content(this, "lhs"); }, false);
 			document.getElementById('save-rhs').addEventListener('mouseover', function() { download_content(this, "lhs"); }, false);
-			//document.getElementById('save-lhs').addEventListener('click', function() { download_content(this, "lhs"); }, false);
-			//document.getElementById('save-rhs').addEventListener('click', function() { download_content(this, "lhs"); }, false);
-
 			document.getElementById('ignorews').addEventListener('change', function() {
 				$('#compare').mergely('options', { ignorews: this.checked });
 			}, false);
@@ -126,7 +123,7 @@ This example demonstrates how to set left and right editors using ajax.
 		<td style="width: 50%;"><tt id="path-rhs"></tt> &nbsp; <a id="save-rhs" class="save-link" href="#">save</a></td>
 	</tr></table>
 
-	<div id="mergely-resizer" style="height: 450px;"">
+	<div id="mergely-resizer" style="height: 450px;">
 		<div id="compare">
 		</div>
 	</div>
