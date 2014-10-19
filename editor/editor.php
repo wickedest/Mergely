@@ -31,18 +31,19 @@ if (isset($_GET['key'])) {
 ?>
     <script type="text/javascript" src="/Mergely/editor/editor.js"></script>
     <script type="text/javascript" src="/Mergely/lib/mergely.js"></script>
+    <script type="text/javascript" src="/Mergely/lib/codemirror.js"></script>
 <?php
     }
     else {
 ?>
     <script type="text/javascript" src="/Mergely/editor/editor.min.js"></script>
     <script type="text/javascript" src="/Mergely/lib/mergely.min.js"></script>
+    <script type="text/javascript" src="/Mergely/lib/codemirror.min.js"></script>
 <?php
     }
 ?>
     <link type='text/css' rel='stylesheet' href='/Mergely/editor/editor.css' />
 	<link type="text/css" rel="stylesheet" href="/Mergely/lib/mergely.css" />
-	<script type="text/javascript" src="/Mergely/lib/codemirror.min.js"></script>
 	<script type="text/javascript" src="/Mergely/lib/searchcursor.js"></script>
 	<link type="text/css" rel="stylesheet" href="/Mergely/lib/codemirror.css" />
 
