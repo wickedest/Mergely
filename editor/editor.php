@@ -1,6 +1,6 @@
 <?php
 $key = '';
-$debug = True;
+$debug = False;
 if (isset($_GET['key'])) {
 	$key = $_GET['key'];
 }
