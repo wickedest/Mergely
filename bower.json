@@ -1,0 +1,35 @@
+{
+  "name": "Mergely",
+  "version": "3.3.9",
+  "homepage": "https://github.com/wickedest/Mergely",
+  "description": "Merge and diff documents online",
+  "main": [
+    "lib/mergely.js",
+    "lib/mergely.css"
+  ],
+  "keywords": [
+    "merge",
+    "diff"
+  ],
+  "ignore": [
+    "LICENSE.html",
+    "README.md",
+    "doc",
+    "editor",
+    "examples",
+    "test"
+  ],
+  "license": [
+    "GPL",
+    "LGPL",
+    "MPL"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wickedest/Mergely"
+  },
+  "dependencies": {
+    "jquery": "<=2.1.3",
+    "codemirror": "<=4.6.0"
+  }
+}
