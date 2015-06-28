@@ -19,19 +19,8 @@ if (isset($_GET['debug'])) {
 	<link rel="shortcut icon" href="/favicon.ico" />
 	<link rel="canonical" href="http://www.mergely.com" />
     <link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css' />
-<?php
-    if ($debug) {
-?>
-	<script type="text/javascript" src="/Mergely/editor/lib/jquery.min.js"></script>
-	<script type="text/javascript" src="/Mergely/editor/lib/jquery-ui.min.js"></script>
-<?php
-    } else {
-?>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
-<?php
-    }
-?>
 
 	<link type="text/css" rel="stylesheet" href="/style/mergely-theme/jquery-ui-1.10.1.custom.css" />
     <link type='text/css' rel='stylesheet' href='/Mergely/editor/lib/wicked-ui.css' />
@@ -171,7 +160,7 @@ if (isset($_GET['debug'])) {
                 <li><a class="link" href="/download" target="site">Download</a></li>
                 <li><a class="link" href="/doc" target="site">Mergely development guide</a></li>
                 <li class="separator"></li>
-                <li><a class="link" href="/usaindep/" target="_blank">United States Declaration of Independence Draft</a></li>
+                <li><a class="link" href="/united-states-declaration-of-independence?wl=1" target="_blank">United States Declaration of Independence Draft</a></li>
             </ul>
         </li>
 <?php

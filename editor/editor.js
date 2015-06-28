@@ -655,8 +655,7 @@ $(document).ready(function() {
 		params = updateQueryStringParam('dg', deletedBackground.replace(/#/g, ''), color_defaults.dg, params);
 
 		if (saveState) {
-			console.log('saving state', baseUrl + params);
-			updateHistory();
+			updateHistory(params);
 		}
 	}
 	function updateHistory(params) {
