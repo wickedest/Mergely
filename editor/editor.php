@@ -4,20 +4,35 @@ $debug = False;
 if (isset($_GET['key'])) {
 	$key = $_GET['key'];
 }
+if (isset($_GET['debug'])) {
+    $debug = filter_var($_GET['debug'], FILTER_VALIDATE_BOOLEAN);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" /><title>Mergely - Diff online, merge documents</title>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 	<meta name="description" content="Merge and Diff your documents with diff online and share" />
 	<meta name="keywords" content="diff,merge,compare,jsdiff,comparison,difference,file,text,unix,patch,algorithm,saas,longest common subsequence,diff online" />
 	<meta name="author" content="Jamie Peabody" />
-	<link rel="shortcut icon" href="http://www.mergely.com/favicon.ico" />
+	<link rel="shortcut icon" href="/favicon.ico" />
 	<link rel="canonical" href="http://www.mergely.com" />
     <link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css' />
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
+<?php
+    if ($debug) {
+?>
+	<script type="text/javascript" src="/Mergely/editor/lib/jquery.min.js"></script>
+	<script type="text/javascript" src="/Mergely/editor/lib/jquery-ui.min.js"></script>
+<?php
+    } else {
+?>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
+<?php
+    }
+?>
+
 	<link type="text/css" rel="stylesheet" href="/style/mergely-theme/jquery-ui-1.10.1.custom.css" />
     <link type='text/css' rel='stylesheet' href='/Mergely/editor/lib/wicked-ui.css' />
 	<script type="text/javascript" src="/Mergely/editor/lib/wicked-ui.js"></script>
@@ -49,7 +64,7 @@ if (isset($_GET['key'])) {
 
 	<script type="text/javascript">
         var key = '<?php echo $key; ?>';
-        var isSample = key == '4qsmsDyb';
+        var isSample = key == 'usaindep';
     </script>
     
     <!-- analytics -->
@@ -67,7 +82,7 @@ if (isset($_GET['key'])) {
     <!-- google +1 -->
 	<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
 </head>
-<body>
+<body style="visibility:hidden">
 <div id="fb-root"></div><script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
@@ -156,9 +171,12 @@ if (isset($_GET['key'])) {
                 <li><a class="link" href="/download" target="site">Download</a></li>
                 <li><a class="link" href="/doc" target="site">Mergely development guide</a></li>
                 <li class="separator"></li>
-                <li><a class="link" href="/4qsmsDyb/" target="_blank">United States Declaration of Independence Draft</a></li>
+                <li><a class="link" href="/usaindep/" target="_blank">United States Declaration of Independence Draft</a></li>
             </ul>
         </li>
+<?php
+    if (!$debug) {
+?>
         <li accesskey="s">
             Social
             <ul>
@@ -185,6 +203,9 @@ if (isset($_GET['key'])) {
                 </li>
             </ul>
         </li>
+<?php
+    }
+?>
     </ul>
 
     <!-- toolbar -->

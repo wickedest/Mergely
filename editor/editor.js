@@ -4,8 +4,12 @@ $(document).ready(function() {
 		window.location.search.substr(1).split('&').forEach(function(pair) {
 			if (pair === '') return;
 			var parts = pair.split('=');
-			if (parts[1] == 'true') parameters[parts[0]] = true;
-			else if (parts[1] == 'false') parameters[parts[0]] = false;
+			if (parts.length === 2 && parts[1].search(/^(true|1)$/i) >= 0) {
+				parameters[parts[0]] = true;
+			}
+			else if (parts.length === 2 && parts[1].search(/^(false|0)$/i) >= 0) {
+				parameters[parts[0]] = false;
+			}
 			else parameters[parts[0]] = parts[1] && decodeURIComponent(parts[1].replace(/\+/g, ' '));
 		});
 		return {
@@ -82,6 +86,9 @@ $(document).ready(function() {
 		return randomstring;
 	}
 
+	// body is pre-hidden for better rendering
+	$('body').css("visibility", "");
+
 	var ed = $('#mergely');
 	var menu = $('#main-menu');
 	var toolbar = $('#toolbar');
@@ -101,6 +108,56 @@ $(document).ready(function() {
 		var url = parameters.get('rhs');
 		crossdomainGET(ed, 'rhs', url);
 	}
+
+	// set query string options
+	var urloptions = {};
+	var optmap = {
+		au: 'autoupdate',
+		ws: 'ignorews',
+		sb: 'sidebar',
+		vp: 'viewport',
+		wl: 'wrap_lines',
+		ln: 'line_numbers'
+	};
+	var doopt = false;
+	for (var name in optmap) {
+		if (!optmap.hasOwnProperty(name)) continue;
+		if (parameters.get(name, null) !== null) {
+			urloptions[optmap[name]] = parameters.get(name);
+			doopt = true;
+		}
+	}
+	if (parameters.get('rm', null) !== null) {
+		// special-case url property
+		urloptions.rhs_margin = parameters.get('rm') ? 'left' : 'right';
+	}
+	if (doopt) {
+		// apply query-string options
+		ed.mergely('options', urloptions);
+	}
+
+	// set query string colors
+	// cb: change border
+	// cg: change background
+	// ab: added border
+	// ag: added background
+	// db: deleted border
+	// dg: deleted background
+	var color_defaults = {
+		cb: 'cccccc', cg: 'fafafa',
+		ab: 'a3d1ff', ag: 'ddeeff',
+		db: 'ff7f7f', dg: 'edc0c0'
+	};
+	applyParameterCss(false);
+
+	//history.pushState({}, null, '');
+
+	window.addEventListener('popstate', function(ev) {
+		if (ev.state) {
+			parameters = getParameters();
+			applyParameterCss(false);
+		}
+	});
 	
 	// Load
 	if (key.length == 8) {
@@ -131,7 +188,7 @@ $(document).ready(function() {
 				// if an anchor has been provided, then parse the anchor in the
 				// form of: 'lhs' or 'rhs', followed by a line, e.g: lhs100.
 				var m = anchor.match(/([lr]hs)([0-9]+)/);
-				if (m.length == 3) {
+				if (m && m.length == 3) {
 					console.log(m);
 					ed.mergely('scrollTo', m[1], parseInt(m[2],10));
 				}
@@ -150,36 +207,65 @@ $(document).ready(function() {
 	var iconconf = {
 		'options-autodiff': {
 			get: function() { return ed.mergely('options').autoupdate },
-			set: function(value) { ed.mergely('options', {autoupdate: !ed.mergely('options').autoupdate}); }
+			set: function(value) {
+				var au = !ed.mergely('options').autoupdate;
+				ed.mergely('options', {autoupdate: au});
+				var params = updateQueryStringParam('au', au ? 1 : 0, 1);
+				updateHistory(params);
+			}
 		},
 		'options-ignorews': {
 			get: function() { return ed.mergely('options').ignorews },
-			set: function(value) { ed.mergely('options', {ignorews: !ed.mergely('options').ignorews}); }
+			set: function(value) {
+				var ws = !ed.mergely('options').ignorews;
+				ed.mergely('options', {ignorews: ws});
+				var params = updateQueryStringParam('ws', ws ? 1 : 0, 0);
+				updateHistory(params);
+			}
 		},
 		'options-sidebars': {
 			get: function() { console.log('sidebar', this); return ed.mergely('options').sidebar },
-			set: function(value) { ed.mergely('options', {sidebar: !ed.mergely('options').sidebar}); }
+			set: function(value) {
+				var sb = !ed.mergely('options').sidebar;
+				ed.mergely('options', {sidebar: sb});
+				var params = updateQueryStringParam('sb', sb ? 1 : 0, 1);
+				updateHistory(params);
+			}
 		},
 		'options-viewport': {
 			get: function() { console.log('viewport', this); return ed.mergely('options').viewport },
-			set: function(value) { ed.mergely('options', {viewport: !ed.mergely('options').viewport}); }
+			set: function(value) {
+				var vp = !ed.mergely('options').viewport;
+				ed.mergely('options', {viewport: vp});
+				var params = updateQueryStringParam('vp', vp ? 1 : 0, 1);
+				updateHistory(params);
+			}
 		},
 		'options-swapmargin': {
 			get: function() { return (ed.mergely('options').rhs_margin == 'left'); },
-			set: function(value) { ed.mergely('options', {rhs_margin: ed.mergely('options').rhs_margin == 'left' ? 'right' : 'left' }); }
+			set: function(value) {
+				var rm = ed.mergely('options').rhs_margin == 'left' ? 'right' : 'left';
+				ed.mergely('options', {rhs_margin: rm });
+				var params = updateQueryStringParam('rm', rm == 'left' ? 1 : 0, 0);
+				updateHistory(params);
+			}
 		},
 		'options-linenumbers': {
-			get: function() { return ed.mergely('cm', 'lhs').getOption('lineNumbers'); },
+			get: function() { console.log('wrap', this); return ed.mergely('options').line_numbers },
 			set: function(value) {
-				ed.mergely('cm', 'lhs').setOption('lineNumbers', value);
-				ed.mergely('cm', 'rhs').setOption('lineNumbers', value);
+				var ln = !ed.mergely('options').line_numbers;
+				ed.mergely('options', {line_numbers: ln});
+				var params = updateQueryStringParam('ln', ln ? 1 : 0, 1);
+				updateHistory(params);
 			}
 		},
 		'options-wrap': {
-			get: function() { return ed.mergely('cm', 'lhs').getOption('lineWrapping'); },
+			get: function() { console.log('wrap', this); return ed.mergely('options').wrap_lines },
 			set: function(value) {
-				ed.mergely('cm', 'lhs').setOption('lineWrapping', value);
-				ed.mergely('cm', 'rhs').setOption('lineWrapping', value);
+				var wl = !ed.mergely('options').wrap_lines;
+				ed.mergely('options', {wrap_lines: wl});
+				var params = updateQueryStringParam('wl', wl ? 1 : 0, 0);
+				updateHistory(params);
 			}
 		},
 		'edit-left-readonly': {
@@ -482,21 +568,21 @@ $(document).ready(function() {
 	}
 	function colorSettings(ed) {
 		// get current settings
-		var sd = $('<span style="display:none" class="mergely ch d lhs">C</span>');
+		var sd = $('<span style="display:none" class="mergely ch d lhs start end">C</span>');
 		var sa = $('<span style="display:none" class="mergely bg a rhs start end">C</span>');
 		var sc = $('<span style="display:none" class="mergely c rhs start end">C</span>');
 		$('body').append(sd);
 		$('body').append(sa);
 		$('body').append(sc);
 		var conf = {
-			'c-border': {id: '#c-border', defaultColor: '#cccccc', getColor: function() { return sc.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
-			'c-bg': 	{id: '#c-bg', 	  defaultColor: '#fafafa', getColor: function() { return sc.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
-			'a-border': {id: '#a-border', defaultColor: '#a3d1ff', getColor: function() { return sa.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
-			'a-bg': 	{id: '#a-bg', 	  defaultColor: '#ddeeff', getColor: function() { return sa.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
-			'd-border': {id: '#d-border', defaultColor: '#ff7f7f', getColor: function() { return sd.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
-			'd-bg': 	{id: '#d-bg', 	  defaultColor: '#edc0c0', getColor: function() { return sd.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }}
+			'c-border': {id: '#c-border', getColor: function() { return sc.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+			'c-bg': 	{id: '#c-bg', 	  getColor: function() { return sc.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+			'a-border': {id: '#a-border', getColor: function() { return sa.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+			'a-bg': 	{id: '#a-bg', 	  getColor: function() { return sa.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+			'd-border': {id: '#d-border', getColor: function() { return sd.css('border-top-color'); }, setColor: function(color) { $('#'+this.id).val(color) }},
+			'd-bg': 	{id: '#d-bg', 	  getColor: function() { return sd.css('background-color'); }, setColor: function(color) { $('#'+this.id).val(color) }}
 		};
-		$.each(conf, function(key, item){ $(item.id).val(item.getColor()); });
+		$.each(conf, function(key, item){$(item.id).val(item.getColor()); });
 		var f = $.farbtastic('#picker');
 		$('.colorwell').each(function(){ f.linkTo(this); }).focus(function(){
 			var tthis = $(this);
@@ -515,28 +601,8 @@ $(document).ready(function() {
 					var abg = $('#a-bg').val();
 					var dbg = $('#d-bg').val();
 					var cbg = $('#c-bg').val();
-					var text =
-						'.mergely.a.rhs.start { border-top: 1px solid ' + aborder + '; }\n\
-						.mergely.a.lhs.start.end,\n\
-						.mergely.a.rhs.end { border-bottom: 1px solid ' + aborder + '; }\n\
-						.mergely.a.rhs { background-color: ' + abg + '; }\n\
-						.mergely.d.lhs { background-color: ' + dbg + '; }\n\
-						.mergely.d.lhs.end,\n\
-						.mergely.d.rhs.start.end { border-bottom: 1px solid ' + dborder + '; }\n\
-						.mergely.d.rhs.start.end.first { border-bottom: 0; border-top: 1px solid ' + dborder + '; }\n\
-						.mergely.d.lhs.start { border-top: 1px solid ' + dborder + '; }\n\
-						.mergely.c.lhs,\n\
-						.mergely.c.rhs { background-color: ' + cbg + '; }\n\
-						.mergely.c.lhs.start,\n\
-						.mergely.c.rhs.start { border-top: 1px solid ' + cborder + '; }\n\
-						.mergely.c.lhs.end,\n\
-						.mergely.c.rhs.end { border-bottom: 1px solid ' + cborder + '; }\n\
-						.mergely.ch.a.rhs { background-color: ' + abg + '; }\n\
-						.mergely.ch.d.lhs { background-color: ' + dbg + '; text-decoration: line-through; color: #888; }';
-					$('<style type="text/css">' + text + '</style>').appendTo('head');
-					ed.mergely('options', {
-						fgcolor:{a:aborder,c:cborder,d:dborder}
-					});
+					var textCss = makeColorCss(cborder, cbg, aborder, abg, dborder, dbg);
+					applyColorCss(textCss, cborder, cbg, aborder, abg, dborder, dbg, true);
 				},
 				Reset: function() {
 				},
@@ -545,5 +611,78 @@ $(document).ready(function() {
 				}
 			}
 		});
+	}
+	function makeColorCss(changeBorder, changeBackground, addedBorder, addedBackground, deletedBorder, deletedBackground) {
+		var text =
+			'.mergely.a.rhs.start{border-top-color:' + addedBorder + ';}\n\
+			.mergely.a.lhs.start.end,\n\
+			.mergely.a.rhs.end{border-bottom-color:' + addedBorder + ';}\n\
+			.mergely.a.rhs{background-color:' + addedBackground + ';}\n\
+			.mergely.d.lhs{background-color:' + deletedBackground + ';}\n\
+			.mergely.d.lhs.end,\n\
+			.mergely.d.rhs.start.end{border-bottom-color:' + deletedBorder + ';}\n\
+			.mergely.d.rhs.start.end.first{border-top-color:' + deletedBorder + ';}\n\
+			.mergely.d.lhs.start{border-top-color:' + deletedBorder + ';}\n\
+			.mergely.c.lhs,\n\
+			.mergely.c.rhs{background-color:' + changeBackground + ';}\n\
+			.mergely.c.lhs.start,\n\
+			.mergely.c.rhs.start{border-top-color:' + changeBorder + ';}\n\
+			.mergely.c.lhs.end,\n\
+			.mergely.c.rhs.end{border-bottom-color:' + changeBorder + ';}\n\
+			.mergely.ch.a.rhs{background-color:' + addedBackground + ';}\n\
+			.mergely.ch.d.lhs{background-color:' + deletedBackground + ';color: #888;}';
+		return text;
+	}
+	function applyParameterCss(saveState) {
+		var cb = '#' + parameters.get('cb',color_defaults.cb),
+			cg = '#' + parameters.get('cg',color_defaults.cg),
+			ab = '#' + parameters.get('ab',color_defaults.ab),
+			ag = '#' + parameters.get('ag',color_defaults.ag),
+			db = '#' + parameters.get('db',color_defaults.db),
+			dg = '#' + parameters.get('dg',color_defaults.dg);
+		applyColorCss(makeColorCss(cb, cg, ab, ag, db, dg), cb, cg, ab, ag, db, dg, saveState);
+	}
+	function applyColorCss(cssText, changeBorder, changeBackground, addedBorder, addedBackground, deletedBorder, deletedBackground, saveState) {
+		$('<style type="text/css">' + cssText + '</style>').appendTo('head');
+		ed.mergely('options', {
+			fgcolor:{a:addedBorder,c:changeBorder,d:deletedBorder}
+		});
+		var params = updateQueryStringParam('cb', changeBorder.replace(/#/g, ''), color_defaults.cb);
+		params = updateQueryStringParam('cg', changeBackground.replace(/#/g, ''), color_defaults.cg, params);
+		params = updateQueryStringParam('ab', addedBorder.replace(/#/g, ''), color_defaults.ab, params);
+		params = updateQueryStringParam('ag', addedBackground.replace(/#/g, ''), color_defaults.ag, params);
+		params = updateQueryStringParam('db', deletedBorder.replace(/#/g, ''), color_defaults.db, params);
+		params = updateQueryStringParam('dg', deletedBackground.replace(/#/g, ''), color_defaults.dg, params);
+
+		if (saveState) {
+			console.log('saving state', baseUrl + params);
+			updateHistory();
+		}
+	}
+	function updateHistory(params) {
+		var baseUrl = [location.protocol, '//', location.host, location.pathname].join('');
+		window.history.pushState({}, null, baseUrl + params);
+	}
+	// Explicitly save/update a url parameter using HTML5's replaceState().
+	function updateQueryStringParam(key, value, defaultValue, urlQueryString) {
+		var newParam = key + '=' + value,
+			params = '?' + newParam;
+
+		// If the "search" string exists, then build params from it
+		if (!urlQueryString) {
+			urlQueryString = document.location.search;
+		}
+		keyRegex = new RegExp('([\?&])' + key + '[^&]*');
+		if (value === defaultValue) {
+			params = urlQueryString.replace(keyRegex, '');
+		}
+		else if (urlQueryString.match(keyRegex) !== null) {
+			// update if only if value exists
+			params = urlQueryString.replace(keyRegex, '$1' + newParam);
+		}
+		else { // Otherwise, add it to end of query string
+			params = urlQueryString + '&' + newParam;
+		}
+		return params;
 	}
 });

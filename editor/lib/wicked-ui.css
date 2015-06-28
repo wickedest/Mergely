@@ -59,9 +59,9 @@ THE SOFTWARE.
 /* top menu */
 .wicked-menu > li > a > *, .wicked-menu > li { display: inline-block; }
 .wicked-menu li > ul > li > * { padding: 5px; display: inline-block; } /* padding other menu-item */
-.wicked-menu > li > a.menu-item > * { padding: 6px 7px; }
+.wicked-menu > li > a.menu-item > * { padding: 7px 7px; }
 .wicked-menu > li { position: relative; border: 1px solid transparent; }
-
+.wicked-menu > li.hover > a.menu-item > * { padding: 7px 7px 3px 7px; }
 .wicked-menu > li.hover > a.menu-item  {
 	/* lose the top-level focus indicator on hover */
 	outline: none;
@@ -73,7 +73,7 @@ THE SOFTWARE.
 /* menu items */
 .wicked-menu li.hover > ul,
 .wicked-menu ul li:hover > ul { display: block; position: absolute; }
-
+.wicked-menu ul li:hover > ul { margin-top: 5px; }
 /* drop menu */
 .wicked-menu ul { z-index: 7; min-width: 210px; top: 2.1em; left: -1px; }
 
