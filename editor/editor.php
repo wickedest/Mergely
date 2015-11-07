@@ -52,7 +52,7 @@ if (isset($_GET['debug'])) {
 	<script type="text/javascript" src="/Mergely/lib/searchcursor.js"></script>
 
 	<script type="text/javascript">
-        var key = '<?php echo $key; ?>';
+        var key = '<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>';
         var isSample = key == 'usaindep';
     </script>
     
