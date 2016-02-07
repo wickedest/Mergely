@@ -146,7 +146,7 @@ $(document).ready(function() {
 	var color_defaults = {
 		cb: 'cccccc', cg: 'fafafa',
 		ab: 'a3d1ff', ag: 'ddeeff',
-		db: 'ff7f7f', dg: 'edc0c0'
+		db: 'ff7f7f', dg: 'ffe9e9'
 	};
 	applyParameterCss(false);
 

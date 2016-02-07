@@ -12,17 +12,19 @@
 .mergely-column { border: 1px solid #ccc; }
 .mergely-active { border: 1px solid #a3d1ff; }
 
+.mergely.a,.mergely.d,.mergely.c { color: #000; }
+
 .mergely.a.rhs.start { border-top: 1px solid #a3d1ff; }
 .mergely.a.lhs.start.end,
 .mergely.a.rhs.end { border-bottom: 1px solid #a3d1ff; }
 .mergely.a.rhs { background-color: #ddeeff; }
 .mergely.a.lhs.start.end.first { border-bottom: 0; border-top: 1px solid #a3d1ff; }
 
-.mergely.d.lhs { background-color: #edc0c0; }
+.mergely.d.lhs { background-color: #ffe9e9; }
 .mergely.d.lhs.end,
-.mergely.d.rhs.start.end { border-bottom: 1px solid #ff7f7f; }
-.mergely.d.rhs.start.end.first { border-bottom: 0; border-top: 1px solid #ff7f7f; }
-.mergely.d.lhs.start { border-top: 1px solid #ff7f7f; }
+.mergely.d.rhs.start.end { border-bottom: 1px solid #f8e8e8; }
+.mergely.d.rhs.start.end.first { border-bottom: 0; border-top: 1px solid #f8e8e8; }
+.mergely.d.lhs.start { border-top: 1px solid #f8e8e8; }
 
 .mergely.c.lhs,
 .mergely.c.rhs { background-color: #fafafa; }
@@ -32,4 +34,12 @@
 .mergely.c.rhs.end { border-bottom: 1px solid #a3a3a3; }
 
 .mergely.ch.a.rhs { background-color: #ddeeff; }
-.mergely.ch.d.lhs { background-color: #edc0c0; text-decoration: line-through; color: #888; }
+.mergely.ch.d.lhs { background-color: #ffe9e9; text-decoration: line-through; color: red !important; }
+
+.mergely.current.start { border-top: 1px solid #000 !important; }
+.mergely.current.end { border-bottom: 1px solid #000 !important; }
+.mergely.current.lhs.a.start.end,
+.mergely.current.rhs.d.start.end { border-top: 0 !important; }
+.mergely.current.CodeMirror-linenumber { color: #F9F9F9; font-weight: bold; background-color: #777; }
+.CodeMirror-linenumber { cursor: pointer; }
+.CodeMirror-code { color: #717171; }
