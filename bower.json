@@ -1,6 +1,6 @@
 {
   "name": "Mergely",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "homepage": "https://github.com/wickedest/Mergely",
   "description": "Merge and diff documents online",
   "main": [
@@ -29,7 +29,7 @@
     "url": "git://github.com/wickedest/Mergely"
   },
   "dependencies": {
-    "mergely": "https://github.com/wickedest/Mergely.git#3.4.0",
+    "mergely": "https://github.com/wickedest/Mergely.git#3.4.1",
     "jquery": "<=2.1.3",
     "codemirror": "<=5.11.0"
   }
