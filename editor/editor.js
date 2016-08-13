@@ -237,7 +237,7 @@ $(document).ready(function() {
 			set: function(value) {
 				var vp = !ed.mergely('options').viewport;
 				ed.mergely('options', {viewport: vp});
-				var params = updateQueryStringParam('vp', vp ? 1 : 0, 1);
+				var params = updateQueryStringParam('vp', vp ? 1 : 0, 0);
 				updateHistory(params);
 			}
 		},
@@ -670,8 +670,9 @@ $(document).ready(function() {
 		// If the "search" string exists, then build params from it
 		if (!urlQueryString) {
 			urlQueryString = document.location.search;
+			if (!urlQueryString) urlQueryString = '?';
 		}
-		keyRegex = new RegExp('([\?&])' + key + '[^&]*');
+		var keyRegex = new RegExp('([\?&])' + key + '[^&]*');
 		if (value === defaultValue) {
 			params = urlQueryString.replace(keyRegex, '');
 		}
