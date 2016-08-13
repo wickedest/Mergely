@@ -664,25 +664,29 @@ $(document).ready(function() {
 	}
 	// Explicitly save/update a url parameter using HTML5's replaceState().
 	function updateQueryStringParam(key, value, defaultValue, urlQueryString) {
-		var newParam = key + '=' + value,
-			params = '?' + newParam;
-
-		// If the "search" string exists, then build params from it
-		if (!urlQueryString) {
-			urlQueryString = document.location.search;
-			if (!urlQueryString) urlQueryString = '?';
+		urlQueryString = urlQueryString || document.location.search;
+		var parts = urlQueryString.replace(/^\?/, '').split(/&/), found = false;
+		for (var i in parts) {
+			if (parts[i].startsWith(key + '=')) {
+				found = true;
+				if (value === defaultValue) {
+					// value is default value, remove option
+					parts.splice(i, 1);
+				}
+				else {
+					// make new value
+					parts[i] = key + '=' + value;
+				}
+				break;
+			}
+			else if (parts[i].length === 0) {
+				parts.splice(i, 1);
+				break;
+			}
 		}
-		var keyRegex = new RegExp('([\?&])' + key + '[^&]*');
-		if (value === defaultValue) {
-			params = urlQueryString.replace(keyRegex, '');
+		if (!found) {
+			parts.push(key + '=' + value);
 		}
-		else if (urlQueryString.match(keyRegex) !== null) {
-			// update if only if value exists
-			params = urlQueryString.replace(keyRegex, '$1' + newParam);
-		}
-		else { // Otherwise, add it to end of query string
-			params = urlQueryString + '&' + newParam;
-		}
-		return params;
+		return (parts.length) ? '?' + parts.join('&') : '';
 	}
 });
