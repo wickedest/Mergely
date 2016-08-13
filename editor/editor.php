@@ -81,7 +81,7 @@ if (isset($_GET['debug'])) {
 }(document, 'script', 'facebook-jssdk'));</script>
 
 
-    <div id="banner"></div>
+    <a href="/"><div id="banner"></div></a>
     
     <!-- menu -->
     <ul id="main-menu">
