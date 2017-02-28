@@ -114,6 +114,7 @@ $(document).ready(function() {
 	var optmap = {
 		au: 'autoupdate',
 		ws: 'ignorews',
+		cs: 'ignorecase',
 		sb: 'sidebar',
 		vp: 'viewport',
 		wl: 'wrap_lines',
@@ -220,6 +221,15 @@ $(document).ready(function() {
 				var ws = !ed.mergely('options').ignorews;
 				ed.mergely('options', {ignorews: ws});
 				var params = updateQueryStringParam('ws', ws ? 1 : 0, 0);
+				updateHistory(params);
+			}
+		},
+		'options-ignorecase': {
+			get: function() { return ed.mergely('options').ignorecase },
+			set: function(value) {
+				var cs = !ed.mergely('options').ignorecase;
+				ed.mergely('options', {ignorecase: cs});
+				var params = updateQueryStringParam('cs', cs ? 1 : 0, 0);
 				updateHistory(params);
 			}
 		},
@@ -348,6 +358,7 @@ $(document).ready(function() {
 			'options-swapmargin',
 			'options-viewport',
 			'options-ignorews',
+			'options-ignorecase',
 			'options-wrap',
 			'options-linenumbers',
 			].indexOf(id) >= 0) {
