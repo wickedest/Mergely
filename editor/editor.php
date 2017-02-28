@@ -140,6 +140,7 @@ if (isset($_GET['debug'])) {
             <ul>
                 <li id="options-wrap">Wrap lines</li>
                 <li id="options-ignorews">Ignore white space</li>
+                <li id="options-ignorecase">Ignore case</li>
                 <li class="separator"></li>
                 <li id="options-viewport" title="Improves performance for large files">Enable viewport</li>
                 <li id="options-sidebars" title="Improves performance for large files">Enable side bars</li>
