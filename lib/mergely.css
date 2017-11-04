@@ -18,12 +18,12 @@
 .mergely.a.lhs.start.end,
 .mergely.a.rhs.end { border-bottom: 1px solid #a3d1ff; }
 .mergely.a.rhs { background-color: #ddeeff; }
-.mergely.a.lhs.start.end.first { border-bottom: 0; border-top: 1px solid #a3d1ff; }
+.mergely.a.lhs.start.end.first { border-bottom-width: 0; border-top: 1px solid #a3d1ff; }
 
 .mergely.d.lhs { background-color: #ffe9e9; }
 .mergely.d.lhs.end,
 .mergely.d.rhs.start.end { border-bottom: 1px solid #f8e8e8; }
-.mergely.d.rhs.start.end.first { border-bottom: 0; border-top: 1px solid #f8e8e8; }
+.mergely.d.rhs.start.end.first { border-bottom-width: 0; border-top: 1px solid #f8e8e8; }
 .mergely.d.lhs.start { border-top: 1px solid #f8e8e8; }
 
 .mergely.c.lhs,
@@ -39,7 +39,11 @@
 .mergely.current.start { border-top: 1px solid #000 !important; }
 .mergely.current.end { border-bottom: 1px solid #000 !important; }
 .mergely.current.lhs.a.start.end,
-.mergely.current.rhs.d.start.end { border-top: 0 !important; }
+.mergely.current.rhs.d.start.end { border-top-width: 0 !important; }
+
+.mergely.current.lhs.a.start.end.empty,
+.mergely.current.rhs.d.start.end.empty { border-top-width: 1px !important; border-bottom-width: 0px !important; }
+
 .mergely.current.CodeMirror-linenumber { color: #F9F9F9; font-weight: bold; background-color: #777; }
 .CodeMirror-linenumber { cursor: pointer; }
 .CodeMirror-code { color: #717171; }
