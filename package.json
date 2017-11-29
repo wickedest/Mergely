@@ -1,0 +1,43 @@
+{
+  "name": "mergely",
+  "version": "4.0.0",
+  "description": "A javascript UI for diff/merge",
+  "directories": {
+    "doc": "doc",
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "build": "rm -rf dist && webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wickedest/Mergely.git"
+  },
+  "main": "dist/mergely.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "merge",
+    "diff",
+    "myers"
+  ],
+  "author": "jamie.peabody@gmail.com",
+  "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1 OR SEE LICENSE IN LICENSE)",
+  "bugs": {
+    "url": "https://github.com/wickedest/Mergely/issues"
+  },
+  "homepage": "https://github.com/wickedest/Mergely#readme",
+  "devDependencies": {
+    "codemirror": "^5.32.0",
+    "css-loader": "^0.28.7",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.5",
+    "image-webpack-loader": "^3.4.2",
+    "jquery": "^3.2.1",
+    "webpack": "^3.8.1"
+  }
+}
