@@ -4,10 +4,10 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
     entry: {
-        mergely: './lib/mergely.js'
+        mergely: './src/mergely.js'
     },
     output: {
-        path: path.join(__dirname, 'dist'),
+        path: path.join(__dirname, 'lib'),
         filename: './[name].js'
     },
     module: {
@@ -29,13 +29,5 @@ module.exports = {
     plugins: [
         new webpack.optimize.UglifyJsPlugin({ exclude: /node_modules/ }),
         new ExtractTextPlugin('mergely.css')
-        // new ExtractTextPlugin({
-        //     filename: (getPath) => {
-        //         const fname = getPath('[name].css');//.replace('[name].css', 'lib/[name].css'));
-        //         return `lib/${fname}`;
-        //         //return getPath('[name].css').replace('[name].css', 'lib/[name].css');
-        //         // return 'lib/[name].css';
-        //     }
-        // })
     ]
 };
