@@ -1,11 +1,8 @@
 "use strict";
 
-// import CodeMirror from 'codemirror';
-
 require('./mergely.css');
 const jQuery = require('jquery');
-const CodeMirror = require('codemirror');
-// console.log('CodeMirror', CodeMirror);
+const CodeMirror = require('codemirror/lib/codemirror.js');
 
 (function( window, document, jQuery, CodeMirror ){
 

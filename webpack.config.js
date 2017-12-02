@@ -8,7 +8,9 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, 'lib'),
-        filename: './[name].js'
+        filename: './[name].js',
+        library: 'mergely',
+        libraryTarget: 'commonjs2'
     },
     module: {
         loaders: [
@@ -16,11 +18,7 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: ['.js'],
-        alias: {
-            'mergely': path.join(__dirname, 'node_modules', 'mergely'),
-            'codemirror': path.join(__dirname, 'node_modules', 'codemirror')
-        }
+        extensions: ['.js']
     },
     externals: {
         jquery: 'jQuery',

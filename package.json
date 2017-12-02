@@ -8,16 +8,17 @@
     "test": "test"
   },
   "scripts": {
-    "build": "rm -rf dist && webpack",
+    "build": "rm -rf lib && webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wickedest/Mergely.git"
   },
-  "main": "dist/mergely.js",
+  "main": "lib/mergely.js",
   "files": [
-    "dist",
+    "lib",
+    "examples",
     "README.md"
   ],
   "keywords": [
