@@ -408,6 +408,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				ca:'#4b73ff',cc:'#434343',cd:'#ff4f4f'},    // color for currently active difference (bright color)
 			bgcolor: '#eee',
 			vpcolor: 'rgba(0, 0, 200, 0.5)',
+			license: 'gpl',
 			lhs: function(setValue) { },
 			rhs: function(setValue) { },
 			loaded: function() { },
@@ -1458,7 +1459,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		this._scroll_to_change(change);
 	},
 	_draw_info: function(editor_name1, editor_name2) {
-		var visible_page_height = jQuery(this.editor[editor_name1].getScrollerElement()).height();
+		var visible_page_height = jQuery(this.editor[editor_name1].getScrollerElement()).height() + 17; // fudged
 		var gutter_height = jQuery(this.editor[editor_name1].getScrollerElement()).children(':first-child').height();
 		var dcanvas = document.getElementById(editor_name1 + '-' + editor_name2 + '-canvas');
 		if (dcanvas == undefined) throw 'Failed to find: ' + editor_name1 + '-' + editor_name2 + '-canvas';

@@ -4,7 +4,8 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
     entry: {
-        mergely: './src/mergely.js'
+        'mergely': './src/mergely.js',
+        'mergely.min': './src/mergely.js'
     },
     output: {
         path: path.join(__dirname, 'lib'),
@@ -25,7 +26,11 @@ module.exports = {
         codemirror: 'CodeMirror'
     },
     plugins: [
-        new webpack.optimize.UglifyJsPlugin({ exclude: /node_modules/ }),
+        new webpack.optimize.UglifyJsPlugin({
+            sourceMap: true,
+            include: /\.min\.js$/,
+            exclude: /node_modules/
+        }),
         new ExtractTextPlugin('mergely.css')
     ]
 };
