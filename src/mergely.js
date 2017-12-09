@@ -400,8 +400,6 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			ignorews: false,
 			ignorecase: false,
 			fadein: 'fast',
-			editor_width: '650px',
-			editor_height: '400px',
 			resize_timeout: 500,
 			change_timeout: 150,
 			fgcolor: {a:'#4ba3fa',c:'#a3a3a3',d:'#ff7f7f',  // color for differences (soft color)
@@ -412,24 +410,21 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			lhs: function(setValue) { },
 			rhs: function(setValue) { },
 			loaded: function() { },
-			_auto_width: function(w) { return w; },
 			resize: function(init) {
-				var scrollbar = init ? 16 : 0;
-				var w = jQuery(el).parent().width() + scrollbar, h = 0;
+				var parent = jQuery(el).parent();
+				var w;
+				var h;
 				if (this.width == 'auto') {
-					w = this._auto_width(w);
+					w = parent.width();
 				}
 				else {
 					w = this.width;
-					this.editor_width = w;
 				}
 				if (this.height == 'auto') {
-					//h = this._auto_height(h);
-					h = jQuery(el).parent().height();
+					h = parent.height() - 2;
 				}
 				else {
 					h = this.height;
-					this.editor_height = h;
 				}
 				var content_width = w / 2.0 - 2 * 8 - 8;
 				var content_height = h;
@@ -469,7 +464,6 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		// save options if there are any
 		if (options && options.cmsettings) jQuery.extend(this.lhs_cmsettings, cmsettings, options.cmsettings, options.lhs_cmsettings);
 		if (options && options.cmsettings) jQuery.extend(this.rhs_cmsettings, cmsettings, options.cmsettings, options.rhs_cmsettings);
-		//if (options) jQuery.extend(this.settings, options);
 
 		// bind if the element is destroyed
 		this.element.bind('destroyed', jQuery.proxy(this.teardown, this));
@@ -684,8 +678,8 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		this.merge_lhs_button = jQuery(merge_lhs_button);
 
 		// create the textarea and canvas elements
-		var height = this.settings.editor_height;
-		var width = this.settings.editor_width;
+		var height = '10px';
+		var width = '10px';
 		this.element.append(jQuery('<div class="mergely-margin" style="height: ' + height + '"><canvas id="' + this.id + '-lhs-margin" width="8px" height="' + height + '"></canvas></div>'));
 		this.element.append(jQuery('<div style="position:relative;width:' + width + '; height:' + height + '" id="' + this.id + '-editor-lhs" class="mergely-column"><textarea style="" id="' + this.id + '-lhs"></textarea></div>'));
 		this.element.append(jQuery('<div class="mergely-canvas" style="height: ' + height + '"><canvas id="' + this.id + '-lhs-' + this.id + '-rhs-canvas" style="width:28px" width="28px" height="' + height + '"></canvas></div>'));
