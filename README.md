@@ -7,7 +7,7 @@ Mergely is a javascript component to diff/merge files interactively in a browser
 ## Installation
 
 ### Installation via npm/webpack
-The recommended way to install mergely is to use npm and webpack to install mergely and its dependencies.
+The recommended way to install mergely is to use npm and [webpack](https://webpack.js.org/) to install mergely and its dependencies.
 ```sh
 npm install mergely --save-dev
 npm install codemirror jquery --save-dev
@@ -17,18 +17,18 @@ npm install codemirror jquery --save-dev
 
 An alternative installation method is available on http://mergely.com/downloads.
 
-## Usage
+## Usage via webpack
 
-Create a div for the editor:
-```html
-<div id="mergely"></div>
-```
-
-Add the following to your target html source file:
+Add the following to the `<head>` of your target html source file:
 ```html
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/addon/search/searchcursor.min.js"></script>
+```
+
+Create a div for the editor:
+```html
+<div id="mergely"></div>
 ```
 
 Add the following to your target source javascript file:
@@ -38,6 +38,11 @@ require('codemirror/addon/search/searchcursor.js');
 require('codemirror/lib/codemirror.css');
 require('mergely/lib/mergely.js');
 require('mergely/lib/mergely.css');
+```
+
+Initialize mergely using a jQuery selector:
+```js
+$('#mergely').mergely();
 ```
 
 ### Synchronous initialization
@@ -107,14 +112,14 @@ A jQuery [fadein](http://api.jquery.com/fadein) value to enable the editor to fa
 The foreground color that mergely marks changes with on the canvas. The defaults are as follows:
 ```js
 {
-	// foreground colors for non-active differences
-	a:'#4ba3fa',	// additions
-    c:'#a3a3a3',	// changes
-    d:'#ff7f7f',	// deletions
+    // foreground colors for non-active differences
+    a:'#4ba3fa',    // additions
+    c:'#a3a3a3',    // changes
+    d:'#ff7f7f',    // deletions
     // foreground colors for active differences
-	ca:'#4b73ff',	// active addition
-    cc:'#434343',	// active change
-    cd:'#ff4f4f'	// active deletion
+    ca:'#4b73ff',   // active addition
+    cc:'#434343',   // active change
+    cd:'#ff4f4f'    // active deletion
 }
 ```
 

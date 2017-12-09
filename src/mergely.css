@@ -6,6 +6,7 @@
 
 /* resizeable */
 .mergely-resizer { width: 100%; height: 100%; }
+.mergely-container { height: 100%; margin: 0; }
 
 /* style configuration */
 .mergely-column { border: 1px solid #ccc; }

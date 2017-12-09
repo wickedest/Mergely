@@ -11,7 +11,8 @@ module.exports = {
         path: path.join(__dirname, 'lib'),
         filename: './[name].js',
         library: 'mergely',
-        libraryTarget: 'commonjs2'
+        libraryTarget: 'umd',
+        umdNamedDefine: true
     },
     module: {
         loaders: [
