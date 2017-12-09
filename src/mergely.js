@@ -407,6 +407,8 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			bgcolor: '#eee',
 			vpcolor: 'rgba(0, 0, 200, 0.5)',
 			license: 'gpl',
+			width: 'auto',
+			height: 'auto',
 			lhs: function(setValue) { },
 			rhs: function(setValue) { },
 			loaded: function() { },
