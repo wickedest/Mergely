@@ -439,9 +439,13 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				self.find('.mergely-canvas').css({ height: content_height + 'px' });
 				self.find('.mergely-column textarea').css({ width: content_width + 'px' });
 				self.css({ width: w, height: h, clear: 'both' });
-				if (self.css('display') == 'none') {
-					if (this.fadein != false) self.fadeIn(this.fadein);
-					else self.show();
+				if (self.css('display') === 'none') {
+					if (this.fadein != false) {
+						self.fadeIn(this.fadein);
+					}
+					else {
+						self.show();
+					}
 					if (this.loaded) this.loaded();
 				}
 				if (this.resized) this.resized();
@@ -653,7 +657,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		return d.normal_form();
 	},
 	bind: function(el) {
-		this.element.hide();//hide
+		this.element.hide();
 		this.id = jQuery(el).attr('id');
 		this.changed_timeout = null;
 		this.chfns = {};
