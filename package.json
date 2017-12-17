@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "rm -rf lib && webpack",
+    "build:dist": "npm pack && tar -zxf mergely-4.0.0.tgz && mv package mergely-4.0.0 && tar -cvzf mergely-4.0.0.tgz mergely-4.0.0 && rm -rf mergely-4.0.0",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,7 +27,11 @@
     "diff",
     "myers"
   ],
-  "author": "jamie.peabody@gmail.com",
+  "author": {
+    "name": "Jamie Peabody",
+    "email": "jamie.peabody@gmail.com",
+    "url": "http://mergely.com"
+  },
   "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1 OR SEE LICENSE IN LICENSE)",
   "bugs": {
     "url": "https://github.com/wickedest/Mergely/issues"

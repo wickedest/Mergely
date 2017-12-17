@@ -6,13 +6,11 @@
 
 * Lighter distribution (no longer bundling codemirror or the Mergely editor).
 * Using `npm` as the preferred distribution method.
-* The `editor_width` option has been removed.
-* The `editor_height` option has been removed.
-* Added `width` option.  When width is `auto`, both editors will fill their parent container's width.
+* Improved width/height options.  Removed options `editor_width` and `editor_height`, and added `width` and `height`.  The options are equivalent.
+* Added license option to indicate which type of license to use.
 
 ### Minor features
 
-* Added license feature
 
 ### Fixes
 
