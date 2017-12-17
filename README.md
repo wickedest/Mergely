@@ -71,10 +71,10 @@ If the editor contents are retrieved asynchronously (recommended), then retrieve
 $(document).ready(function () {
     $('#mergely').mergely();
     
-    // async get lhs editor, then set lhs content
+    // get async lhsResponse, then set lhs value
     $('#mergely').mergely('lhs', lhsResponse);
     
-    // async get rhs editor, then set rhs content
+    // get async rhsResponse, then set rhs value
     $('#mergely').mergely('rhs', rhsResponse);
 });
 ```
