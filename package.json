@@ -9,7 +9,6 @@
   },
   "scripts": {
     "build": "rm -rf lib && webpack",
-    "build:dist": "npm pack && tar -zxf mergely-4.0.0.tgz && mv package mergely-4.0.0 && tar -cvzf mergely-4.0.0.tgz mergely-4.0.0 && rm -rf mergely-4.0.0",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
