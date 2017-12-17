@@ -3,6 +3,7 @@
 require('./mergely.css');
 const jQuery = require('jquery');
 const CodeMirror = require('codemirror/lib/codemirror.js');
+require('codemirror/addon/search/searchcursor.js');
 
 (function( window, document, jQuery, CodeMirror ){
 
