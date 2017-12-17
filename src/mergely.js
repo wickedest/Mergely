@@ -389,7 +389,7 @@ Mgly.CodeMirrorDiffView = function(el, options) {
 
 jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 	init: function(el, options) {
-		this.settings = {
+		this.settings = jQuery.extend(true, {
 			autoupdate: true,
 			autoresize: true,
 			rhs_margin: 'right',
@@ -450,23 +450,29 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			},
 			_debug: '', //scroll,draw,calc,diff,markup,change
 			resized: function() { }
-		};
-		var cmsettings = {
-			mode: 'text/plain',
-			readOnly: false,
-			lineWrapping: this.settings.wrap_lines,
-			lineNumbers: this.settings.line_numbers,
-			gutters: ['merge', 'CodeMirror-linenumbers']
-		};
-		this.lhs_cmsettings = {};
-		this.rhs_cmsettings = {};
+		}, options);
 
 		// save this element for faster queries
 		this.element = jQuery(el);
 
-		// save options if there are any
-		if (options && options.cmsettings) jQuery.extend(this.lhs_cmsettings, cmsettings, options.cmsettings, options.lhs_cmsettings);
-		if (options && options.cmsettings) jQuery.extend(this.rhs_cmsettings, cmsettings, options.cmsettings, options.rhs_cmsettings);
+		this.lhs_cmsettings = {
+			lineWrapping: this.settings.wrap_lines,
+			lineNumbers: this.settings.line_numbers,
+		};
+		this.rhs_cmsettings = {
+			lineWrapping: this.settings.wrap_lines,
+			lineNumbers: this.settings.line_numbers,
+		};
+		var lhs_gutters = [];
+		if (this.lhs_cmsettings.line_numbers) {
+			lhs_gutters = ['merge', 'CodeMirror-linenumbers']
+		}
+		var rhs_gutters = [];
+		if (this.rhs_cmsettings.line_numbers) {
+			rhs_gutters = ['merge', 'CodeMirror-linenumbers']
+		}
+		jQuery.extend(true, this.lhs_cmsettings, { gutters: lhs_gutters }, this.settings);
+		jQuery.extend(true, this.rhs_cmsettings, { gutters: rhs_gutters }, this.settings);
 
 		// bind if the element is destroyed
 		this.element.bind('destroyed', jQuery.proxy(this.teardown, this));
