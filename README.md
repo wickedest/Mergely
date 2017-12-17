@@ -109,8 +109,8 @@ $(document).ready(function () {
 |Option|Parameters|Description|
 |------|----|-----------|
 |<a name="lhs"></a>lhs|`function setValue(string)`|A callback that allows the value of the left-hand editor to be set on initialization synchronously. A handle to a `setValue` function is passed as an argument to be used to initialize the editor.|
-|<a name="loaded"></a>loaded||A callback to indicate that Mergely has finished initializing and is loaded.|
-|<a name="resized"></a>resized||A callback to indicate that the container window has been resized.|
+|<a name="loaded"></a>loaded| |A callback to indicate that Mergely has finished initializing and is loaded.|
+|<a name="resized"></a>resized| |A callback to indicate that the container window has been resized.|
 |<a name="rhs"></a>rhs|`function setValue(string)`|A callback that allows the value of the right-hand editor to be set on initialization synchronously. A handle to a `setValue` function is passed as an argument to be used to initialize the editor.|
 
 ## Methods
