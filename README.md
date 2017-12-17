@@ -93,7 +93,7 @@ $(document).ready(function () {
 |<a name="ignorews"></a>ignorews|boolean|`false`|Ignores white-space.|
 |<a name="ignorecase"></a>ignorecase|boolean|`false`|Ignores case when differientiating.
 |<a name="lcs"></a>lcs|boolean|`true`|Enables/disables LCS computation for paragraphs (word-by-word changes). Disabling can give a performance gain for large documents.|
-|<a name="line_numbers"></a>license|string|`lgpl`|The choice of license to use with Mergely.  Valid values are: `lgpl`, `gpl`, `mpl` or `lgpl-separate-notice`, `gpl-separate-notice`, `mpl-separate-notice` (the license requirements are met in a spearate notice file).|
+|<a name="license"></a>license|string|`lgpl`|The choice of license to use with Mergely.  Valid values are: `lgpl`, `gpl`, `mpl` or `lgpl-separate-notice`, `gpl-separate-notice`, `mpl-separate-notice` (the license requirements are met in a spearate notice file).|
 |<a name="line_numbers"></a>line_numbers|boolean|`true`|Enables/disables line numbers. Enabling line numbers will toggle the visibility of the line number margins.|
 |<a name="lhs_cmsettings"></a>lhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](http://codemirror.net])) for the left-hand side editor.|
 |<a name="resize_timeout"></a>resize_timeout|number|`500`|The timeout, after a resize, before Mergely auto-resizes. Only used when autoresize enabled.|
