@@ -15,7 +15,7 @@ npm install codemirror jquery --save-dev
 
 ### Installation via distribution
 
-An alternative installation method is available on http://mergely.com/downloads.
+An alternative installation method is available on http://mergely.com/download.
 
 ## Usage via webpack
 
@@ -23,6 +23,7 @@ Add the following to the `<head>` of your target html source file:
 ```html
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
+<link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/addon/search/searchcursor.min.js"></script>
 ```
 
@@ -42,7 +43,9 @@ require('mergely/lib/mergely.css');
 
 Initialize mergely using a jQuery selector:
 ```js
-$('#mergely').mergely();
+$(document).ready(function () {
+    $('#mergely').mergely();
+});
 ```
 
 ### Synchronous initialization
