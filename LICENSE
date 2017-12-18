@@ -1,0 +1,28 @@
+Mergely License
+
+All Mergely code is Copyright by Jamie Peabody. Mergely is distributed under the GPL, LGPL and MPL open source licenses. This triple copyleft licensing model avoids incompatibility with other open source licenses. These open source licenses are specially indicated for:
+
+* Integrating Mergely into Open Source software;
+
+* Personal and educational use of Mergely;
+
+* Integrating Mergely in commercial software, taking care of satisfying the Open Source licenses terms, while not able or interested on supporting Mergely and its development.
+
+MERGELY COMMERCIAL LICENSE - CLOSED DISTRIBUTION LICENSE - CDL
+
+You may contact Jamie Peabody to enquire about obtaining a CDL license.  This license offers a very flexible way to integrate Mergely in your commercial application. These are the main advantages it offers over an Open Source license:
+
+* Modifications and enhancements do not need to be released under an Open Source license;
+
+* There is no need to distribute any Open Source license terms along with your product and no reference to it have to be done; You do not have to mention any reference to Mergely in your product;
+
+* Mergely source code does not have to be distributed with your product;
+
+* You can remove any file from Mergely when integrating it with your product.
+
+The CDL is a lifetime license valid for all previous releases of Mergely published prior to the year of purchase, and any releases in the following year. Please select the license option that best fit your needs above. It includes 1 year of personal e-mail support.
+
+THIRD PARTY CODE
+
+Mergely utilizes CodeMirror, a third-party library released under an MIT license.
+Also used is jQuery and is released under the MIT license.
