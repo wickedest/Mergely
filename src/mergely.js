@@ -1,11 +1,8 @@
 "use strict";
 
 require('./mergely.css');
-const jQuery = require('jquery');
-const CodeMirror = require('codemirror/lib/codemirror.js');
-require('codemirror/addon/search/searchcursor.js');
 
-(function( window, document, jQuery, CodeMirror ){
+(function(jQuery) {
 
 var Mgly = {};
 
@@ -736,7 +733,6 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				jQuery('#mergely-splash').fadeOut(100, 'linear', function () {
 					this.remove();
 				});
-				console.log('on click');
 			});
 		}
 
@@ -1740,4 +1736,4 @@ jQuery.pluginMaker = function(plugin) {
 // make the mergely widget
 jQuery.pluginMaker(Mgly.mergely);
 
-})( window, document, jQuery, CodeMirror );
+})(require('jquery'), require('CodeMirror'));
