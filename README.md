@@ -6,53 +6,50 @@ Mergely is a javascript component to diff/merge files interactively in a browser
 
 ## Installation
 
-### Installation via npm/webpack
-The recommended way to install mergely is to use npm and [webpack](https://webpack.js.org/) to install mergely and its dependencies.
-```sh
-npm install mergely --save-dev
-npm install codemirror jquery --save-dev
-```
+### Installation via webpack
+The recommended way to install mergely is to use npm and [webpack](https://webpack.js.org/) to install mergely and its dependencies.  It is highly recommended that you start by cloning [mergely-webpack](https://github.com/wickedest/mergely-webpack).  It has everything that you need to get started.
 
-### Installation via distribution
+### Installation via .tgz
 
-An alternative installation method is available on http://mergely.com/download.
+Unpack mergely.tgz into a folder, e.g. `./lib`, and then add the following to the `<head>` of your target html source file.
 
-## Usage via webpack
-
-Add the following to the `<head>` of your target html source file:
 ```html
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
 <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/addon/search/searchcursor.min.js"></script>
+<script src="lib/mergely/lib/mergely.js" type="text/javascript"></script>
+<link rel="stylesheet" media="all" href="lib/mergely/lib/mergely.css" />
 ```
 
-Create a div for the editor in `<body>`:
+Create a div for the editor in `<body>`.  This example uses a style that provides 8px padding (`mergely-full-screen-8`):
+
 ```html
-<div id="mergely"></div>
+<div class="mergely-full-screen-8">
+  <div class="mergely-resizer">
+    <div id="mergely"></div>
+  </div>
+</div>
 ```
 
-Add the following to your target source javascript file:
-```js
-require('codemirror/lib/codemirror.js');
-require('codemirror/addon/search/searchcursor.js');
-require('codemirror/lib/codemirror.css');
-require('mergely/lib/mergely.js');
-require('mergely/lib/mergely.css');
-```
+Then initialize mergely, setting [options](#options) as required.
 
-Initialize mergely using a jQuery selector:
 ```js
 $(document).ready(function () {
     $('#mergely').mergely();
 });
 ```
 
-### Synchronous initialization
-Initialize the diff with the mergely jquery plugin, setting [options](#options) as required.  The following example can be used to initialize the `lhs` and `rhs` editors synchronously (i.e. their contents are already known):
+### Synchronous content initialization
+
+The following example can be used to set the `lhs` and `rhs` editors synchronously (i.e. their contents are already known):
 
 ```js
 $(document).ready(function () {
+    // initialize mergely
+    $('#mergely').mergely();
+
+    // set editor content
     $('#mergely').mergely({
         lhs: function(setValue) {
             setValue('the quick red fox\njumped over the hairy dog');
@@ -65,10 +62,12 @@ $(document).ready(function () {
 ```
 
 ### Aynchronous initialization
+
 If the editor contents are retrieved asynchronously (recommended), then retrieve the editor contents and set them:
 
 ```js
 $(document).ready(function () {
+    // initialize mergely
     $('#mergely').mergely();
     
     // get async lhsResponse, then set lhs value
