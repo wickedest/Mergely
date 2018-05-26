@@ -72,6 +72,29 @@ describe('mergely', function () {
 				done();
 			});
 		});
+
+		it('initializes with no sidebar', function (done) {
+			$(document).ready(() => {
+				const editor = init({
+					height: 100,
+					license: 'lgpl-separate-notice',
+					sidebar: false
+				});
+				expect(editor).to.exist;
+				expect(editor.mergely).to.exist;
+				const children = editor.children();
+				expect(children.length).to.equal(6);
+				expect($(children[0]).attr('id')).to.equal('mergely-splash');
+				expect($(children[1]).attr('class')).to.equal('mergely-margin');
+				expect($(children[1]).css('display')).to.equal('none');
+				expect($(children[2]).attr('class')).to.equal('mergely-column');
+				expect($(children[3]).attr('class')).to.equal('mergely-canvas');
+				expect($(children[4]).attr('class')).to.equal('mergely-column');
+				expect($(children[5]).attr('class')).to.equal('mergely-margin');
+				expect($(children[5]).css('display')).to.equal('none');
+				done();
+			});
+		});
 	});
 
 	describe('get', () => {
@@ -388,29 +411,6 @@ describe('mergely', function () {
 						done();
 					}, 10);
 				});
-			});
-		});
-
-		it('initializes with no sidebar', function (done) {
-			$(document).ready(() => {
-				const editor = init({
-					height: 100,
-					license: 'lgpl-separate-notice',
-					sidebar: false
-				});
-				expect(editor).to.exist;
-				expect(editor.mergely).to.exist;
-				const children = editor.children();
-				expect(children.length).to.equal(6);
-				expect($(children[0]).attr('id')).to.equal('mergely-splash');
-				expect($(children[1]).attr('class')).to.equal('mergely-margin');
-				expect($(children[1]).css('display')).to.equal('none');
-				expect($(children[2]).attr('class')).to.equal('mergely-column');
-				expect($(children[3]).attr('class')).to.equal('mergely-canvas');
-				expect($(children[4]).attr('class')).to.equal('mergely-column');
-				expect($(children[5]).attr('class')).to.equal('mergely-margin');
-				expect($(children[5]).css('display')).to.equal('none');
-				done();
 			});
 		});
 	});
