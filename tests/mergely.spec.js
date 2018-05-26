@@ -18,6 +18,12 @@ describe('mergely', function () {
 		return editor;
 	};
 
+	afterEach(() => {
+		$('#mergely').mergely('unbind');
+		$('#mergely').mergelyUnregister();
+		$('#mergely').remove();
+	});
+
 	describe('initialization', () => {
 		it('initializes without arguments', function (done) {
 			$(document).ready(() => {
@@ -25,6 +31,7 @@ describe('mergely', function () {
 					height: 100,
 					license: 'lgpl-separate-notice'
 				});
+				editor.id = 1;
 				expect(editor).to.exist;
 				expect(editor.mergely).to.exist;
 				const children = editor.children();
@@ -35,7 +42,7 @@ describe('mergely', function () {
 				expect($(children[3]).attr('class')).to.equal('mergely-canvas');
 				expect($(children[4]).attr('class')).to.equal('mergely-column');
 				expect($(children[5]).attr('class')).to.equal('mergely-margin');
-				expect($('body').hasScrollBar()).to.equal(false);
+				//expect($('body').hasScrollBar()).to.equal(false);
 				expect($('.mergely-editor-lhs .CodeMirror-code').text()).to.equal('');
 				expect($('.mergely-editor-rhs .CodeMirror-code').text()).to.equal('');
 				done();
@@ -47,11 +54,8 @@ describe('mergely', function () {
 				const editor = init({
 					height: 100,
 					license: 'lgpl-separate-notice',
-					lhs: (setValue) => {
-						console.log('here');
-						setValue('left-hand side text')
-					},
-					rhs: (setValue) => setValue('right-hand side text'),
+					lhs: (setValue) => setValue('left-hand side text'),
+					rhs: (setValue) => setValue('right-hand side text')
 				});
 				expect(editor).to.exist;
 				expect(editor.mergely).to.exist;
@@ -63,10 +67,327 @@ describe('mergely', function () {
 				expect($(children[3]).attr('class')).to.equal('mergely-canvas');
 				expect($(children[4]).attr('class')).to.equal('mergely-column');
 				expect($(children[5]).attr('class')).to.equal('mergely-margin');
-				expect($('body').hasScrollBar()).to.equal(false);
 				expect($('#mergely-editor-lhs .CodeMirror-code .CodeMirror-line').text()).to.equal('left-hand side text');
 				expect($('#mergely-editor-rhs .CodeMirror-code .CodeMirror-line').text()).to.equal('right-hand side text');
 				done();
+			});
+		});
+	});
+
+	describe('get', () => {
+		it('gets lhs and rhs text', function (done) {
+			$(document).ready(() => {
+				const editor = init({
+					height: 100,
+					license: 'lgpl-separate-notice',
+					lhs: (setValue) => setValue('left-hand side text'),
+					rhs: (setValue) => setValue('right-hand side text')
+				});
+				expect($('#mergely').mergely('get', 'lhs')).to.equal('left-hand side text');
+				expect($('#mergely').mergely('get', 'rhs')).to.equal('right-hand side text');
+				done();
+			});
+		});
+	});
+
+	describe('mergeCurrentChange', () => {
+		const opts = [{ // add 0-7 merge lhs
+			lhs: '',
+			rhs: '\na',
+			dir: 'lhs',
+			name: 'add is line 2 and insert into end of empty lhs'
+		},
+		{
+			lhs: '',
+			rhs: 'a\n',
+			dir: 'lhs',
+			name: 'add is line 1 and insert into end of empty lhs'
+		},
+		{
+			lhs: 'a',
+			rhs: 'a\nb',
+			dir: 'lhs',
+			name: 'add is line 2 and insert into end to existing lhs'
+		},
+		{
+			lhs: 'a',
+			rhs: 'a\nbcd',
+			dir: 'lhs',
+			name: 'add is line 2 of length 3 and insert into end of existing lhs'
+		},
+		{
+			lhs: 'a',
+			rhs: 'a\nb\nc\nd',
+			dir: 'lhs',
+			name: 'add is lines 2-4 and insert into end of existing lhs'
+		},
+		{
+			lhs: '',
+			rhs: '\nabcd',
+			dir: 'lhs',
+			name: 'add is line 2 of length 4 and lhs is empty'
+		},
+		{
+			lhs: 'abcd',
+			rhs: '\nabcd',
+			dir: 'lhs',
+			name: 'add is line 1 cr and insert into front of lhs'
+		},
+		{
+			lhs: 'a\nd',
+			rhs: 'a\nb\nc\nd',
+			dir: 'lhs',
+			name: 'add is lines 2-3 and insert into middle of lhs'
+		},
+		// add 8-15 merge rhs
+		{
+			lhs: '',
+			rhs: '\na',
+			dir: 'rhs',
+			name: 'add is line 2 and empty lhs will replace non-empty rhs'
+		},
+		{
+			lhs: '',
+			rhs: 'a\n',
+			dir: 'rhs',
+			name: 'add is line 1 and empty lhs will replace line 1 of rhs'
+		},
+		{
+			lhs: 'a',
+			rhs: 'a\nb',
+			dir: 'rhs',
+			name: 'add is line 2 and empty end lhs will replace line 2 of rhs'
+		},
+		{
+			lhs: 'a',
+			rhs: 'a\nbcd',
+			dir: 'rhs',
+			name: 'add is line 2 of length 3 and empty end lhs will replace line 2 of rhs'
+		},
+		{
+			lhs: 'a',
+			rhs: 'a\nb\nc\nd',
+			dir: 'rhs',
+			name: 'add is lines 2-4 and empty end lhs will replace last 3 lines of rhs'
+		},
+		{
+			lhs: '',
+			rhs: '\nabcd',
+			dir: 'rhs',
+			name: 'add is line 2 of length 4 and empty lhs will replace last line of rhs'
+		},
+		{
+			lhs: 'abcd',
+			rhs: '\nabcd',
+			dir: 'rhs',
+			name: 'add is line 1 cr and empty front will replace first line of rhs'
+		},
+		{
+			lhs: 'a\nd',
+			rhs: 'a\nb\nc\nd',
+			dir: 'rhs',
+			name: 'add is lines 2-3 and empty middle will replace middle two lines of rhs'
+		},
+		// change 16-21 merge lhs
+		{
+			lhs: 'a',
+			rhs: '',
+			dir: 'lhs',
+			name: 'change is line 1 and will replace empty rhs'
+		},
+		{
+			lhs: 'a\nb\nc',
+			rhs: '',
+			dir: 'lhs',
+			name: 'change is lines 1-3 and will replace empty rhs'
+		},
+		{
+			lhs: 'a',
+			rhs: 'b',
+			dir: 'lhs',
+			name: 'change is line 1 and will replace opposite line 1'
+		},
+		{
+			lhs: 'a\nb',
+			rhs: 'c\nd',
+			dir: 'lhs',
+			name: 'change is lines 2 and will replace opposite line 2'
+		},
+		{
+			lhs: 'a\nbc\nef',
+			rhs: 'a\nbcd\nef',
+			dir: 'lhs',
+			name: 'change is middle line 2 and will replace opposite middle line 2'
+		},
+		{
+			lhs: 'a\nb\n\n',
+			rhs: 'a1\nb1\nc1\nd',
+			dir: 'lhs',
+			name: 'change is all lines 1-3 and will replace opposite all lines 1-4'
+		},
+		// change 22-27 merge rhs
+		{
+			lhs: 'a',
+			rhs: '',
+			dir: 'rhs',
+			name: 'change is line 1 and will empty the rhs'
+		},
+		{
+			lhs: 'a\nb\nc',
+			rhs: '',
+			dir: 'rhs',
+			name: 'change is lines 1-3 and will replace empty rhs'
+		},
+		{
+			lhs: 'a',
+			rhs: 'b',
+			dir: 'rhs',
+			name: 'change is line 1 and will replace opposite rhs line 1'
+		},
+		{
+			lhs: 'a\nb',
+			rhs: 'c\nd',
+			dir: 'rhs',
+			name: 'change is lines 2 and will replace opposite rhs line 2'
+		},
+		{
+			lhs: 'a\nbc\nef',
+			rhs: 'a\nbcd\nef',
+			dir: 'rhs',
+			name: 'change is middle line 2 and will replace opposite rhs middle line 2'
+		},
+		{
+			lhs: 'a\nb\n\n',
+			rhs: 'a1\nb1\nc1\nd',
+			dir: 'rhs',
+			name: 'change is all lines 1-3 and will replace opposite rhs all lines 1-4'
+		},
+		// delete 28-35 merge lhs
+		{
+			lhs: '\na',
+			rhs: '',
+			dir: 'lhs',
+			name: 'delete is line 2 and will merge empty rhs'
+		},
+		{
+			lhs: 'a\n',
+			rhs: '',
+			dir: 'lhs',
+			name: 'delete is line 1 and will merge empty rhs leaving cr on line 2'
+		},
+		{
+			lhs: 'a\nb',
+			rhs: 'a',
+			dir: 'lhs',
+			name: 'delete is line 2 and will merge into end to existing rhs'
+		},
+		{
+			lhs: 'a\nbcd',
+			rhs: 'a',
+			dir: 'lhs',
+			name: 'delete is line 2 of length 3 and insert into end of existing rhs'
+		},
+		{
+			lhs: 'a\nb\nc\nd',
+			rhs: 'a',
+			dir: 'lhs',
+			name: 'delete is lines 2-4 and insert into end of existing rhs'
+		},
+		{
+			lhs: '\nabcd',
+			rhs: '',
+			dir: 'lhs',
+			name: 'delete is line 2 of length 4 and insert into end of empty rhs'
+		},
+		{
+			lhs: '\nabcd',
+			rhs: 'abcd',
+			dir: 'lhs',
+			name: 'delete is line 1 cr and insert into front of rhs'
+		},
+		{
+			lhs: 'a\nb\nc\nd',
+			rhs: 'a\nd',
+			dir: 'lhs',
+			name: 'delete is lines 2-3 and insert into middle of rhs'
+		},
+		// delete 36-43 merge rhs
+		{
+			lhs: '\na',
+			rhs: '',
+			dir: 'rhs',
+			name: 'delete is line 2 and will merge empty rhs'
+		},
+		{
+			lhs: 'a\n',
+			rhs: '',
+			dir: 'rhs',
+			name: 'delete is line 1 and will merge empty rhs leaving cr on line 2'
+		},
+		{
+			lhs: 'a\nb',
+			rhs: 'a',
+			dir: 'rhs',
+			name: 'delete is line 2 and will merge into end to existing rhs'
+		},
+		{
+			lhs: 'a\nbcd',
+			rhs: 'a',
+			dir: 'rhs',
+			name: 'delete is line 2 of length 3 and insert into end of existing rhs'
+		},
+		{
+			lhs: 'a\nb\nc\nd',
+			rhs: 'a',
+			dir: 'rhs',
+			name: 'delete is lines 2-4 and insert into end of existing rhs'
+		},
+		{
+			lhs: '\nabcd',
+			rhs: '',
+			dir: 'rhs',
+			name: 'delete is line 2 of length 4 and insert into end of empty rhs'
+		},
+		{
+			lhs: '\nabcd',
+			rhs: 'abcd',
+			dir: 'rhs',
+			name: 'delete is line 1 cr and insert into front of rhs'
+		},
+		{
+			lhs: 'a\nb\nc\nd',
+			rhs: 'a\nd',
+			dir: 'rhs',
+			name: 'delete is lines 2-3 and insert into middle of rhs'
+		}];
+
+		opts.forEach((opt, i) => {
+			it(`merge-case-${i} should merge change to ${opt.dir} where ${opt.name}`, function (done) {
+				$(document).ready(() => {
+					const editor = init({
+						height: 100,
+						license: 'lgpl-separate-notice',
+						change_timeout: 0,
+						lhs: (setValue) => setValue(opt.lhs),
+						rhs: (setValue) => setValue(opt.rhs)
+					});
+					expect($('#mergely').mergely('get', 'lhs')).to.equal(opt.lhs);
+					expect($('#mergely').mergely('get', 'rhs')).to.equal(opt.rhs);
+					setTimeout(() => {
+						for (let i = 0; i < opt.next; ++i) {
+							$('#mergely').mergely('scrollToDiff', 'next');
+						}
+						$('#mergely').mergely('mergeCurrentChange', opt.dir);
+						if (opt.dir === 'lhs') {
+							expect($('#mergely').mergely('get', 'lhs')).to.equal(opt.expect || opt.rhs);
+							expect($('#mergely').mergely('get', 'rhs')).to.equal(opt.rhs);
+						} else {
+							expect($('#mergely').mergely('get', 'lhs')).to.equal(opt.lhs);
+							expect($('#mergely').mergely('get', 'rhs')).to.equal(opt.expect || opt.lhs);
+						}
+						done();
+					}, 10);
+				});
 			});
 		});
 
