@@ -691,15 +691,15 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		this.element.append(jQuery('<div style="position:relative;width:' + width + '; height:' + height + '" id="' + this.id + '-editor-lhs" class="mergely-column"><textarea style="" id="' + this.id + '-lhs"></textarea></div>'));
 		this.element.append(jQuery('<div class="mergely-canvas" style="height: ' + height + '"><canvas id="' + this.id + '-lhs-' + this.id + '-rhs-canvas" style="width:28px" width="28px" height="' + height + '"></canvas></div>'));
 		var rmargin = jQuery('<div class="mergely-margin" style="height: ' + height + '"><canvas id="' + this.id + '-rhs-margin" width="8px" height="' + height + '"></canvas></div>');
-		if (!this.settings.sidebar) {
-			this.element.find('.mergely-margin').css({display: 'none'});
-		}
 		if (this.settings.rhs_margin == 'left') {
 			this.element.append(rmargin);
 		}
 		this.element.append(jQuery('<div style="width:' + width + '; height:' + height + '" id="' + this.id + '-editor-rhs" class="mergely-column"><textarea style="" id="' + this.id + '-rhs"></textarea></div>'));
 		if (this.settings.rhs_margin != 'left') {
 			this.element.append(rmargin);
+		}
+		if (!this.settings.sidebar) {
+			this.element.find('.mergely-margin').css({display: 'none'});
 		}
 		if (['lgpl-separate-notice', 'gpl-separate-notice', 'mpl-separate-notice', 'commercial'].indexOf(this.settings.license) < 0) {
 			const _lic = {
