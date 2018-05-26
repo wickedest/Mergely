@@ -1446,52 +1446,40 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		if (!change) return;
 		var led = this.editor[this.id+'-lhs'];
 		var red = this.editor[this.id+'-rhs'];
-		var ed = {lhs:led, rhs:red};
-		var i, from, to;
+		var ed = { lhs:led, rhs:red };
+		var from = change[side + '-line-from'];
+		var to = change[side + '-line-to'];
+		var ofrom = change[oside + '-line-from'];
+		var oto = change[oside + '-line-to'];
+		var doc = ed[side].getDoc();
+		var odoc = ed[oside].getDoc();
+		var fromlen = from >= 0 ? doc.getLine(from).length + 1 : 0;
+		var tolen = to >= 0 ? doc.getLine(to).length + 1 : 0;
+		var otolen = oto >= 0 ? odoc.getLine(oto).length + 1 : 0;
+		var ofromlen = ofrom >= 0 ? odoc.getLine(ofrom).length + 1 : 0;
+		var text;
 
-		var text = ed[side].getRange(
-			CodeMirror.Pos(change[side + '-line-from'], 0),
-			CodeMirror.Pos(change[side + '-line-to'] + 1, 0));
-
-		if (change['op'] == 'c') {
-			ed[oside].replaceRange(text,
-				CodeMirror.Pos(change[oside + '-line-from'], 0),
-				CodeMirror.Pos(change[oside + '-line-to'] + 1, 0));
+		if (change['op'] === 'c') {
+			text = doc.getRange(CodeMirror.Pos(from, 0), CodeMirror.Pos(to, tolen));
+			odoc.replaceRange(text, CodeMirror.Pos(ofrom, 0), CodeMirror.Pos(oto, otolen));
+		} else if ((oside === 'lhs' && change['op'] === 'd') || (oside === 'rhs' && change['op'] === 'a')) {
+			if (from > 0) {
+				text = doc.getRange(CodeMirror.Pos(from - 1, fromlen), CodeMirror.Pos(to, tolen));
+			} else {
+				text = doc.getRange(CodeMirror.Pos(0, 0), CodeMirror.Pos(to + 1, 0));
+			}
+			odoc.replaceRange(text, CodeMirror.Pos(ofrom - 1, 0), CodeMirror.Pos(oto + 1, 0));
+		} else if ((oside === 'rhs' && change['op'] === 'd') || (oside === 'lhs' && change['op'] === 'a')) {
+			if (from > 0) {
+				text = doc.getRange(CodeMirror.Pos(from - 1, fromlen), CodeMirror.Pos(to, tolen));
+			} else {
+				text = doc.getRange(CodeMirror.Pos(0, 0), CodeMirror.Pos(to + 1, 0));
+			}
+			if (ofrom < 0) {
+				ofrom = 0;
+			}
+			odoc.replaceRange(text, CodeMirror.Pos(ofrom, ofromlen));
 		}
-		else if (side == 'rhs') {
-			if (change['op'] == 'a') {
-				ed[oside].replaceRange(text,
-					CodeMirror.Pos(change[oside + '-line-from'] + 1, 0),
-					CodeMirror.Pos(change[oside + '-line-to'] + 1, 0));
-			}
-			else {// 'd'
-				from = parseInt(change[oside + '-line-from'], 10);
-				to = parseInt(change[oside + '-line-to'], 10);
-				for (i = to; i >= from; --i) {
-					ed[oside].setCursor({line: i, ch: -1});
-					ed[oside].execCommand('deleteLine');
-				}
-			}
-		}
-		else if (side == 'lhs') {
-			if (change['op'] == 'a') {
-				from = parseInt(change[oside + '-line-from'], 10);
-				to = parseInt(change[oside + '-line-to'], 10);
-				for (i = to; i >= from; --i) {
-					//ed[oside].removeLine(i);
-					ed[oside].setCursor({line: i, ch: -1});
-					ed[oside].execCommand('deleteLine');
-				}
-			}
-			else {// 'd'
-				ed[oside].replaceRange( text,
-					CodeMirror.Pos(change[oside + '-line-from'] + 1, 0));
-			}
-		}
-		//reset
-		ed['lhs'].setValue(ed['lhs'].getValue());
-		ed['rhs'].setValue(ed['rhs'].getValue());
-
 		this._scroll_to_change(change);
 	},
 	_draw_info: function(editor_name1, editor_name2) {
@@ -1711,6 +1699,7 @@ jQuery.pluginMaker = function(plugin) {
 		after = args.slice(1);
 		var rc;
 		this.each(function() {
+			var tthis = this;
 			// see if we have an instance
 			var instance = jQuery.data(this, plugin.prototype.name);
 			if (instance) {
@@ -1724,6 +1713,9 @@ jQuery.pluginMaker = function(plugin) {
 			} else {
 				// create the plugin
 				var _plugin = new plugin(this, options);
+				jQuery.fn[`${plugin.prototype.name}Unregister`] = function() {
+					jQuery.data(tthis, plugin.prototype.name, null);
+				}
 			}
 		});
 		if (rc != undefined) return rc;

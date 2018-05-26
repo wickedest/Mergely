@@ -27,12 +27,12 @@ module.exports = {
         CodeMirror: 'CodeMirror'
     },
     plugins: [
-        new webpack.optimize.UglifyJsPlugin({
-            sourceMap: true,
-            include: /\.js$/,
-            // include: /\.min\.js$/,
-            exclude: /node_modules/
-        }),
+        // new webpack.optimize.UglifyJsPlugin({
+        //     sourceMap: true,
+        //     include: /\.js$/,
+        //     // include: /\.min\.js$/,
+        //     exclude: /node_modules/
+        // }),
         new ExtractTextPlugin('mergely.css')
     ]
 };
