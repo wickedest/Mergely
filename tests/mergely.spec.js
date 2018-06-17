@@ -1,6 +1,7 @@
 const jQuery = require('jquery');
 const CodeMirror = require('CodeMirror');
 const mergely = require('../src/mergely');
+const macbeth = require('./data/macbeth').join('\n');
 const $ = jQuery;
 
 (function($) {
@@ -411,6 +412,116 @@ describe('mergely', function () {
 						done();
 					}, 10);
 				});
+			});
+		});
+	});
+
+	describe('_is_change_in_view', () => {
+		it('should be false when change less-than viewport', function (done) {
+			$(document).ready(() => {
+				const editor = init({
+					height: 100,
+					viewport: true,
+					license: 'lgpl-separate-notice',
+					lhs: (setValue) => setValue(macbeth),
+					rhs: (setValue) => setValue(macbeth)
+				});
+				const { mergely } = $('#mergely');
+				expect($('#mergely').mergely('_is_change_in_view', 'lhs', {from: 10, to: 20}, {
+					'lhs-line-from': 0,
+					'lhs-line-to': 9
+				})).to.be.false;
+				done();
+			});
+		});
+
+		it('should be true when change less-than-equal viewport', function (done) {
+			$(document).ready(() => {
+				const editor = init({
+					height: 100,
+					viewport: true,
+					license: 'lgpl-separate-notice',
+					lhs: (setValue) => setValue(macbeth),
+					rhs: (setValue) => setValue(macbeth)
+				});
+				const { mergely } = $('#mergely');
+				expect($('#mergely').mergely('_is_change_in_view', 'lhs', {from: 10, to: 20}, {
+					'lhs-line-from': 0,
+					'lhs-line-to': 10
+				})).to.be.true;
+				done();
+			});
+		});
+
+		it('should be false when change greater-than viewport', function (done) {
+			$(document).ready(() => {
+				const editor = init({
+					height: 100,
+					viewport: true,
+					license: 'lgpl-separate-notice',
+					lhs: (setValue) => setValue(macbeth),
+					rhs: (setValue) => setValue(macbeth)
+				});
+				const { mergely } = $('#mergely');
+				expect($('#mergely').mergely('_is_change_in_view', 'lhs', {from: 10, to: 20}, {
+					'lhs-line-from': 21,
+					'lhs-line-to': 22
+				})).to.be.false;
+				done();
+			});
+		});
+
+		it('should be true when change straddles viewport from', function (done) {
+			$(document).ready(() => {
+				const editor = init({
+					height: 100,
+					viewport: true,
+					license: 'lgpl-separate-notice',
+					lhs: (setValue) => setValue(macbeth),
+					rhs: (setValue) => setValue(macbeth)
+				});
+				const { mergely } = $('#mergely');
+				expect($('#mergely').mergely('_is_change_in_view', 'lhs', {from: 10, to: 20}, {
+					'lhs-line-from': 5,
+					'lhs-line-to': 11
+				})).to.be.true;
+				done();
+			});
+		});
+
+		it('should be true when change straddles viewport to', function (done) {
+			$(document).ready(() => {
+				const editor = init({
+					height: 100,
+					viewport: true,
+					license: 'lgpl-separate-notice',
+					lhs: (setValue) => setValue(macbeth),
+					rhs: (setValue) => setValue(macbeth)
+				});
+				const { mergely } = $('#mergely');
+				expect($('#mergely').mergely('_is_change_in_view', 'lhs', {from: 10, to: 20}, {
+					'lhs-line-from': 15,
+					'lhs-line-to': 21
+				})).to.be.true;
+				done();
+			});
+		});
+
+		it('should be true when change encompasses viewport', function (done) {
+			$(document).ready(() => {
+				const editor = init({
+					height: 100,
+					viewport: true,
+					license: 'lgpl-separate-notice',
+					lhs: (setValue) => setValue(macbeth),
+					rhs: (setValue) => setValue(macbeth)
+				});
+				const { mergely } = $('#mergely');
+				expect($('#mergely').mergely('_is_change_in_view', 'lhs', {from: 10, to: 20}, {
+					'lhs-line-from': 0,
+					'lhs-line-to': 25
+				})).to.be.true;
+				done();
 			});
 		});
 	});

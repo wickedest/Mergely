@@ -54,8 +54,8 @@ Mgly.sizeOf = function(obj) {
 };
 
 Mgly.LCS = function(x, y) {
-	this.x = x.replace(/[ ]{1}/g, '\n');
-	this.y = y.replace(/[ ]{1}/g, '\n');
+	this.x = (x && x.replace(/[ ]{1}/g, '\n')) || '';
+	this.y = (y && y.replace(/[ ]{1}/g, '\n')) || '';
 };
 
 jQuery.extend(Mgly.LCS.prototype, {
@@ -1046,21 +1046,13 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		}
 		return changes;
 	},
-	_get_viewport: function(editor_name1, editor_name2) {
-		var lhsvp = this.editor[editor_name1].getViewport();
-		var rhsvp = this.editor[editor_name2].getViewport();
-		return {from: Math.min(lhsvp.from, rhsvp.from), to: Math.max(lhsvp.to, rhsvp.to)};
+	_get_viewport_side: function(editor_name) {
+		return this.editor[editor_name].getViewport();
 	},
-	_is_change_in_view: function(vp, change) {
-		if (!this.settings.viewport) return true;
-		if ((change['lhs-line-from'] < vp.from && change['lhs-line-to'] < vp.to) ||
-			(change['lhs-line-from'] > vp.from && change['lhs-line-to'] > vp.to) ||
-			(change['rhs-line-from'] < vp.from && change['rhs-line-to'] < vp.to) ||
-			(change['rhs-line-from'] > vp.from && change['rhs-line-to'] > vp.to)) {
-			// if the change is outside the viewport, skip
-			return false;
-		}
-		return true;
+	_is_change_in_view: function(side, vp, change) {
+		return (change[`${side}-line-from`] >= vp.from && change[`${side}-line-from`] <= vp.to) ||
+			(change[`${side}-line-to`] >= vp.from && change[`${side}-line-to`] <= vp.to) ||
+			(vp.from >= change[`${side}-line-from`] && vp.to <= change[`${side}-line-to`]);
 	},
 	_set_top_offset: function (editor_name1) {
 		// save the current scroll position of the editor
@@ -1105,12 +1097,15 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		}
 		var lhschc = this.editor[editor_name1].charCoords({line: 0});
 		var rhschc = this.editor[editor_name2].charCoords({line: 0});
-		var vp = this._get_viewport(editor_name1, editor_name2);
+		var lhsvp = this._get_viewport_side(editor_name1);
+		var rhsvp = this._get_viewport_side(editor_name2);
 
 		for (var i = 0; i < changes.length; ++i) {
 			var change = changes[i];
 
-			if (!this.settings.sidebar && !this._is_change_in_view(vp, change)) {
+			if (this.settings.viewport &&
+				!this._is_change_in_view(lhsvp, 'lhs', change) &&
+				!this._is_change_in_view(lhsvp, 'rhs', change)) {
 				// if the change is outside the viewport, skip
 				delete change['lhs-y-start'];
 				delete change['lhs-y-end'];
@@ -1205,11 +1200,18 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		var led = this.editor[editor_name1];
 		var red = this.editor[editor_name2];
 		var current_diff = this._current_diff;
+		var lhsvp = this._get_viewport_side(editor_name1);
+		var rhsvp = this._get_viewport_side(editor_name2);
 
 		var timer = new Mgly.Timer();
 		led.operation(function() {
 			for (var i = 0; i < changes.length; ++i) {
 				var change = changes[i];
+				if (!this._is_change_in_view('lhs', lhsvp, change)) {
+					// if the change is outside the viewport, skip
+					continue;
+				}
+
 				var llf = change['lhs-line-from'] >= 0 ? change['lhs-line-from'] : 0;
 				var llt = change['lhs-line-to'] >= 0 ? change['lhs-line-to'] : 0;
 				var rlf = change['rhs-line-from'] >= 0 ? change['rhs-line-from'] : 0;
@@ -1252,23 +1254,21 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 					led.setGutterMarker(llf, 'merge', rhs_button.get(0));
 				}
 			}
-		});
-
-		var vp = this._get_viewport(editor_name1, editor_name2);
+		}.bind(this));
 
 		this.trace('change', 'markup lhs-editor time', timer.stop());
 		red.operation(function() {
 			for (var i = 0; i < changes.length; ++i) {
 				var change = changes[i];
+				if (!this._is_change_in_view('rhs', rhsvp, change)) {
+					// if the change is outside the viewport, skip
+					continue;
+				}
+
 				var llf = change['lhs-line-from'] >= 0 ? change['lhs-line-from'] : 0;
 				var llt = change['lhs-line-to'] >= 0 ? change['lhs-line-to'] : 0;
 				var rlf = change['rhs-line-from'] >= 0 ? change['rhs-line-from'] : 0;
 				var rlt = change['rhs-line-to'] >= 0 ? change['rhs-line-to'] : 0;
-
-				if (!self._is_change_in_view(vp, change)) {
-					// if the change is outside the viewport, skip
-					continue;
-				}
 
 				var clazz = ['mergely', 'rhs', change['op'], 'cid-' + i];
 				red.addLineClass(rlf, 'background', 'start');
@@ -1307,7 +1307,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 					red.setGutterMarker(rlf, 'merge', lhs_button.get(0));
 				}
 			}
-		});
+		}.bind(this));
 		this.trace('change', 'markup rhs-editor time', timer.stop());
 
 		// mark text deleted, LCS changes
@@ -1319,17 +1319,17 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			var rlf = change['rhs-line-from'] >= 0 ? change['rhs-line-from'] : 0;
 			var rlt = change['rhs-line-to'] >= 0 ? change['rhs-line-to'] : 0;
 
-			if (!this._is_change_in_view(vp, change)) {
-				// if the change is outside the viewport, skip
-				continue;
-			}
 			if (change['op'] == 'd') {
 				// apply delete to cross-out (left-hand side only)
 				var from = llf;
 				var to = llt;
-				var to_ln = led.lineInfo(to);
-				if (to_ln) {
-					marktext.push([led, {line:from, ch:0}, {line:to, ch:to_ln.text.length}, {className: 'mergely ch d lhs'}]);
+
+				if (this._is_change_in_view('lhs', lhsvp, change)) {
+					// the change is within the viewport
+					var to_ln = led.lineInfo(to);
+					if (to_ln) {
+						marktext.push([led, {line:from, ch:0}, {line:to, ch:to_ln.text.length}, {className: 'mergely ch d lhs'}]);
+					}
 				}
 			}
 			else if (change['op'] == 'c') {
@@ -1338,13 +1338,13 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 					 ((j >= 0) && (j <= llt)) || ((k >= 0) && (k <= rlt));
 					 ++j, ++k) {
 					var lhs_line, rhs_line;
-					if (k + p > rlt) {
+					if (k + p > rlt && this._is_change_in_view('lhs', lhsvp, change)) {
 						// lhs continues past rhs, mark lhs as deleted
 						lhs_line = led.getLine( j );
 						marktext.push([led, {line:j, ch:0}, {line:j, ch:lhs_line.length}, {className: 'mergely ch d lhs'}]);
 						continue;
 					}
-					if (j + p > llt) {
+					if (j + p > llt && this._is_change_in_view('rhs', rhsvp, change)) {
 						// rhs continues past lhs, mark rhs as added
 						rhs_line = red.getLine( k );
 						marktext.push([red, {line:k, ch:0}, {line:k, ch:rhs_line.length}, {className: 'mergely ch a rhs'}]);
@@ -1355,10 +1355,14 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 					var lcs = new Mgly.LCS(lhs_line, rhs_line);
 					lcs.diff(
 						function added (from, to) {
-							marktext.push([red, {line:k, ch:from}, {line:k, ch:to}, {className: 'mergely ch a rhs'}]);
+							if (self._is_change_in_view('rhs', rhsvp, change)) {
+								marktext.push([red, {line:k, ch:from}, {line:k, ch:to}, {className: 'mergely ch a rhs'}]);
+							}
 						},
 						function removed (from, to) {
-							marktext.push([led, {line:j, ch:from}, {line:j, ch:to}, {className: 'mergely ch d lhs'}]);
+							if (self._is_change_in_view('lhs', lhsvp, change)) {
+								marktext.push([led, {line:j, ch:from}, {line:j, ch:to}, {className: 'mergely ch d lhs'}]);
+							}
 						}
 					);
 				}
@@ -1413,29 +1417,37 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			return false;
 		});
 
-		// gutter markup
-		var lhsLineNumbers = jQuery('#mergely-lhs ~ .CodeMirror').find('.CodeMirror-linenumber');
-		var rhsLineNumbers = jQuery('#mergely-rhs ~ .CodeMirror').find('.CodeMirror-linenumber');
+		// gutter markup that highlights all gutter line numbers for the current change.
+		// cm doesn't give us the ability to style the line numbers directly.
+		var lhsLineNumbers = jQuery('#mergely-lhs ~ .CodeMirror .CodeMirror-code .CodeMirror-linenumber.CodeMirror-gutter-elt');
+		var rhsLineNumbers = jQuery('#mergely-rhs ~ .CodeMirror .CodeMirror-code .CodeMirror-linenumber.CodeMirror-gutter-elt');
+		var jf, jt, i, j;
 		rhsLineNumbers.removeClass('mergely current');
 		lhsLineNumbers.removeClass('mergely current');
-		for (var i = 0; i < changes.length; ++i) {
-			if (current_diff == i && change.op !== 'd') {
-				var change = changes[i];
-				var j, jf = change['rhs-line-from'], jt = change['rhs-line-to'] + 1;
-				for (j = jf; j < jt; j++) {
-					var n = (j + 1).toString();
-					rhsLineNumbers
-						.filter(function(i, node) { return jQuery(node).text() === n; })
-					.addClass('mergely current');
+		var lhsvpFrom = parseInt(lhsLineNumbers.eq(0).text(), 10) - 1;
+		var lhsvpTo = parseInt(lhsLineNumbers.eq(lhsLineNumbers.length - 1).text(), 10);
+		var rhsvpFrom = parseInt(rhsLineNumbers.eq(0).text(), 10) - 1;
+		var rhsvpTo = parseInt(rhsLineNumbers.eq(rhsLineNumbers.length - 1).text(), 10);
+
+		for (i = 0; i < changes.length; ++i) {
+			change = changes[i];
+
+			if (current_diff == i && change.op !== 'a') {
+				jf = change['lhs-line-from']
+				jt = change['lhs-line-to'] + 1;
+				for (j = jf; j < jt; ++j) {
+					if (j >= lhsvpFrom && j <= lhsvpTo) {
+						lhsLineNumbers.eq(j - lhsvpFrom).addClass('mergely current');
+					}
 				}
 			}
-			if (current_diff == i && change.op !== 'a') {
-				var change = changes[i];
-				jf = change['lhs-line-from'], jt = change['lhs-line-to'] + 1;
-				for (j = jf; j < jt; j++) {
-					var n = (j + 1).toString();
-					lhsLineNumbers.filter(function(i, node) { return jQuery(node).text() === n; })
-					.addClass('mergely current');
+			if (current_diff == i && change.op !== 'd') {
+				jf = change['rhs-line-from']
+				jt = change['rhs-line-to'] + 1;
+				for (j = jf; j < jt; ++j) {
+					if (j >= rhsvpFrom && j <= rhsvpTo) {
+						rhsLineNumbers.eq(j - rhsvpFrom).addClass('mergely current');
+					}
 				}
 			}
 		}
@@ -1538,7 +1550,9 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		ctx_rhs.fillRect(0, 0, 6.5, ex.visible_page_height);
 		ctx_rhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
 
-		var vp = this._get_viewport(editor_name1, editor_name2);
+		var lhsvp = this._get_viewport_side(editor_name1);
+		var rhsvp = this._get_viewport_side(editor_name2);
+
 		for (var i = 0; i < changes.length; ++i) {
 			var change = changes[i];
 			var fill = this.settings.fgcolor[change['op']];
@@ -1568,7 +1582,9 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			ctx_rhs.fillRect(1.5, rhs_y_start, 4.5, Math.max(rhs_y_end - rhs_y_start, 5));
 			ctx_rhs.strokeRect(1.5, rhs_y_start, 4.5, Math.max(rhs_y_end - rhs_y_start, 5));
 
-			if (!this._is_change_in_view(vp, change)) {
+			if (!this._is_change_in_view('lhs', lhsvp, change) &&
+				!this._is_change_in_view('rhs', rhsvp, change)) {
+				// if the change is outside the viewport, skip
 				continue;
 			}
 
