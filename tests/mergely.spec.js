@@ -524,5 +524,36 @@ describe('mergely', function () {
 				done();
 			});
 		});
+
+		it.only('should not be vulnerable to XSS', function (done) {
+			function initXSS(options) {
+				// $('body').css({'margin': '0px'}).append("<div id='mergely<script>alert(123)</script>' />");
+
+				$('body').get(0).innerHTML = "<div id='mergely\"<script id='injected'>alert(123)</script>'></div>";
+
+				const editor = $('#mergely');
+				editor.mergely(options);
+				return editor;
+			};
+
+			$(document).ready(() => {
+				const editor = initXSS({
+					height: 100,
+					viewport: true,
+					license: 'lgpl-separate-notice',
+					lhs: (setValue) => setValue(macbeth),
+					rhs: (setValue) => setValue(macbeth)
+				});
+				const { mergely } = $('#mergely');
+				// console.log('HERE', $('body').html());
+				// const { mergely } = $('#mergely&quot;<script>alert(123)</script>');
+				// expect($('#mergely<script>alert(123)</script>').mergely('_is_change_in_view', 'lhs', {from: 10, to: 20}, {
+				// 	'lhs-line-from': 0,
+				// 	'lhs-line-to': 25
+				// })).to.be.true;
+				expect($('body').find('#injected')).to.have.length(0);
+				done();
+			});
+		});
 	});
 });

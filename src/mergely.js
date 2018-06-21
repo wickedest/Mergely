@@ -686,17 +686,32 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		// create the textarea and canvas elements
 		var height = '10px';
 		var width = '10px';
-		this.element.append(jQuery('<div id="mergely-splash">'));
-		this.element.append(jQuery('<div class="mergely-margin" style="height: ' + height + '"><canvas id="' + this.id + '-lhs-margin" width="8px" height="' + height + '"></canvas></div>'));
-		this.element.append(jQuery('<div style="position:relative;width:' + width + '; height:' + height + '" id="' + this.id + '-editor-lhs" class="mergely-column"><textarea style="" id="' + this.id + '-lhs"></textarea></div>'));
-		this.element.append(jQuery('<div class="mergely-canvas" style="height: ' + height + '"><canvas id="' + this.id + '-lhs-' + this.id + '-rhs-canvas" style="width:28px" width="28px" height="' + height + '"></canvas></div>'));
-		var rmargin = jQuery('<div class="mergely-margin" style="height: ' + height + '"><canvas id="' + this.id + '-rhs-margin" width="8px" height="' + height + '"></canvas></div>');
+
+		var splash = jQuery('<div id="mergely-splash">');
+		var canvasLhs = jQuery(`<div class="mergely-margin" style="height: '${height}'"><canvas id="lhs-margin" width="8px" height="'${height}'"></canvas></div>`);
+		canvasLhs.find('#lhs-margin').attr('id', `${this.id}-lhs-margin`);
+		var editorLhs = jQuery(`<div style="position:relative;width:'${width}'; height:'${height}'" id="editor-lhs" class="mergely-column"><textarea id="text-lhs"></textarea></div>`);
+		editorLhs.eq(0).attr('id', `${this.id}-editor-lhs`);
+		editorLhs.find('#text-lhs').attr('id', `${this.id}-lhs`);
+		var canvasMid = jQuery(`<div class="mergely-canvas" style="height: '${height}'"><canvas id="lhs-rhs-canvas" style="width:28px" width="28px" height="'${height}'"></canvas></div>`);
+		canvasMid.find('#mergely-canvas').attr('id', `${this.id}-mergely-canvas`);
+		canvasMid.find('#lhs-rhs-canvas').attr('id', `${this.id}-lhs-${this.id}-rhs-canvas`);
+
+		this.element.append(splash);
+		this.element.append(canvasLhs);
+		this.element.append(editorLhs);
+		this.element.append(canvasMid);
+		var canvasRhs = jQuery(`<div class="mergely-margin" style="height: '${height}'"><canvas id="rhs-margin" width="8px" height="'${height}'"></canvas></div>`);
+		canvasRhs.find('#rhs-margin').attr('id', `${this.id}-rhs-margin`);
 		if (this.settings.rhs_margin == 'left') {
-			this.element.append(rmargin);
+			this.element.append(canvasRhs);
 		}
-		this.element.append(jQuery('<div style="width:' + width + '; height:' + height + '" id="' + this.id + '-editor-rhs" class="mergely-column"><textarea style="" id="' + this.id + '-rhs"></textarea></div>'));
+		var editorRhs = jQuery(`<div style="width:'${width}'; height:'${height}'" id="editor-rhs" class="mergely-column"><textarea id="text-rhs"></textarea></div>`);
+		editorRhs.eq(0).attr('id', `${this.id}-editor-rhs`);
+		editorRhs.find('#text-rhs').attr('id', `${this.id}-rhs`);
+		this.element.append(editorRhs);
 		if (this.settings.rhs_margin != 'left') {
-			this.element.append(rmargin);
+			this.element.append(canvasRhs);
 		}
 		if (!this.settings.sidebar) {
 			this.element.find('.mergely-margin').css({display: 'none'});
