@@ -526,11 +526,21 @@ describe('mergely', function () {
 			});
 		});
 
+<<<<<<< HEAD
 		it('should not be vulnerable to XSS', function (done) {
 			function initXSS(options) {
 				$('body').get(0).innerHTML = "<!DOCTYPE html><html lang=\"en\"><body><div id='mergely<script id=\"injected\">alert(123)</script>'></div></body></html>";
 				const divs = document.getElementsByTagName('div');
 				editor = $(divs[0]);
+=======
+		it.only('should not be vulnerable to XSS', function (done) {
+			function initXSS(options) {
+				// $('body').css({'margin': '0px'}).append("<div id='mergely<script>alert(123)</script>' />");
+
+				$('body').get(0).innerHTML = "<div id='mergely\"<script id='injected'>alert(123)</script>'></div>";
+
+				const editor = $('#mergely');
+>>>>>>> master
 				editor.mergely(options);
 				return editor;
 			};
