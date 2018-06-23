@@ -659,6 +659,13 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 	bind: function(el) {
 		this.element.hide();
 		this.id = jQuery(el).attr('id');
+		try {
+			// ensure the id is valid for jQuery
+			jQuery(`#${this.id}`);
+		} catch (ex) {
+			console.error(`jQuery failed to find mergely: #${this.id}`);
+			return;
+		}
 		this.changed_timeout = null;
 		this.chfns = {};
 		this.chfns[this.id + '-lhs'] = [];
@@ -749,32 +756,42 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			});
 		}
 
+		// check initialization
+		var rhstx;
+		try {
+			rhstx = this.element.find(`#${this.id}-rhs`).get(0);
+		} catch (ex) {
+		}
+		if (!rhstx) {
+			console.error('rhs textarea not defined - Mergely not initialized properly');
+			return;
+		}
+		var lhstx;
+		try {
+			lhstx = this.element.find(`#${this.id}-lhs`).get(0);
+		} catch (ex) {
+		}
+		if (!lhstx) {
+			console.error('lhs textarea not defined - Mergely not initialized properly');
+			return;
+		}
+
 		// get current diff border color
 		var color = jQuery('<div style="display:none" class="mergely current start" />').appendTo('body').css('border-top-color');
 		this.current_diff_color = color;
 
 		// codemirror
-		var cmstyle = '#' + this.id + ' .CodeMirror-gutter-text { padding: 5px 0 0 0; }' +
-			'#' + this.id + ' .CodeMirror-lines pre, ' + '#' + this.id + ' .CodeMirror-gutter-text pre { line-height: 18px; }' +
-			'.CodeMirror-linewidget { overflow: hidden; };';
+		var cmstyle = `#${this.id} .CodeMirror-gutter-text { padding: 5px 0 0 0; }
+			'#${this.id} .CodeMirror-lines pre, #${this.id} .CodeMirror-gutter-text pre { line-height: 18px; }
+			'.CodeMirror-linewidget { overflow: hidden; };`;
 		if (this.settings.autoresize) {
-			cmstyle += this.id + ' .CodeMirror-scroll { height: 100%; overflow: auto; }';
+			cmstyle += `${this.id} .CodeMirror-scroll { height: 100%; overflow: auto; }`;
 		}
 		// adjust the margin line height
 		cmstyle += '\n.CodeMirror { line-height: 18px; }';
-		jQuery('<style type="text/css">' + cmstyle + '</style>').appendTo('head');
+		jQuery(`<style type="text/css">${cmstyle}</style>`).appendTo('head');
 
-		//bind
-		var rhstx = this.element.find('#' + this.id + '-rhs').get(0);
-		if (!rhstx) {
-			console.error('rhs textarea not defined - Mergely not initialized properly');
-			return;
-		}
-		var lhstx = this.element.find('#' + this.id + '-lhs').get(0);
-		if (!rhstx) {
-			console.error('lhs textarea not defined - Mergely not initialized properly');
-			return;
-		}
+		// bind
 		var self = this;
 		this.editor = [];
 		this.editor[this.id + '-lhs'] = CodeMirror.fromTextArea(lhstx, this.lhs_cmsettings);

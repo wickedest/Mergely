@@ -20,9 +20,10 @@ describe('mergely', function () {
 	};
 
 	afterEach(() => {
-		$('#mergely').mergely('unbind');
-		$('#mergely').mergelyUnregister();
-		$('#mergely').remove();
+		const mergely = $('#mergely');
+		mergely.mergely('unbind');
+		mergely.mergelyUnregister();
+		mergely.remove();
 	});
 
 	describe('initialization', () => {
@@ -525,13 +526,11 @@ describe('mergely', function () {
 			});
 		});
 
-		it.only('should not be vulnerable to XSS', function (done) {
+		it('should not be vulnerable to XSS', function (done) {
 			function initXSS(options) {
-				// $('body').css({'margin': '0px'}).append("<div id='mergely<script>alert(123)</script>' />");
-
-				$('body').get(0).innerHTML = "<div id='mergely\"<script id='injected'>alert(123)</script>'></div>";
-
-				const editor = $('#mergely');
+				$('body').get(0).innerHTML = "<!DOCTYPE html><html lang=\"en\"><body><div id='mergely<script id=\"injected\">alert(123)</script>'></div></body></html>";
+				const divs = document.getElementsByTagName('div');
+				editor = $(divs[0]);
 				editor.mergely(options);
 				return editor;
 			};
@@ -544,14 +543,10 @@ describe('mergely', function () {
 					lhs: (setValue) => setValue(macbeth),
 					rhs: (setValue) => setValue(macbeth)
 				});
-				const { mergely } = $('#mergely');
-				// console.log('HERE', $('body').html());
-				// const { mergely } = $('#mergely&quot;<script>alert(123)</script>');
-				// expect($('#mergely<script>alert(123)</script>').mergely('_is_change_in_view', 'lhs', {from: 10, to: 20}, {
-				// 	'lhs-line-from': 0,
-				// 	'lhs-line-to': 25
-				// })).to.be.true;
-				expect($('body').find('#injected')).to.have.length(0);
+				expect($('body').find('#injected')).to.have.length(0, 'expected no div with id injected');
+				const divs = document.getElementsByTagName('div');
+				expect(divs).to.have.length(1);
+				expect(divs[0].id).to.equal('mergely<script id="injected">alert(123)</script>');
 				done();
 			});
 		});
