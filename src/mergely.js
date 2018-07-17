@@ -461,11 +461,11 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			lineNumbers: this.settings.line_numbers
 		};
 		var lhs_gutters = [];
-		if (this.lhs_cmsettings.line_numbers) {
+		if (this.lhs_cmsettings.lineNumbers) {
 			lhs_gutters = ['merge', 'CodeMirror-linenumbers']
 		}
 		var rhs_gutters = [];
-		if (this.rhs_cmsettings.line_numbers) {
+		if (this.rhs_cmsettings.lineNumbers) {
 			rhs_gutters = ['merge', 'CodeMirror-linenumbers']
 		}
 		jQuery.extend(true, this.lhs_cmsettings, this.settings.cmsettings, { gutters: lhs_gutters }, this.settings);
@@ -683,7 +683,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		}
 		else {
 			// homebrew
-			var style = 'opacity:0.4;width:10px;height:15px;background-color:#888;cursor:pointer;text-align:center;color:#eee;border:1px solid #222;margin-right:5px;margin-top: -2px;';
+			var style = 'opacity:0.6;height:16px;background-color:#bfbfbf;cursor:pointer;text-align:center;color:#eee;border:1px solid #848484;margin-right:5px;margin-top:-2px;';
 			merge_lhs_button = '<div style="' + style + '" title="Merge left">&lt;</div>';
 			merge_rhs_button = '<div style="' + style + '" title="Merge right">&gt;</div>';
 		}

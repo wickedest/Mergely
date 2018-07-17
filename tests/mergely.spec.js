@@ -402,6 +402,7 @@ describe('mergely', function () {
 						for (let i = 0; i < opt.next; ++i) {
 							$('#mergely').mergely('scrollToDiff', 'next');
 						}
+						expect($('.merge-button').length > 0).to.be.true;
 						$('#mergely').mergely('mergeCurrentChange', opt.dir);
 						if (opt.dir === 'lhs') {
 							expect($('#mergely').mergely('get', 'lhs')).to.equal(opt.expect || opt.rhs);
