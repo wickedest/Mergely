@@ -1,5 +1,17 @@
 # Changes
 
+## 4.0.6
+
+* #89: fixes missing merge buttons
+
+## 4.0.5
+
+* #85: fixes XSS vulnerability with DOM id
+
+## 4.0.2
+
+* #83: fixes poor rendering performance
+
 ## 4.0.0
 
 ### Breaking changes
