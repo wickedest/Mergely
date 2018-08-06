@@ -9,6 +9,9 @@ Mergely is a javascript component to diff/merge files interactively in a browser
 ### Installation via webpack
 The recommended way to install mergely is to use npm and [webpack](https://webpack.js.org/) to install mergely and its dependencies.  It is highly recommended that you start by cloning [mergely-webpack](https://github.com/wickedest/mergely-webpack).  It has everything that you need to get started.
 
+### Angular 6.1.1
+You can also use mergely within angular.  You can start by cloning [mergely-angular](https://github.com/wickedest/mergely-angular).
+
 ### Installation via .tgz
 
 Unpack mergely.tgz into a folder, e.g. `./lib`, and then add the following to the `<head>` of your target html source file.
@@ -46,9 +49,6 @@ The following example can be used to set the `lhs` and `rhs` editors synchronous
 
 ```js
 $(document).ready(function () {
-    // initialize mergely
-    $('#mergely').mergely();
-
     // set editor content
     $('#mergely').mergely({
         lhs: function(setValue) {

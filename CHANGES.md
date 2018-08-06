@@ -1,5 +1,8 @@
 # Changes
 
+## 4.0.7
+* chore: updated documentation
+
 ## 4.0.6
 
 * #89: fixes missing merge buttons
