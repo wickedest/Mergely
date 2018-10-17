@@ -2,3 +2,4 @@
 /lib
 mergely-*.tgz
 package-lock.json
+*.log

@@ -7,11 +7,6 @@
     "example": "examples",
     "test": "test"
   },
-  "scripts": {
-    "build": "rm -rf lib && webpack",
-    "test": "karma start",
-    "test:chrome": "karma start --browsers Chrome --singleRun=false"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wickedest/Mergely.git"
@@ -38,11 +33,17 @@
   },
   "homepage": "https://github.com/wickedest/Mergely#readme",
   "devDependencies": {
+    "@webpack-cli/init": "^0.1.2",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-preset-env": "^1.7.0",
     "chai": "^4.1.2",
     "codemirror": "^5.32.0",
-    "css-loader": "^0.28.7",
+    "css-loader": "^0.28.11",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
+    "html-webpack-plugin": "^3.2.0",
     "image-webpack-loader": "^3.4.2",
     "jquery": "^3.2.1",
     "karma": "^2.0.0",
@@ -53,6 +54,16 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-webpack": "^2.0.9",
     "mocha": "^4.0.1",
-    "webpack": "^3.8.1"
+    "style-loader": "^0.23.0",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.9"
+  },
+  "scripts": {
+    "build": "rm -rf lib && webpack --config ./webpack.prod.js",
+    "start": "webpack-dev-server -w --debug --progress --colors --config ./webpack.dev.js --content-base ./dist --inline --hot --host 0.0.0.0",
+    "test": "karma start",
+    "test:chrome": "karma start --browsers Chrome --singleRun=false"
   }
 }

@@ -1,6 +1,6 @@
 "use strict";
 
-require('./mergely.css');
+// require('./mergely.css');
 
 (function(jQuery, CodeMirror) {
 
