@@ -1,6 +1,5 @@
 const path = require('path');
-const webpackCfg = require('./webpack.config');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = function(config) {
 	config.set({
@@ -40,9 +39,11 @@ module.exports = function(config) {
 		webpack: {
 			entry: './src/mergely.js',
 			module: {
-				loaders: [
-					{ test: /\.css$/, loader: ExtractTextPlugin.extract('css-loader') }
-				]
+				rules: [{
+					test: /\.(js)$/,
+					exclude: /node_modules/,
+					use: ['babel-loader']
+				}]
 			},
 			resolve: {
 				extensions: ['.js'],
@@ -52,7 +53,11 @@ module.exports = function(config) {
 				}
 			},
 			plugins: [
-				new ExtractTextPlugin('mergely.css')
+				new CopyWebpackPlugin([{
+					from: 'src/mergely.css',
+					to: 'mergely.css',
+					toType: 'file'
+				}])
 			]
 		},
 		webpackServer: {

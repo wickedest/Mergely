@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
 	mode: 'production',
@@ -16,8 +16,9 @@ module.exports = {
 	},
 	module: {
 		rules: [{
-			test: /\.css$/,
-			loader: ExtractTextPlugin.extract('css-loader')
+			test: /\.(js)$/,
+			exclude: /node_modules/,
+			use: ['babel-loader']
 		}]
 	},
 	resolve: {
@@ -28,6 +29,10 @@ module.exports = {
 		CodeMirror: 'CodeMirror'
 	},
 	plugins: [
-		new ExtractTextPlugin('mergely.css')
+		new CopyWebpackPlugin([{
+			from: 'src/mergely.css',
+			to: 'mergely.css',
+			toType: 'file'
+		}])
 	]
 };

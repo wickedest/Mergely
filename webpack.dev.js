@@ -7,8 +7,15 @@ module.exports = {
 
 	module: {
 		rules: [{
-			include: [path.resolve(__dirname, 'src'), path.resolve(__dirname, 'examples')],
+			include: [
+				path.resolve(__dirname, 'src'),
+				path.resolve(__dirname, 'examples')
+			],
 			test: /\.js$/
+		}, {
+			test: /\.(js)$/,
+			exclude: /node_modules/,
+			use: ['babel-loader']
 		}, {
 			test: /\.css$/,
 			use: [{

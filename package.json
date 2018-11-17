@@ -1,6 +1,6 @@
 {
   "name": "mergely",
-  "version": "4.0.7",
+  "version": "4.0.8",
   "description": "A javascript UI for diff/merge",
   "directories": {
     "doc": "doc",
@@ -15,7 +15,8 @@
   "files": [
     "lib",
     "examples",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "merge",
@@ -33,20 +34,20 @@
   },
   "homepage": "https://github.com/wickedest/Mergely#readme",
   "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
     "@webpack-cli/init": "^0.1.2",
-    "babel-core": "^6.26.3",
     "babel-loader": "^8.0.4",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "babel-preset-env": "^1.7.0",
     "chai": "^4.1.2",
     "codemirror": "^5.32.0",
+    "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^0.28.11",
-    "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
     "html-webpack-plugin": "^3.2.0",
     "image-webpack-loader": "^3.4.2",
     "jquery": "^3.2.1",
-    "karma": "^2.0.0",
+    "karma": "^3.1.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage-istanbul-reporter": "^1.3.0",

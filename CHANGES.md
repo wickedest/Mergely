@@ -1,5 +1,8 @@
 # Changes
 
+## 4.0.8
+* chore: updated webpack
+
 ## 4.0.7
 * chore: updated documentation
 

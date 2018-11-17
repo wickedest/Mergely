@@ -1,24 +1,12 @@
 "use strict";
 
-// require('./mergely.css');
-
 (function(jQuery, CodeMirror) {
 
 var Mgly = {};
 
-Mgly.Timer = function(){
-	var self = this;
-	self.start = function() { self.t0 = new Date().getTime(); };
-	self.stop = function() {
-		var t1 = new Date().getTime();
-		var d = t1 - self.t0;
-		self.t0 = t1;
-		return d;
-	};
-	self.start();
-};
-
 Mgly.ChangeExpression = new RegExp(/(^(?![><\-])*\d+(?:,\d+)?)([acd])(\d+(?:,\d+)?)/);
+
+const Timer = require('./Timer');
 
 Mgly.DiffParser = function(diff) {
 	var changes = [];
@@ -751,7 +739,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			}).append('<p><img width="36" height="36" alt="mergely" src="' + icon + '" style="float:left;padding-right:10px;" />This software is a Combined Work using Mergely and is covered by the ' + lic + ' license.  For the full license, see <a target="_blank" href="http://www.mergely.com">http://www.mergely.com/license.</a></p>');
 			jQuery('body').one('click', function () {
 				jQuery('#mergely-splash').fadeOut(100, 'linear', function () {
-					this.remove();
+					jQuery('#mergely-splash').remove();
 				});
 			});
 		}
@@ -950,13 +938,13 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			else this.trace('scroll', 'not scrolling other side');
 
 			if (this.settings.autoupdate) {
-				var timer = new Mgly.Timer();
+				Timer.start();
 				this._calculate_offsets(editor_name1, editor_name2, this.changes);
-				this.trace('change', 'offsets time', timer.stop());
+				this.trace('change', 'offsets time', Timer.stop());
 				this._markup_changes(editor_name1, editor_name2, this.changes);
-				this.trace('change', 'markup time', timer.stop());
+				this.trace('change', 'markup time', Timer.stop());
 				this._draw_diff(editor_name1, editor_name2, this.changes);
-				this.trace('change', 'draw time', timer.stop());
+				this.trace('change', 'draw time', Timer.stop());
 			}
 			this.trace('scroll', 'scrolled');
 		}
@@ -966,9 +954,9 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		var self = this;
 		if (this.changed_timeout != null) clearTimeout(this.changed_timeout);
 		this.changed_timeout = setTimeout(function(){
-			var timer = new Mgly.Timer();
+			Timer.start();
 			self._changed(editor_name1, editor_name2);
-			self.trace('change', 'total time', timer.stop());
+			self.trace('change', 'total time', Timer.stop());
 		}, this.settings.change_timeout);
 	},
 	_changed: function(editor_name1, editor_name2) {
@@ -979,7 +967,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		var self = this, name, editor, fns, timer, i, change, l;
 
 		var clear_changes = function() {
-			timer = new Mgly.Timer();
+			Timer.start();
 			for (i = 0, l = editor.lineCount(); i < l; ++i) {
 				editor.removeLineClass(i, 'background');
 			}
@@ -993,7 +981,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				change.clear();
 			}
 			editor.clearGutter('merge');
-			self.trace('change', 'clear time', timer.stop());
+			self.trace('change', 'clear time', Timer.stop());
 		};
 
 		for (name in this.editor) {
@@ -1029,23 +1017,23 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 	_diff: function(editor_name1, editor_name2) {
 		var lhs = this.editor[editor_name1].getValue();
 		var rhs = this.editor[editor_name2].getValue();
-		var timer = new Mgly.Timer();
+		Timer.start();
 		var d = new Mgly.diff(lhs, rhs, this.settings);
-		this.trace('change', 'diff time', timer.stop());
+		this.trace('change', 'diff time', Timer.stop());
 		this.changes = Mgly.DiffParser(d.normal_form());
-		this.trace('change', 'parse time', timer.stop());
+		this.trace('change', 'parse time', Timer.stop());
 		if (this._current_diff === undefined && this.changes.length) {
 			// go to first difference on start-up
 			this._current_diff = 0;
 			this._scroll_to_change(this.changes[0]);
 		}
-		this.trace('change', 'scroll_to_change time', timer.stop());
+		this.trace('change', 'scroll_to_change time', Timer.stop());
 		this._calculate_offsets(editor_name1, editor_name2, this.changes);
-		this.trace('change', 'offsets time', timer.stop());
+		this.trace('change', 'offsets time', Timer.stop());
 		this._markup_changes(editor_name1, editor_name2, this.changes);
-		this.trace('change', 'markup time', timer.stop());
+		this.trace('change', 'markup time', Timer.stop());
 		this._draw_diff(editor_name1, editor_name2, this.changes);
-		this.trace('change', 'draw time', timer.stop());
+		this.trace('change', 'draw time', Timer.stop());
 	},
 	_parse_diff: function (editor_name1, editor_name2, diff) {
 		this.trace('diff', 'diff results:\n', diff);
@@ -1235,7 +1223,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		var lhsvp = this._get_viewport_side(editor_name1);
 		var rhsvp = this._get_viewport_side(editor_name2);
 
-		var timer = new Mgly.Timer();
+		Timer.start();
 		led.operation(function() {
 			for (var i = 0; i < changes.length; ++i) {
 				var change = changes[i];
@@ -1288,7 +1276,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			}
 		}.bind(this));
 
-		this.trace('change', 'markup lhs-editor time', timer.stop());
+		this.trace('change', 'markup lhs-editor time', Timer.stop());
 		red.operation(function() {
 			for (var i = 0; i < changes.length; ++i) {
 				var change = changes[i];
@@ -1340,7 +1328,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				}
 			}
 		}.bind(this));
-		this.trace('change', 'markup rhs-editor time', timer.stop());
+		this.trace('change', 'markup rhs-editor time', Timer.stop());
 
 		// mark text deleted, LCS changes
 		var marktext = [], i, j, k, p;
@@ -1400,7 +1388,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				}
 			}
 		}
-		this.trace('change', 'LCS marktext time', timer.stop());
+		this.trace('change', 'LCS marktext time', Timer.stop());
 
 		// mark changes outside closure
 		led.operation(function() {
@@ -1420,7 +1408,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			}
 		});
 
-		this.trace('change', 'LCS markup time', timer.stop());
+		this.trace('change', 'LCS markup time', Timer.stop());
 
 		// merge buttons
 		var ed = {lhs:led, rhs:red};
@@ -1484,7 +1472,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			}
 		}
 
-		this.trace('change', 'markup buttons time', timer.stop());
+		this.trace('change', 'markup buttons time', Timer.stop());
 	},
 	_merge_change :	function(change, side, oside) {
 		if (!change) return;

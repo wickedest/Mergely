@@ -7,6 +7,7 @@ $(document).ready(function () {
 		cmsettings: {
 			readOnly: false
 		},
+		_debug: '',
 		lhs: function(setValue) {
 			setValue('the quick red fox\njumped over the hairy dog');
 		},
