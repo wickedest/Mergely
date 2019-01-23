@@ -671,7 +671,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		}
 		else {
 			// homebrew
-			var style = 'opacity:0.6;height:16px;background-color:#bfbfbf;cursor:pointer;text-align:center;color:#eee;border:1px solid #848484;margin-right:5px;margin-top:-2px;';
+			var style = 'opacity:0.6;height:16px;background-color:#bfbfbf;cursor:pointer;text-align:center;color:#eee;border:1px solid #848484;margin-right:-15px;margin-top:-2px;';
 			merge_lhs_button = '<div style="' + style + '" title="Merge left">&lt;</div>';
 			merge_rhs_button = '<div style="' + style + '" title="Merge right">&gt;</div>';
 		}
@@ -1496,7 +1496,8 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			odoc.replaceRange(text, CodeMirror.Pos(ofrom, 0), CodeMirror.Pos(oto, otolen));
 		} else if ((oside === 'lhs' && change['op'] === 'd') || (oside === 'rhs' && change['op'] === 'a')) {
 			if (from > 0) {
-				text = doc.getRange(CodeMirror.Pos(from - 1, fromlen), CodeMirror.Pos(to, tolen));
+				text = doc.getRange(CodeMirror.Pos(from, fromlen), CodeMirror.Pos(to, tolen));
+				ofrom += 1;
 			} else {
 				text = doc.getRange(CodeMirror.Pos(0, 0), CodeMirror.Pos(to + 1, 0));
 			}
