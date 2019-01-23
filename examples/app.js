@@ -9,10 +9,10 @@ $(document).ready(function () {
 		},
 		_debug: '',
 		lhs: function(setValue) {
-			setValue('a\nb\nc');
+			setValue('the quick red fox\njumped over the hairy dog');
 		},
 		rhs: function(setValue) {
-			setValue('a\nb\nx\nc');
+			setValue('the quick brown fox\njumped over the lazy dog');
 		}
 	});
 });
