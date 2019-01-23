@@ -1,5 +1,8 @@
 # Changes
 
+## 4.0.10
+* fixes bad 4.0.9 artifacts
+
 ## 4.0.9
 * #106: fixes merge edge-case with add
 
