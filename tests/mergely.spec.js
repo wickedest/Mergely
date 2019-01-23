@@ -336,6 +336,12 @@ describe('mergely', function () {
 			dir: 'lhs',
 			name: 'delete is lines 2-3 and insert into middle of rhs'
 		},
+		{
+			lhs: 'a\nb\nc',
+			rhs: 'a\nb\nx\nc',
+			dir: 'lhs',
+			name: 'delete line 3 of length 1 of rhs and will be replaced with empty line 2 of lhs'
+		},
 		// delete 36-43 merge rhs
 		{
 			lhs: '\na',
@@ -384,6 +390,12 @@ describe('mergely', function () {
 			rhs: 'a\nd',
 			dir: 'rhs',
 			name: 'delete is lines 2-3 and insert into middle of rhs'
+		},
+		{
+			lhs: 'a\nb\nc',
+			rhs: 'a\nb\nx\nc',
+			dir: 'rhs',
+			name: 'merge rhs line 3 of length 1 and insert after line 2 of lhs'
 		}];
 
 		opts.forEach((opt, i) => {
