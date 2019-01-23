@@ -1,5 +1,8 @@
 # Changes
 
+## 4.0.9
+* #106: fixes merge edge-case with add
+
 ## 4.0.8
 * chore: updated webpack
 
