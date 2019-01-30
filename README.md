@@ -42,7 +42,19 @@ $(document).ready(function () {
     $('#mergely').mergely();
 });
 ```
-
+Checkout via command line
+If you cannot merge a pull request automatically here, you have the option of checking it out via command line to resolve conflicts and perform a manual merge.
+HTTPS
+Git
+Patch
+	
+Step 1: From your project repository, check out a new branch and test the changes.
+ git checkout -b wickedest-master build-improvements
+git pull https://github.com/wickedest/Mergely.git master
+Step 2: Merge the changes and update on GitHub.
+ git checkout build-improvements
+git merge --no-ff wickedest-master
+git push origin build-improvements
 ### Synchronous content initialization
 
 The following example can be used to set the `lhs` and `rhs` editors synchronously (i.e. their contents are already known):
