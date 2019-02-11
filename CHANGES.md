@@ -1,5 +1,8 @@
 # Changes
 
+## 4.0.11
+* fixes typo in example ajax.html
+
 ## 4.0.10
 * fixes bad 4.0.9 artifacts
 
