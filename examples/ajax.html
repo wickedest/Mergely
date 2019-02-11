@@ -104,7 +104,7 @@ This example demonstrates how to set left and right editors using ajax.
 				//a.innerHTML = "content ready.";
 			}
 			document.getElementById('save-lhs').addEventListener('mouseover', function() { download_content(this, "lhs"); }, false);
-			document.getElementById('save-rhs').addEventListener('mouseover', function() { download_content(this, "lhs"); }, false);
+			document.getElementById('save-rhs').addEventListener('mouseover', function() { download_content(this, "rhs"); }, false);
 			document.getElementById('ignorews').addEventListener('change', function() {
 				$('#compare').mergely('options', { ignorews: this.checked });
 			}, false);
