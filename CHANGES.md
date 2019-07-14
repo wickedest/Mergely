@@ -1,5 +1,8 @@
 # Changes
 
+## 4.0.12
+* fixes issue #115 merging deleted line(s) from lhs would munge rhs text
+
 ## 4.0.11
 * fixes typo in example ajax.html
 
