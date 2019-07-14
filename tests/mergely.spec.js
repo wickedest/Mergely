@@ -396,6 +396,54 @@ describe('mergely', function () {
 			rhs: 'a\nb\nx\nc',
 			dir: 'rhs',
 			name: 'merge rhs line 3 of length 1 and insert after line 2 of lhs'
+		},
+		{
+			lhs: '\ngood',
+			rhs: 'good',
+			dir: 'rhs',
+			name: 'lhs has deleted line at start'
+		},
+		{
+			lhs: '\na\nb\nc\ngood',
+			rhs: 'good',
+			dir: 'rhs',
+			name: 'lhs has multiple deleted lines at start'
+		},
+		{
+			lhs: 'good\n',
+			rhs: 'good',
+			dir: 'rhs',
+			name: 'lhs has deleted line at end (issue #115)'
+		},
+		{
+			lhs: 'good\na\nb\nc',
+			rhs: 'good',
+			dir: 'rhs',
+			name: 'lhs has multiple deleted lines at end (issue #115)'
+		},
+		{
+			lhs: 'good',
+			rhs: '\ngood',
+			dir: 'lhs',
+			name: 'rhs has added line at start'
+		},
+		{
+			lhs: 'good',
+			rhs: '\na\nb\nc\ngood',
+			dir: 'lhs',
+			name: 'rhs has multiple added lines at start'
+		},
+		{
+			lhs: 'good',
+			rhs: 'good\n',
+			dir: 'lhs',
+			name: 'rhs has added line at end'
+		},
+		{
+			lhs: 'good',
+			rhs: 'good\na\nb\nc',
+			dir: 'lhs',
+			name: 'rhs has multiple added lines at end'
 		}];
 
 		opts.forEach((opt, i) => {

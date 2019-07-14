@@ -1504,6 +1504,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			odoc.replaceRange(text, CodeMirror.Pos(ofrom - 1, 0), CodeMirror.Pos(oto + 1, 0));
 		} else if ((oside === 'rhs' && change['op'] === 'd') || (oside === 'lhs' && change['op'] === 'a')) {
 			if (from > 0) {
+				fromlen = doc.getLine(from - 1).length + 1;
 				text = doc.getRange(CodeMirror.Pos(from - 1, fromlen), CodeMirror.Pos(to, tolen));
 			} else {
 				text = doc.getRange(CodeMirror.Pos(0, 0), CodeMirror.Pos(to + 1, 0));

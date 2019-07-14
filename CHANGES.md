@@ -1,13 +1,17 @@
 # Changes
 
+## 4.0.12
+* patch: fixes issue #115 merging deleted line(s) from lhs would munge rhs text
+* patch: fixes two typos in README.md
+
 ## 4.0.11
-* fixes typo in example ajax.html
+* patch: fixes typo in example ajax.html
 
 ## 4.0.10
-* fixes bad 4.0.9 artifacts
+* patch: fixes bad 4.0.9 artifacts
 
 ## 4.0.9
-* #106: fixes merge edge-case with add
+* patch: fixes issue #106 merge edge-case with add
 
 ## 4.0.8
 * chore: updated webpack
@@ -17,15 +21,15 @@
 
 ## 4.0.6
 
-* #89: fixes missing merge buttons
+* patch: fixes issue #89 missing merge buttons
 
 ## 4.0.5
 
-* #85: fixes XSS vulnerability with DOM id
+* patch: fixes issue #85 XSS vulnerability with DOM id
 
 ## 4.0.2
 
-* #83: fixes poor rendering performance
+* patch: fixes issue #83 poor rendering performance
 
 ## 4.0.0
 
