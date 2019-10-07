@@ -51,7 +51,7 @@ $(document).ready(function () {
 
 ### Synchronous content initialization
 
-The following example can be used to set the `lhs` and `rhs` editors synchronously, that is, when their contents are already known):
+The following example can be used to set the `lhs` and `rhs` editors synchronously (that is, when their contents are already known):
 
 ```js
 $(document).ready(function () {
