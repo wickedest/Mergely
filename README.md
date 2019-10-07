@@ -249,7 +249,7 @@ $('#mergely').mergely('options');
 
 ### resize
 
-Resize the editor. It must be called explicitly if `autoresize` is disabled.
+Resizes the editor. It must be called explicitly if `autoresize` is disabled.
 
 #### Parameters
 None.
