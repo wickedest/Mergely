@@ -9,7 +9,7 @@ Mergely has a javascript implementation of the Longest Common Subsequence (LCS) 
 ## Installation
 
 ### Installation via webpack
-The recommended way to install mergely and its dependencies is to use a Node package manager (npm) and [webpack](https://webpack.js.org/).
+The recommended way to install mergely and its dependencies is to use a Node package manager (`npm` or `yarn`) and [webpack](https://webpack.js.org/).
 
 It is highly recommended that you start by cloning [mergely-webpack](https://github.com/wickedest/mergely-webpack). The webpack has everything that you need to get started.
 
