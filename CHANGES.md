@@ -1,5 +1,9 @@
 # Changes
 
+## 4.0.13
+* patch: updated documentation
+* patch: fixed typos
+
 ## 4.0.12
 * patch: fixes issue #115 merging deleted line(s) from lhs would munge rhs text
 * patch: fixes two typos in README.md
