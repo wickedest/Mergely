@@ -2,7 +2,7 @@
 
 http://mergely.com
 
-Mergely is a javascript component to differencing and merging files interactively in a browser, providing rich API that enables you to easily integrate Mergely into your existing web application. It is suitable for comparing text files online, for example, .txt, .html, .xml, .c, .cpp, .java, etc.  
+Mergely is a JavaScript component for differencing and merging files interactively in a browser (diff/merge), providing rich API that enables you to easily integrate Mergely into your existing web application. It is suitable for comparing text files online, for example, .txt, .html, .xml, .c, .cpp, .java, etc.  
 
 Mergely has a javascript implementation of the Longest Common Subsequence (LCS) diff algorithm, and a customizable markup engine.
 
