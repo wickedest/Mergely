@@ -343,7 +343,7 @@ $('#mergely').mergely('unmarkup');
 
 ### update
 
-Manual update, recalculates the diff and applies new settings.
+Manually updates the editor by recalculating the diff and applying new settings.
 
 #### Parameters
 None.
