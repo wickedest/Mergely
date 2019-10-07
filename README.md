@@ -2,19 +2,23 @@
 
 http://mergely.com
 
-Mergely is a javascript component to diff/merge files interactively in a browser, providing rich API that enables you to easily integrate Mergely into your existing web application.  It is suitable for comparing text files online, e.g. .txt, .html, .xml, .c, .cpp, .java, etc.  Mergely has a javascript implementation of the Longest Common Subsequence diff algorithm (LCS) and a customizable markup engine.
+Mergely is a JavaScript component for differencing and merging files interactively in a browser (diff/merge), providing rich API that enables you to easily integrate Mergely into your existing web application. It is suitable for comparing text files online, for example, .txt, .html, .xml, .c, .cpp, .java, etc.  
+
+Mergely has a JavaScript implementation of the Longest Common Subsequence (LCS) diff algorithm, and a customizable markup engine.
 
 ## Installation
 
 ### Installation via webpack
-The recommended way to install mergely is to use npm and [webpack](https://webpack.js.org/) to install mergely and its dependencies.  It is highly recommended that you start by cloning [mergely-webpack](https://github.com/wickedest/mergely-webpack).  It has everything that you need to get started.
+The recommended way to install mergely and its dependencies is to use a Node package manager (`npm` or `yarn`) and [webpack](https://webpack.js.org/).
+
+It is highly recommended that you start by cloning [mergely-webpack](https://github.com/wickedest/mergely-webpack). The webpack has everything that you need to get started.
 
 ### Angular 6.1.1
-You can also use mergely within angular.  You can start by cloning [mergely-angular](https://github.com/wickedest/mergely-angular).
+You can also use mergely within angular. You can start by cloning [mergely-angular](https://github.com/wickedest/mergely-angular).
 
 ### Installation via .tgz
 
-Unpack mergely.tgz into a folder, e.g. `./lib`, and then add the following to the `<head>` of your target html source file.
+Unpack mergely.tgz into a folder, for example, `./lib`, and add the following to the `<head>` of your target HTML source file.
 
 ```html
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -25,7 +29,9 @@ Unpack mergely.tgz into a folder, e.g. `./lib`, and then add the following to th
 <link rel="stylesheet" media="all" href="lib/mergely/lib/mergely.css" />
 ```
 
-Create a div for the editor in `<body>`.  This example uses a style that provides 8px padding (`mergely-full-screen-8`):
+Create a div for the editor in `<body>`.  
+
+This example uses a style that provides 8px padding (`mergely-full-screen-8`):
 
 ```html
 <div class="mergely-full-screen-8">
@@ -45,7 +51,7 @@ $(document).ready(function () {
 
 ### Synchronous content initialization
 
-The following example can be used to set the `lhs` and `rhs` editors synchronously (i.e. their contents are already known):
+The following example can be used to set the `lhs` and `rhs` editors synchronously (that is, when their contents are already known):
 
 ```js
 $(document).ready(function () {
@@ -86,7 +92,7 @@ $(document).ready(function () {
 |<a name="autoresize"></a>autoresize|boolean|`true`|Enables/disables the auto-resizing of the editor.|
 |<a name="autoupdate"></a>autoupdate|boolean|`true`|Enables/disables the auto-updating of the editor when changes are made.|
 |<a name="bgcolor"></a>bgcolor|string|`#eeeeee`|The background color that mergely fills the margin canvas with.|
-|<a name="change_timeout"></a>change_timeout|number|`500`|The timeout, after a text change, before Mergely calcualtes a diff. Only used when `readonly` enabled.|
+|<a name="change_timeout"></a>change_timeout|number|`500`|The timeout, after a text change, before Mergely calculates a diff. Only used when `readonly` is enabled.|
 |<a name="cmsettings"></a>cmsettings|object|`{mode: 'text/plain', readOnly: false}`|CodeMirror settings (see [CodeMirror](http://codemirror.net])) that are combined with `lhs_cmsettings` and `rhs_cmsettings`.|
 |<a name="editor_width"></a>editor_width|string|`400px`|Starting width.|
 |<a name="editor_height"></a>editor_height|string|`400px`|Starting height.|
@@ -100,7 +106,7 @@ $(document).ready(function () {
 |<a name="lhs_cmsettings"></a>lhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](http://codemirror.net])) for the left-hand side editor.|
 |<a name="resize_timeout"></a>resize_timeout|number|`500`|The timeout, after a resize, before Mergely auto-resizes. Only used when autoresize enabled.|
 |<a name="rhs_cmsettings"></a>rhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](http://codemirror.net])) for the right-hand side editor.|
-|<a name="rhs_margin"></a>rhs_margin|string|`right`|Location for the rhs markup margin is either right or left.|
+|<a name="rhs_margin"></a>rhs_margin|string|`right`|Location for the rhs markup margin. Possible values: right, left.|
 |<a name="sidebar"></a>sidebar|boolean|`true`|Enables/disables sidebar markers. Disabling can give a performance gain for large documents.|
 |<a name="vpcolor"></a>vpcolor|string|`rgba(0, 0, 200, 0.5)`|The margin/viewport indicator color.|
 |<a name="viewport"></a>viewport|boolean|`false`|Enables/disables the viewport. Enabling the viewport can give a performance gain for large documents.|
@@ -243,7 +249,7 @@ $('#mergely').mergely('options');
 
 ### resize
 
-Resize the editor.  Must be called explicitly if `autoresize` is disabled.
+Resizes the editor. It must be called explicitly if `autoresize` is disabled.
 
 #### Parameters
 None.
@@ -313,7 +319,7 @@ $('#mergely').mergely('search', 'lhs', 'needle');
 
 ### swap
 
-Swap the content of the left and right editors.
+Swaps the content of the left and right editors.
 
 #### Parameters
 None.
@@ -337,7 +343,7 @@ $('#mergely').mergely('unmarkup');
 
 ### update
 
-Manual update; recalculates diff and applies new settings.
+Manually updates the editor by recalculating the diff and applying new settings.
 
 #### Parameters
 None.
