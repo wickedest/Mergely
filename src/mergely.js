@@ -456,8 +456,8 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		if (this.rhs_cmsettings.lineNumbers) {
 			rhs_gutters = ['merge', 'CodeMirror-linenumbers']
 		}
-		jQuery.extend(true, this.lhs_cmsettings, this.settings.cmsettings, { gutters: lhs_gutters }, this.settings);
-		jQuery.extend(true, this.rhs_cmsettings, this.settings.cmsettings, { gutters: rhs_gutters }, this.settings);
+		jQuery.extend(true, this.lhs_cmsettings, this.settings.cmsettings, { gutters: lhs_gutters }, this.settings.lhs_cmsettings);
+		jQuery.extend(true, this.rhs_cmsettings, this.settings.cmsettings, { gutters: rhs_gutters }, this.settings.rhs_cmsettings);
 
 		// bind if the element is destroyed
 		this.element.bind('destroyed', jQuery.proxy(this.teardown, this));
