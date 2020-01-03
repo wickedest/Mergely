@@ -395,6 +395,9 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			license: '',
 			width: 'auto',
 			height: 'auto',
+			cmsettings: {
+				styleSelectedText: true
+			},
 			lhs: function(setValue) { },
 			rhs: function(setValue) { },
 			loaded: function() { },
@@ -1763,4 +1766,10 @@ jQuery.pluginMaker = function(plugin) {
 // make the mergely widget
 jQuery.pluginMaker(Mgly.mergely);
 
-})(require('jquery'), require('CodeMirror'));
+})(
+	require('jquery'),
+	require('CodeMirror'),
+	{
+		markSelection: require('../node_modules/codemirror/addon/selection/mark-selection.js')
+	}
+);

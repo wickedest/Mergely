@@ -48,3 +48,4 @@
 .mergely.current.CodeMirror-linenumber { color: #F9F9F9; font-weight: bold; background-color: #777; }
 .CodeMirror-linenumber { cursor: pointer; }
 .CodeMirror-code { color: #717171; }
+span.CodeMirror-selectedtext { background: none !important; }

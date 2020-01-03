@@ -1,5 +1,8 @@
 # Changes
 
+## 4.0.14
+* patch: fixes issue #104 where diff text conflicted with selected text
+
 ## 4.0.13
 * patch: fixed issue where `lhs_cmsettings` and  `lhs_cmsettings` were ignored
 * patch: updated documentation
