@@ -1766,10 +1766,4 @@ jQuery.pluginMaker = function(plugin) {
 // make the mergely widget
 jQuery.pluginMaker(Mgly.mergely);
 
-})(
-	require('jquery'),
-	require('CodeMirror'),
-	{
-		markSelection: require('../node_modules/codemirror/addon/selection/mark-selection.js')
-	}
-);
+})(require('jquery'), require('CodeMirror'));

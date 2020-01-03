@@ -1,3 +1,4 @@
+require('codemirror/addon/selection/mark-selection.js');
 require('codemirror/lib/codemirror.css');
 require('../src/mergely.css');
 

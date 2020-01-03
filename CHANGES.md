@@ -1,5 +1,8 @@
 # Changes
 
+## 4.0.15
+* patch: removed unnecessary addon mark-selected
+
 ## 4.0.14
 * patch: fixes issue #104 where diff text conflicted with selected text
 
