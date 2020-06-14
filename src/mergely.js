@@ -1357,17 +1357,17 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			}
 			else if (change['op'] == 'c') {
 				// apply LCS changes to each line
-				for (j = llf, k = rlf, p = 0;
+				for (j = llf, k = rlf;
 					 ((j >= 0) && (j <= llt)) || ((k >= 0) && (k <= rlt));
 					 ++j, ++k) {
 					var lhs_line, rhs_line;
-					if (k + p > rlt && this._is_change_in_view('lhs', lhsvp, change)) {
+					if (k > rlt) {
 						// lhs continues past rhs, mark lhs as deleted
 						lhs_line = led.getLine( j );
 						marktext.push([led, {line:j, ch:0}, {line:j, ch:lhs_line.length}, {className: 'mergely ch d lhs'}]);
 						continue;
 					}
-					if (j + p > llt && this._is_change_in_view('rhs', rhsvp, change)) {
+					if (j > llt) {
 						// rhs continues past lhs, mark rhs as added
 						rhs_line = red.getLine( k );
 						marktext.push([red, {line:k, ch:0}, {line:k, ch:rhs_line.length}, {className: 'mergely ch a rhs'}]);
