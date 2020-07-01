@@ -367,7 +367,7 @@ Mgly.CodeMirrorDiffView = function(el, options) {
 	CodeMirror.defineExtension('centerOnCursor', function() {
 		var coords = this.cursorCoords(null, 'local');
 		this.scrollTo(null,
-			(coords.y + coords.yBot) / 2 - (this.getScrollerElement().clientHeight / 2));
+			(coords.top + coords.bottom) / 2 - (this.getScrollerElement().clientHeight / 2));
 	});
 	this.init(el, options);
 };
@@ -432,7 +432,6 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 					else {
 						self.show();
 					}
-					if (this.loaded) this.loaded();
 				}
 				if (this.resized) this.resized();
 			},
@@ -648,6 +647,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		return d.normal_form();
 	},
 	bind: function(el) {
+		this.trace('init', 'bind');
 		this.element.hide();
 		this.id = jQuery(el).attr('id');
 		try {
@@ -784,6 +784,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 
 		// bind
 		var self = this;
+		self.trace('init', 'binding event listeners');
 		this.editor = [];
 		this.editor[this.id + '-lhs'] = CodeMirror.fromTextArea(lhstx, this.lhs_cmsettings);
 		this.editor[this.id + '-rhs'] = CodeMirror.fromTextArea(rhstx, this.rhs_cmsettings);
@@ -798,9 +799,6 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				if (self.settings.resize) self.settings.resize(init);
 				self.editor[self.id + '-lhs'].refresh();
 				self.editor[self.id + '-rhs'].refresh();
-				if (self.settings.autoupdate) {
-					self._changing(self.id + '-lhs', self.id + '-rhs');
-				}
 			};
 			jQuery(window).on('resize.mergely',
 				function () {
@@ -842,16 +840,25 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			gutterClicked.call(this, 'rhs', n, ev);
 		}.bind(this));
 
-		//bind
+		// if `lhs` and `rhs` are passed in, this sets the values in each editor
+		// and kicks off the whole change pipeline.
 		var setv;
 		if (this.settings.lhs) {
+			self.trace('init', 'setting lhs value');
 			setv = this.editor[this.id + '-lhs'].getDoc().setValue;
 			this.settings.lhs(setv.bind(this.editor[this.id + '-lhs'].getDoc()));
 		}
 		if (this.settings.rhs) {
+			self.trace('init', 'setting rhs value');
 			setv = this.editor[this.id + '-rhs'].getDoc().setValue;
 			this.settings.rhs(setv.bind(this.editor[this.id + '-rhs'].getDoc()));
 		}
+		this.element.one('updated', () => {
+			if (self.settings.loaded) {
+				self.settings.loaded();
+			}
+		});
+		this.trace('init', 'bound');
 	},
 
 	_scroll_to_change : function(change) {
@@ -1037,6 +1044,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		this.trace('change', 'markup time', Timer.stop());
 		this._draw_diff(editor_name1, editor_name2, this.changes);
 		this.trace('change', 'draw time', Timer.stop());
+		this.element.trigger('updated');
 	},
 	_parse_diff: function (editor_name1, editor_name2, diff) {
 		this.trace('diff', 'diff results:\n', diff);

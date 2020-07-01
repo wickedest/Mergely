@@ -1,5 +1,13 @@
 # Changes
 
+## 4.1.0:
+* minor: emits 'updated' event after every change.
+* patch: fixes `scrollTo` that no longer functioned after a codemirror update.
+* patch: fixes `loaded` being called prematurely and after every resize, and is now is called once, after the 'updated' event.
+
+## 4.0.16:
+* patch: fixes rendering beyond change constraint
+
 ## 4.0.15
 * patch: removed unnecessary addon mark-selected
 
