@@ -51,7 +51,8 @@ jQuery.extend(Mgly.LCS.prototype, {
 	clear: function() { this.ready = 0; },
 	diff: function(added, removed) {
 		var d = new Mgly.diff(this.x, this.y, {
-			ignorews: false, ignoreaccents: !!this.options.ignoreaccents
+			ignorews: false,
+			ignoreaccents: !!this.options.ignoreaccents
 		});
 		var changes = Mgly.DiffParser(d.normal_form());
 		var li = 0, lj = 0;
