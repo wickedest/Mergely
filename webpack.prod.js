@@ -29,10 +29,12 @@ module.exports = {
 		CodeMirror: 'CodeMirror'
 	},
 	plugins: [
-		new CopyWebpackPlugin([{
-			from: 'src/mergely.css',
-			to: 'mergely.css',
-			toType: 'file'
-		}])
+		new CopyWebpackPlugin({
+			patterns: [{
+				from: 'src/mergely.css',
+				to: 'mergely.css',
+				toType: 'file'
+			}]
+		})
 	]
 };

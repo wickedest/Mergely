@@ -19,10 +19,7 @@ module.exports = {
 		}, {
 			test: /\.css$/,
 			use: [{
-				loader: 'style-loader',
-				options: {
-					sourceMap: true
-				}
+				loader: 'style-loader'
 			}, {
 				loader: 'css-loader'
 			}]
@@ -69,11 +66,9 @@ module.exports = {
 					test: /[\\/]node_modules[\\/]/
 				}
 			},
-
 			chunks: 'async',
 			minChunks: 1,
-			minSize: 30000,
-			name: true
+			minSize: 30000
 		}
 	}
 }

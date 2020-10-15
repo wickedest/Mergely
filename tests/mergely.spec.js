@@ -586,28 +586,48 @@ describe('mergely', function () {
 				done();
 			});
 		});
+	});
 
-		it('should not be vulnerable to XSS', function (done) {
-			function initXSS(options) {
-				$('body').get(0).innerHTML = "<!DOCTYPE html><html lang=\"en\"><body><div id='mergely<script id=\"injected\">alert(123)</script>'></div></body></html>";
-				const divs = document.getElementsByTagName('div');
-				editor = $(divs[0]);
-				editor.mergely(options);
-				return editor;
-			};
+	it('should not be vulnerable to XSS', function (done) {
+		function initXSS(options) {
+			$('body').get(0).innerHTML = "<!DOCTYPE html><html lang=\"en\"><body><div id='mergely<script id=\"injected\">alert(123)</script>'></div></body></html>";
+			const divs = document.getElementsByTagName('div');
+			editor = $(divs[0]);
+			editor.mergely(options);
+			return editor;
+		};
 
-			$(document).ready(() => {
-				const editor = initXSS({
-					height: 100,
-					viewport: true,
-					license: 'lgpl-separate-notice',
-					lhs: (setValue) => setValue(macbeth),
-					rhs: (setValue) => setValue(macbeth)
-				});
-				expect($('body').find('#injected')).to.have.length(0, 'expected no div with id injected');
-				const divs = document.getElementsByTagName('div');
-				expect(divs).to.have.length(1);
-				expect(divs[0].id).to.equal('mergely<script id="injected">alert(123)</script>');
+		$(document).ready(() => {
+			const editor = initXSS({
+				height: 100,
+				viewport: true,
+				license: 'lgpl-separate-notice',
+				lhs: (setValue) => setValue(macbeth),
+				rhs: (setValue) => setValue(macbeth)
+			});
+			expect($('body').find('#injected')).to.have.length(0, 'expected no div with id injected');
+			const divs = document.getElementsByTagName('div');
+			expect(divs).to.have.length(1);
+			expect(divs[0].id).to.equal('mergely<script id="injected">alert(123)</script>');
+			done();
+		});
+	});
+
+	it('should ignore accented characters', function (done) {
+		$(document).ready(() => {
+			const editor = init({
+				height: 100,
+				license: 'lgpl-separate-notice',
+				ignoreaccents: true,
+				lhs: (setValue) => setValue('comunicação'),
+				rhs: (setValue) => setValue('comunicacao')
+			});
+			const { mergely } = $('#mergely');
+
+			$('#mergely').on('updated', () => {
+				console.log('updated');
+				const diff = $('#mergely').mergely('diff');;
+				expect(diff).to.equal('');
 				done();
 			});
 		});

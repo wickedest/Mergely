@@ -1,5 +1,8 @@
 # Changes
 
+## 4.2.1:
+* chore: updated dependencies, cleared security issues
+
 ## 4.2.0:
 * minor: added new option `ignoreaccents` to ignore accented characters.
 

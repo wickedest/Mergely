@@ -53,11 +53,13 @@ module.exports = function(config) {
 				}
 			},
 			plugins: [
-				new CopyWebpackPlugin([{
-					from: 'src/mergely.css',
-					to: 'mergely.css',
-					toType: 'file'
-				}])
+                new CopyWebpackPlugin({
+                    patterns: [{
+                        from: 'src/mergely.css',
+                        to: 'mergely.css',
+                        toType: 'file'
+                    }]
+                })
 			]
 		},
 		webpackServer: {
