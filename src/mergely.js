@@ -435,7 +435,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				}
 				if (this.resized) this.resized();
 			},
-			_debug: '', //scroll,draw,calc,diff,markup,change
+			_debug: '', //scroll,draw,calc,diff,markup,change,init
 			resized: function() { }
 		}, options);
 
@@ -845,23 +845,29 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		var setv;
 		if (this.settings.lhs) {
 			self.trace('init', 'setting lhs value');
-			setv = this.editor[this.id + '-lhs'].getDoc().setValue;
-			this.settings.lhs(setv.bind(this.editor[this.id + '-lhs'].getDoc()));
+			this.settings.lhs(function setValue(value) {
+				this._initializing = true;
+				this.editor[this.id + '-lhs'].getDoc().setValue(value);
+			}.bind(this));
 		}
 		if (this.settings.rhs) {
 			self.trace('init', 'setting rhs value');
-			setv = this.editor[this.id + '-rhs'].getDoc().setValue;
-			this.settings.rhs(setv.bind(this.editor[this.id + '-rhs'].getDoc()));
+			this.settings.rhs(function setValue(value) {
+				this._initializing = true;
+				this.editor[this.id + '-rhs'].getDoc().setValue(value);
+			}.bind(this));
 		}
 		this.element.one('updated', () => {
+			this._initializing = false;
 			if (self.settings.loaded) {
 				self.settings.loaded();
 			}
 		});
 		this.trace('init', 'bound');
+		this.editor[this.id + '-lhs'].focus();
 	},
 
-	_scroll_to_change : function(change) {
+	_scroll_to_change: function(change) {
 		if (!change) return;
 		var self = this;
 		var led = self.editor[self.id+'-lhs'];
@@ -872,6 +878,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		if (change["lhs-line-to"] >= 0) {
 			led.scrollIntoView({line: change["lhs-line-to"]});
 		}
+		led.focus();
 	},
 
 	_scrolling: function(editor_name) {
@@ -1032,8 +1039,9 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		this.trace('change', 'diff time', Timer.stop());
 		this.changes = Mgly.DiffParser(d.normal_form());
 		this.trace('change', 'parse time', Timer.stop());
-		if (this._current_diff === undefined && this.changes.length) {
-			// go to first difference on start-up
+		if (this._current_diff === undefined && this.changes.length && this._initializing) {
+			// go to first difference on start-up where values are provided in
+			// settings.
 			this._current_diff = 0;
 			this._scroll_to_change(this.changes[0]);
 		}

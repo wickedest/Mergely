@@ -1,5 +1,8 @@
 # Changes
 
+## 4.1.1:
+* patch: fixes issue #95
+
 ## 4.1.0:
 * minor: emits 'updated' event after every change.
 * patch: fixes `scrollTo` that no longer functioned after a codemirror update.
