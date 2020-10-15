@@ -1,6 +1,6 @@
 # Mergely
 
-http://mergely.com
+https://mergely.com
 
 Mergely is a JavaScript component for differencing and merging files interactively in a browser (diff/merge), providing rich API that enables you to easily integrate Mergely into your existing web application. It is suitable for comparing text files online, for example, .txt, .html, .xml, .c, .cpp, .java, etc.  
 
@@ -93,7 +93,7 @@ $(document).ready(function () {
 |<a name="autoupdate"></a>autoupdate|boolean|`true`|Enables/disables the auto-updating of the editor when changes are made.|
 |<a name="bgcolor"></a>bgcolor|string|`#eeeeee`|The background color that mergely fills the margin canvas with.|
 |<a name="change_timeout"></a>change_timeout|number|`500`|The timeout, after a text change, before Mergely calculates a diff. Only used when `readonly` is enabled.|
-|<a name="cmsettings"></a>cmsettings|object|`{mode: 'text/plain', readOnly: false}`|CodeMirror settings (see [CodeMirror](http://codemirror.net])) that are combined with `lhs_cmsettings` and `rhs_cmsettings`.|
+|<a name="cmsettings"></a>cmsettings|object|`{mode: 'text/plain', readOnly: false}`|CodeMirror settings (see [CodeMirror](https://codemirror.net)) that are combined with `lhs_cmsettings` and `rhs_cmsettings`.|
 |<a name="editor_width"></a>editor_width|string|`400px`|Starting width.|
 |<a name="editor_height"></a>editor_height|string|`400px`|Starting height.|
 |<a name="fadein"></a>fadein|string|`fast`|A jQuery [fadein](http://api.jquery.com/fadein) value to enable the editor to fade in. Set to empty string to disable.|
@@ -103,9 +103,9 @@ $(document).ready(function () {
 |<a name="lcs"></a>lcs|boolean|`true`|Enables/disables LCS computation for paragraphs (word-by-word changes). Disabling can give a performance gain for large documents.|
 |<a name="license"></a>license|string|`lgpl`|The choice of license to use with Mergely.  Valid values are: `lgpl`, `gpl`, `mpl` or `lgpl-separate-notice`, `gpl-separate-notice`, `mpl-separate-notice` (the license requirements are met in a separate notice file).|
 |<a name="line_numbers"></a>line_numbers|boolean|`true`|Enables/disables line numbers. Enabling line numbers will toggle the visibility of the line number margins.|
-|<a name="lhs_cmsettings"></a>lhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](http://codemirror.net])) for the left-hand side editor.|
+|<a name="lhs_cmsettings"></a>lhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](https://codemirror.net)) for the left-hand side editor.|
 |<a name="resize_timeout"></a>resize_timeout|number|`500`|The timeout, after a resize, before Mergely auto-resizes. Only used when autoresize enabled.|
-|<a name="rhs_cmsettings"></a>rhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](http://codemirror.net])) for the right-hand side editor.|
+|<a name="rhs_cmsettings"></a>rhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](https://codemirror.net)) for the right-hand side editor.|
 |<a name="rhs_margin"></a>rhs_margin|string|`right`|Location for the rhs markup margin. Possible values: right, left.|
 |<a name="sidebar"></a>sidebar|boolean|`true`|Enables/disables sidebar markers. Disabling can give a performance gain for large documents.|
 |<a name="vpcolor"></a>vpcolor|string|`rgba(0, 0, 200, 0.5)`|The margin/viewport indicator color.|
