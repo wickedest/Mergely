@@ -1,7 +1,10 @@
 # Changes
 
+## 4.1.2:
+* patch: fixes issue #134 where the readme had broken links.
+
 ## 4.1.1:
-* patch: fixes issue #95
+* patch: fixes issue #95 where cursor was not focusing correctly on init.
 
 ## 4.1.0:
 * minor: emits 'updated' event after every change.
