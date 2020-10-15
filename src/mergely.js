@@ -41,15 +41,18 @@ Mgly.sizeOf = function(obj) {
 	return size;
 };
 
-Mgly.LCS = function(x, y) {
+Mgly.LCS = function(x, y, options) {
 	this.x = (x && x.replace(/[ ]{1}/g, '\n')) || '';
 	this.y = (y && y.replace(/[ ]{1}/g, '\n')) || '';
+	this.options = options;
 };
 
 jQuery.extend(Mgly.LCS.prototype, {
 	clear: function() { this.ready = 0; },
 	diff: function(added, removed) {
-		var d = new Mgly.diff(this.x, this.y, {ignorews: false});
+		var d = new Mgly.diff(this.x, this.y, {
+			ignorews: false, ignoreaccents: !!this.options.ignoreaccents
+		});
 		var changes = Mgly.DiffParser(d.normal_form());
 		var li = 0, lj = 0;
 		for (var i = 0; i < changes.length; ++i) {
@@ -86,7 +89,6 @@ Mgly.CodeifyText = function(settings) {
     this._max_code = 0;
     this._diff_codes = {};
 	this.ctxs = {};
-	this.options = {ignorews: false};
 	jQuery.extend(this, settings);
 	this.lhs = settings.lhs.split('\n');
 	this.rhs = settings.rhs.split('\n');
@@ -119,6 +121,9 @@ jQuery.extend(Mgly.CodeifyText.prototype, {
 			if (this.options.ignorecase) {
 				line = line.toLowerCase();
 			}
+			if (this.options.ignoreaccents) {
+				line = line.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+			}
 			var aCode = this._diff_codes[line];
 			if (aCode != undefined) {
 				ctx.codes[i] = aCode;
@@ -133,7 +138,7 @@ jQuery.extend(Mgly.CodeifyText.prototype, {
 });
 
 Mgly.diff = function(lhs, rhs, options) {
-	var opts = jQuery.extend({ignorews: false}, options);
+	var opts = jQuery.extend({ignorews: false, ignoreaccents: false}, options);
 	this.codeify = new Mgly.CodeifyText({
 		lhs: lhs,
 		rhs: rhs,
@@ -385,6 +390,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			viewport: false,
 			ignorews: false,
 			ignorecase: false,
+			ignoreaccents: false,
 			fadein: 'fast',
 			resize_timeout: 500,
 			change_timeout: 150,
@@ -438,7 +444,6 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			_debug: '', //scroll,draw,calc,diff,markup,change,init
 			resized: function() { }
 		}, options);
-
 		// save this element for faster queries
 		this.element = jQuery(el);
 
@@ -1391,7 +1396,9 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 					}
 					lhs_line = led.getLine( j );
 					rhs_line = red.getLine( k );
-					var lcs = new Mgly.LCS(lhs_line, rhs_line);
+					var lcs = new Mgly.LCS(lhs_line, rhs_line, {
+						ignoreaccents: !!this.settings.ignoreaccents
+					});
 					lcs.diff(
 						function added (from, to) {
 							if (self._is_change_in_view('rhs', rhsvp, change)) {

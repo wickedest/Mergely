@@ -1,5 +1,8 @@
 # Changes
 
+## 4.2.0:
+* minor: added new option `ignoreaccents` to ignore accented characters.
+
 ## 4.1.2:
 * patch: fixes issue #134 where the readme had broken links.
 
