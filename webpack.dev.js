@@ -39,8 +39,7 @@ module.exports = {
 
 	plugins: [
 		new HtmlWebpackPlugin({
-			template: 'examples/app.html',
-			filename: 'mergely.html'
+			template: path.join(__dirname, 'examples', 'app.html')
 		}),
 		new webpack.ProvidePlugin({
 			$: 'jquery',
