@@ -505,7 +505,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 	scrollToDiff: function(direction) {
 		if (!this.changes.length) return;
 		if (direction == 'next') {
-			if (this._current_diff == this.changes.length -1) {
+			if (this._current_diff == this.changes.length - 1) {
 				this._current_diff = 0;
 			} else {
 				this._current_diff = Math.min(++this._current_diff, this.changes.length - 1);
@@ -893,6 +893,11 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			this._skipscroll[editor_name] = false;
 			return;
 		}
+		if (!this.changes) {
+			// pasting a wide line can trigger scroll before changes
+			// are calculated
+			return;
+		}
 		var scroller = jQuery(this.editor[editor_name].getScrollerElement());
 		if (this.midway == undefined) {
 			this.midway = (scroller.height() / 2.0 + scroller.offset().top).toFixed(2);
@@ -1045,11 +1050,13 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		this.trace('change', 'diff time', Timer.stop());
 		this.changes = Mgly.DiffParser(d.normal_form());
 		this.trace('change', 'parse time', Timer.stop());
-		if (this._current_diff === undefined && this.changes.length && this._initializing) {
+		if (this._current_diff === undefined && this.changes.length) {
 			// go to first difference on start-up where values are provided in
 			// settings.
 			this._current_diff = 0;
-			this._scroll_to_change(this.changes[0]);
+			if (this._initializing) {
+				this._scroll_to_change(this.changes[0]);
+			}
 		}
 		this.trace('change', 'scroll_to_change time', Timer.stop());
 		this._calculate_offsets(editor_name1, editor_name2, this.changes);

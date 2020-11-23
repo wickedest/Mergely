@@ -1,5 +1,8 @@
 # Changes
 
+## 4.2.2:
+* patch: fixes issue where initial change was not being set causing next/prev and merge actions to not work as expected.
+
 ## 4.2.1:
 * chore: updated dependencies, cleared security issues
 
