@@ -1,5 +1,9 @@
 # Changes
 
+## 4.3.0:
+* minor: added new option `compare` to toggle between "words" vs "characters" in line diffs.
+* minor: replaced diff implementation with [myers-diff](https://www.npmjs.com/package/myers-diff).
+
 ## 4.2.1:
 * chore: updated dependencies, cleared security issues
 

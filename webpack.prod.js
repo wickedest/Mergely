@@ -26,7 +26,8 @@ module.exports = {
 	},
 	externals: {
 		jquery: 'jQuery',
-		CodeMirror: 'CodeMirror'
+		CodeMirror: 'CodeMirror',
+		MyersDiff: 'myers-diff'
 	},
 	plugins: [
 		new CopyWebpackPlugin({

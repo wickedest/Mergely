@@ -1,6 +1,6 @@
 "use strict";
 
-(function(jQuery, CodeMirror) {
+(function(jQuery, CodeMirror, Myers) {
 
 var Mgly = {};
 
@@ -32,324 +32,6 @@ Mgly.DiffParser = function(diff) {
 	}
 	return changes;
 };
-
-Mgly.sizeOf = function(obj) {
-	var size = 0, key;
-	for (key in obj) {
-		if (obj.hasOwnProperty(key)) size++;
-	}
-	return size;
-};
-
-Mgly.LCS = function(x, y, options) {
-	this.x = (x && x.replace(/[ ]{1}/g, '\n')) || '';
-	this.y = (y && y.replace(/[ ]{1}/g, '\n')) || '';
-	this.options = options;
-};
-
-jQuery.extend(Mgly.LCS.prototype, {
-	clear: function() { this.ready = 0; },
-	diff: function(added, removed) {
-		var d = new Mgly.diff(this.x, this.y, {
-			ignorews: false,
-			ignoreaccents: !!this.options.ignoreaccents
-		});
-		var changes = Mgly.DiffParser(d.normal_form());
-		var li = 0, lj = 0;
-		for (var i = 0; i < changes.length; ++i) {
-			var change = changes[i];
-			if (change.op != 'a') {
-				// find the starting index of the line
-				li = d.getLines('lhs').slice(0, change['lhs-line-from']).join(' ').length;
-				// get the index of the the span of the change
-				lj = change['lhs-line-to'] + 1;
-				// get the changed text
-				var lchange = d.getLines('lhs').slice(change['lhs-line-from'], lj).join(' ');
-				if (change.op == 'd') lchange += ' ';// include the leading space
-				else if (li > 0 && change.op == 'c') li += 1; // ignore leading space if not first word
-				// output the changed index and text
-				removed(li, li + lchange.length);
-			}
-			if (change.op != 'd') {
-				// find the starting index of the line
-				li = d.getLines('rhs').slice(0, change['rhs-line-from']).join(' ').length;
-				// get the index of the the span of the change
-				lj = change['rhs-line-to'] + 1;
-				// get the changed text
-				var rchange = d.getLines('rhs').slice(change['rhs-line-from'], lj).join(' ');
-				if (change.op == 'a') rchange += ' ';// include the leading space
-				else if (li > 0 && change.op == 'c') li += 1; // ignore leading space if not first word
-				// output the changed index and text
-				added(li, li + rchange.length);
-			}
-		}
-	}
-});
-
-Mgly.CodeifyText = function(settings) {
-    this._max_code = 0;
-    this._diff_codes = {};
-	this.ctxs = {};
-	jQuery.extend(this, settings);
-	this.lhs = settings.lhs.split('\n');
-	this.rhs = settings.rhs.split('\n');
-};
-
-jQuery.extend(Mgly.CodeifyText.prototype, {
-	getCodes: function(side) {
-		if (!this.ctxs.hasOwnProperty(side)) {
-			var ctx = this._diff_ctx(this[side]);
-			this.ctxs[side] = ctx;
-			ctx.codes.length = Object.keys(ctx.codes).length;
-		}
-		return this.ctxs[side].codes;
-	},
-	getLines: function(side) {
-		return this.ctxs[side].lines;
-	},
-	_diff_ctx: function(lines) {
-		var ctx = {i: 0, codes: {}, lines: lines};
-		this._codeify(lines, ctx);
-		return ctx;
-	},
-	_codeify: function(lines, ctx) {
-		var code = this._max_code;
-		for (var i = 0; i < lines.length; ++i) {
-			var line = lines[i];
-			if (this.options.ignorews) {
-				line = line.replace(/\s+/g, '');
-			}
-			if (this.options.ignorecase) {
-				line = line.toLowerCase();
-			}
-			if (this.options.ignoreaccents) {
-				line = line.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-			}
-			var aCode = this._diff_codes[line];
-			if (aCode != undefined) {
-				ctx.codes[i] = aCode;
-			}
-			else {
-				this._max_code++;
-				this._diff_codes[line] = this._max_code;
-				ctx.codes[i] = this._max_code;
-			}
-		}
-	}
-});
-
-Mgly.diff = function(lhs, rhs, options) {
-	var opts = jQuery.extend({ignorews: false, ignoreaccents: false}, options);
-	this.codeify = new Mgly.CodeifyText({
-		lhs: lhs,
-		rhs: rhs,
-		options: opts
-	});
-	var lhs_ctx = {
-		codes: this.codeify.getCodes('lhs'),
-		modified: {}
-	};
-	var rhs_ctx = {
-		codes: this.codeify.getCodes('rhs'),
-		modified: {}
-	};
-	var max = (lhs_ctx.codes.length + rhs_ctx.codes.length + 1);
-	var vector_d = [];
-	var vector_u = [];
-	this._lcs(lhs_ctx, 0, lhs_ctx.codes.length, rhs_ctx, 0, rhs_ctx.codes.length, vector_u, vector_d);
-	this._optimize(lhs_ctx);
-	this._optimize(rhs_ctx);
-	this.items = this._create_diffs(lhs_ctx, rhs_ctx);
-};
-
-jQuery.extend(Mgly.diff.prototype, {
-	changes: function() { return this.items; },
-	getLines: function(side) {
-		return this.codeify.getLines(side);
-	},
-	normal_form: function() {
-		var nf = '';
-		for (var index = 0; index < this.items.length; ++index) {
-			var item = this.items[index];
-			var lhs_str = '';
-			var rhs_str = '';
-			var change = 'c';
-			if (item.lhs_deleted_count == 0 && item.rhs_inserted_count > 0) change = 'a';
-			else if (item.lhs_deleted_count > 0 && item.rhs_inserted_count == 0) change = 'd';
-
-			if (item.lhs_deleted_count == 1) lhs_str = item.lhs_start + 1;
-			else if (item.lhs_deleted_count == 0) lhs_str = item.lhs_start;
-			else lhs_str = (item.lhs_start + 1) + ',' + (item.lhs_start + item.lhs_deleted_count);
-
-			if (item.rhs_inserted_count == 1) rhs_str = item.rhs_start + 1;
-			else if (item.rhs_inserted_count == 0) rhs_str = item.rhs_start;
-			else rhs_str = (item.rhs_start + 1) + ',' + (item.rhs_start + item.rhs_inserted_count);
-			nf += lhs_str + change + rhs_str + '\n';
-
-			var lhs_lines = this.getLines('lhs');
-			var rhs_lines = this.getLines('rhs');
-			if (rhs_lines && lhs_lines) {
-				var i;
-				// if rhs/lhs lines have been retained, output contextual diff
-				for (i = item.lhs_start; i < item.lhs_start + item.lhs_deleted_count; ++i) {
-					nf += '< ' + lhs_lines[i] + '\n';
-				}
-				if (item.rhs_inserted_count && item.lhs_deleted_count) nf += '---\n';
-				for (i = item.rhs_start; i < item.rhs_start + item.rhs_inserted_count; ++i) {
-					nf += '> ' + rhs_lines[i] + '\n';
-				}
-			}
-		}
-		return nf;
-	},
-	_lcs: function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower, rhs_upper, vector_u, vector_d) {
-		while ( (lhs_lower < lhs_upper) && (rhs_lower < rhs_upper) && (lhs_ctx.codes[lhs_lower] == rhs_ctx.codes[rhs_lower]) ) {
-			++lhs_lower;
-			++rhs_lower;
-		}
-		while ( (lhs_lower < lhs_upper) && (rhs_lower < rhs_upper) && (lhs_ctx.codes[lhs_upper - 1] == rhs_ctx.codes[rhs_upper - 1]) ) {
-			--lhs_upper;
-			--rhs_upper;
-		}
-		if (lhs_lower == lhs_upper) {
-			while (rhs_lower < rhs_upper) {
-				rhs_ctx.modified[ rhs_lower++ ] = true;
-			}
-		}
-		else if (rhs_lower == rhs_upper) {
-			while (lhs_lower < lhs_upper) {
-				lhs_ctx.modified[ lhs_lower++ ] = true;
-			}
-		}
-		else {
-			var sms = this._sms(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower, rhs_upper, vector_u, vector_d);
-			this._lcs(lhs_ctx, lhs_lower, sms.x, rhs_ctx, rhs_lower, sms.y, vector_u, vector_d);
-			this._lcs(lhs_ctx, sms.x, lhs_upper, rhs_ctx, sms.y, rhs_upper, vector_u, vector_d);
-		}
-	},
-	_sms: function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower, rhs_upper, vector_u, vector_d) {
-		var max = lhs_ctx.codes.length + rhs_ctx.codes.length + 1;
-		var kdown = lhs_lower - rhs_lower;
-		var kup = lhs_upper - rhs_upper;
-		var delta = (lhs_upper - lhs_lower) - (rhs_upper - rhs_lower);
-		var odd = (delta & 1) != 0;
-		var offset_down = max - kdown;
-		var offset_up = max - kup;
-		var maxd = ((lhs_upper - lhs_lower + rhs_upper - rhs_lower) / 2) + 1;
-		vector_d[ offset_down + kdown + 1 ] = lhs_lower;
-		vector_u[ offset_up + kup - 1 ] = lhs_upper;
-		var ret = {x:0,y:0}, d, k, x, y;
-		for (d = 0; d <= maxd; ++d) {
-			for (k = kdown - d; k <= kdown + d; k += 2) {
-				if (k == kdown - d) {
-					x = vector_d[ offset_down + k + 1 ];//down
-				}
-				else {
-					x = vector_d[ offset_down + k - 1 ] + 1;//right
-					if ((k < (kdown + d)) && (vector_d[ offset_down + k + 1 ] >= x)) {
-						x = vector_d[ offset_down + k + 1 ];//down
-					}
-				}
-				y = x - k;
-				// find the end of the furthest reaching forward D-path in diagonal k.
-				while ((x < lhs_upper) && (y < rhs_upper) && (lhs_ctx.codes[x] == rhs_ctx.codes[y])) {
-					x++; y++;
-				}
-				vector_d[ offset_down + k ] = x;
-				// overlap ?
-				if (odd && (kup - d < k) && (k < kup + d)) {
-					if (vector_u[offset_up + k] <= vector_d[offset_down + k]) {
-						ret.x = vector_d[offset_down + k];
-						ret.y = vector_d[offset_down + k] - k;
-						return (ret);
-					}
-				}
-			}
-			// Extend the reverse path.
-			for (k = kup - d; k <= kup + d; k += 2) {
-				// find the only or better starting point
-				if (k == kup + d) {
-					x = vector_u[offset_up + k - 1]; // up
-				} else {
-					x = vector_u[offset_up + k + 1] - 1; // left
-					if ((k > kup - d) && (vector_u[offset_up + k - 1] < x))
-						x = vector_u[offset_up + k - 1]; // up
-				}
-				y = x - k;
-				while ((x > lhs_lower) && (y > rhs_lower) && (lhs_ctx.codes[x - 1] == rhs_ctx.codes[y - 1])) {
-					// diagonal
-					x--;
-					y--;
-				}
-				vector_u[offset_up + k] = x;
-				// overlap ?
-				if (!odd && (kdown - d <= k) && (k <= kdown + d)) {
-					if (vector_u[offset_up + k] <= vector_d[offset_down + k]) {
-						ret.x = vector_d[offset_down + k];
-						ret.y = vector_d[offset_down + k] - k;
-						return (ret);
-					}
-				}
-			}
-		}
-		throw "the algorithm should never come here.";
-	},
-	_optimize: function(ctx) {
-		var start = 0, end = 0;
-		while (start < ctx.codes.length) {
-			while ((start < ctx.codes.length) && (ctx.modified[start] == undefined || ctx.modified[start] == false)) {
-				start++;
-			}
-			end = start;
-			while ((end < ctx.codes.length) && (ctx.modified[end] == true)) {
-				end++;
-			}
-			if ((end < ctx.codes.length) && (ctx.codes[start] == ctx.codes[end])) {
-				ctx.modified[start] = false;
-				ctx.modified[end] = true;
-			}
-			else {
-				start = end;
-			}
-		}
-	},
-	_create_diffs: function(lhs_ctx, rhs_ctx) {
-		var items = [];
-		var lhs_start = 0, rhs_start = 0;
-		var lhs_line = 0, rhs_line = 0;
-
-		while (lhs_line < lhs_ctx.codes.length || rhs_line < rhs_ctx.codes.length) {
-			if ((lhs_line < lhs_ctx.codes.length) && (!lhs_ctx.modified[lhs_line])
-				&& (rhs_line < rhs_ctx.codes.length) && (!rhs_ctx.modified[rhs_line])) {
-				// equal lines
-				lhs_line++;
-				rhs_line++;
-			}
-			else {
-				// maybe deleted and/or inserted lines
-				lhs_start = lhs_line;
-				rhs_start = rhs_line;
-
-				while (lhs_line < lhs_ctx.codes.length && (rhs_line >= rhs_ctx.codes.length || lhs_ctx.modified[lhs_line]))
-					lhs_line++;
-
-				while (rhs_line < rhs_ctx.codes.length && (lhs_line >= lhs_ctx.codes.length || rhs_ctx.modified[rhs_line]))
-					rhs_line++;
-
-				if ((lhs_start < lhs_line) || (rhs_start < rhs_line)) {
-					// store a new difference-item
-					items.push({
-						lhs_start: lhs_start,
-						rhs_start: rhs_start,
-						lhs_deleted_count: lhs_line - lhs_start,
-						rhs_inserted_count: rhs_line - rhs_start
-					});
-				}
-			}
-		}
-		return items;
-	}
-});
 
 Mgly.mergely = function(el, options) {
 	if (el) {
@@ -389,6 +71,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			lcs: true,
 			sidebar: true,
 			viewport: false,
+			compare: 'words',
 			ignorews: false,
 			ignorecase: false,
 			ignoreaccents: false,
@@ -649,8 +332,12 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 	diff: function() {
 		var lhs = this.editor[this.id + '-lhs'].getValue();
 		var rhs = this.editor[this.id + '-rhs'].getValue();
-		var d = new Mgly.diff(lhs, rhs, this.settings);
-		return d.normal_form();
+		var d = Myers.diff(lhs, rhs, {
+			ignoreAccents: !!this.settings.ignoreaccents,
+			ignoreWhitespace: !!this.settings.ignorews,
+			ignoreCase: !!this.settings.ignorecase
+		});
+		return Myers.formats.GnuNormalFormat(d);
 	},
 	bind: function(el) {
 		this.trace('init', 'bind');
@@ -863,6 +550,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 				this.editor[this.id + '-rhs'].getDoc().setValue(value);
 			}.bind(this));
 		}
+
 		this.element.one('updated', () => {
 			this._initializing = false;
 			if (self.settings.loaded) {
@@ -1041,16 +729,24 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		var lhs = this.editor[editor_name1].getValue();
 		var rhs = this.editor[editor_name2].getValue();
 		Timer.start();
-		var d = new Mgly.diff(lhs, rhs, this.settings);
+
+		var changes = Myers.diff(lhs, rhs, {});
+
 		this.trace('change', 'diff time', Timer.stop());
-		this.changes = Mgly.DiffParser(d.normal_form());
+		console.log('diff', Myers.formats.GnuNormalFormat(changes));
+		this.changes = Mgly.DiffParser(Myers.formats.GnuNormalFormat(changes));
 		this.trace('change', 'parse time', Timer.stop());
-		if (this._current_diff === undefined && this.changes.length && this._initializing) {
+
+		if (this._current_diff === undefined
+			&& this.changes.length) {
 			// go to first difference on start-up where values are provided in
 			// settings.
 			this._current_diff = 0;
-			this._scroll_to_change(this.changes[0]);
+			if (this._initializing) {
+				this._scroll_to_change(this.changes[0]);
+			}
 		}
+
 		this.trace('change', 'scroll_to_change time', Timer.stop());
 		this._calculate_offsets(editor_name1, editor_name2, this.changes);
 		this.trace('change', 'offsets time', Timer.stop());
@@ -1397,21 +1093,48 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 					}
 					lhs_line = led.getLine( j );
 					rhs_line = red.getLine( k );
-					var lcs = new Mgly.LCS(lhs_line, rhs_line, {
-						ignoreaccents: !!this.settings.ignoreaccents
+
+					var changes = Myers.diff(lhs_line, rhs_line, {
+						compare: this.settings.compare,
+						ignoreAccents: !!this.settings.ignoreaccents
 					});
-					lcs.diff(
-						function added (from, to) {
-							if (self._is_change_in_view('rhs', rhsvp, change)) {
-								marktext.push([red, {line:k, ch:from}, {line:k, ch:to}, {className: 'mergely ch a rhs'}]);
-							}
-						},
-						function removed (from, to) {
-							if (self._is_change_in_view('lhs', lhsvp, change)) {
-								marktext.push([led, {line:j, ch:from}, {line:j, ch:to}, {className: 'mergely ch d lhs'}]);
-							}
+
+					for (var change of changes) {
+						if (Myers.changed(change.lhs)) {
+							// deleted
+							var { pos, text, del, length } = change.lhs;
+
+							marktext.push([
+								led,
+								{
+									line: j,
+									ch: pos
+								}, {
+									line: j,
+									ch: pos + length
+								}, {
+									className: 'mergely ch d lhs'
+								}
+							]);
 						}
-					);
+						if (Myers.changed(change.rhs)) {
+							// added
+							var { pos, text, add, length } = change.rhs;
+
+							marktext.push([
+								red,
+								{
+									line: k,
+									ch: pos
+								}, {
+									line:k,
+									ch: pos + length
+								}, {
+									className: 'mergely ch a rhs'
+								}
+							]);
+						}
+					}
 				}
 			}
 		}
@@ -1790,4 +1513,4 @@ jQuery.pluginMaker = function(plugin) {
 // make the mergely widget
 jQuery.pluginMaker(Mgly.mergely);
 
-})(require('jquery'), require('CodeMirror'));
+})(require('jquery'), require('CodeMirror'), require('MyersDiff'));

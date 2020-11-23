@@ -49,17 +49,18 @@ module.exports = function(config) {
 				extensions: ['.js'],
 				alias: {
 					CodeMirror: path.join(__dirname, 'node_modules', 'codemirror'),
-					jQuery: path.join(__dirname, 'node_modules', 'jquery')
+					jQuery: path.join(__dirname, 'node_modules', 'jquery'),
+					MyersDiff: path.join(__dirname, 'node_modules', 'myers-diff')
 				}
 			},
 			plugins: [
-                new CopyWebpackPlugin({
-                    patterns: [{
-                        from: 'src/mergely.css',
-                        to: 'mergely.css',
-                        toType: 'file'
-                    }]
-                })
+				new CopyWebpackPlugin({
+					patterns: [{
+						from: 'src/mergely.css',
+						to: 'mergely.css',
+						toType: 'file'
+					}]
+				})
 			]
 		},
 		webpackServer: {

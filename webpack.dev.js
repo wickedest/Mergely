@@ -29,12 +29,14 @@ module.exports = {
 	resolve: {
 		extensions: ['.js'],
 		alias: {
-			'CodeMirror':	path.join(__dirname, 'node_modules', 'codemirror'),
-			'jQuery':		path.join(__dirname, 'node_modules', 'jquery')
+			CodeMirror:	path.join(__dirname, 'node_modules', 'codemirror'),
+			jQuery:		path.join(__dirname, 'node_modules', 'jquery'),
+			MyersDiff:	path.join(__dirname, 'node_modules', 'myers-diff')
 		}
 	},
 
 	plugins: [
+		new webpack.optimize.AggressiveMergingPlugin(),
 		new HtmlWebpackPlugin({
 			template: path.join(__dirname, 'examples', 'app.html')
 		}),
@@ -44,6 +46,9 @@ module.exports = {
 		}),
 		new webpack.ProvidePlugin({
 			CodeMirror: 'codemirror'
+		}),
+		new webpack.ProvidePlugin({
+			MyersDiff: 'myers-diff'
 		})
 	],
 
