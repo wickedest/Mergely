@@ -606,6 +606,9 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		if (side == 'lhs' && !this.lhs_cmsettings.readOnly) le.setValue(re.getValue());
 		else if (!this.rhs_cmsettings.readOnly) re.setValue(le.getValue());
 	},
+	getDiffNumber: function() {
+		return this.changes.length;
+	},
 	get: function(side) {
 		var ed = this.editor[this.id + '-' + side];
 		var t = ed.getValue();
