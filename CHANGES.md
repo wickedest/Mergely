@@ -1,5 +1,8 @@
 # Changes
 
+## 4.2.4
+* patch: fixes [#142](https://github.com/wickedest/Mergely/issues/142).  Added README.md to examples.
+
 ## 4.2.3
 * patch: fixes [#147](https://github.com/wickedest/Mergely/issues/147).  Fixes the css style for the currently selected change.
 
