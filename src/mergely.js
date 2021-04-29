@@ -1473,8 +1473,8 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 
 		// gutter markup that highlights all gutter line numbers for the current change.
 		// cm doesn't give us the ability to style the line numbers directly.
-		var lhsLineNumbers = jQuery('#mergely-lhs ~ .CodeMirror .CodeMirror-code .CodeMirror-linenumber.CodeMirror-gutter-elt');
-		var rhsLineNumbers = jQuery('#mergely-rhs ~ .CodeMirror .CodeMirror-code .CodeMirror-linenumber.CodeMirror-gutter-elt');
+		var lhsLineNumbers = jQuery('#' + this.id + '-lhs ~ .CodeMirror .CodeMirror-code .CodeMirror-linenumber.CodeMirror-gutter-elt');
+		var rhsLineNumbers = jQuery('#' + this.id + '-rhs ~ .CodeMirror .CodeMirror-code .CodeMirror-linenumber.CodeMirror-gutter-elt');
 		var jf, jt, i, j;
 		rhsLineNumbers.removeClass('mergely current');
 		lhsLineNumbers.removeClass('mergely current');
