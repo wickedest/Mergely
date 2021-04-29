@@ -69,6 +69,14 @@ This example demonstrates how to set left and right editors using ajax.
 				if (files.length>1) readFile(files[1], "rhs");
 			}
 
+			$('#compare').on('updated', function () {
+				var changes = $('#compare').mergely('summary');
+				console.log(changes);
+				$('#adds').text(changes.a);
+				$('#changes').text(changes.c);
+				$('#dels').text(changes.d);
+			});
+
 			function readFile(file, side) {
 				var reader = new FileReader();
 				reader.onload = function file_onload() {
@@ -77,7 +85,6 @@ This example demonstrates how to set left and right editors using ajax.
 					$('#compare').mergely(side, reader.result);
 				}
 				reader.readAsBinaryString(file);
-
 			}
 			function handleDragOver(evt) {
 				evt.stopPropagation();
@@ -131,5 +138,10 @@ This example demonstrates how to set left and right editors using ajax.
 		</div>
 	</div>
 
+	<div id="summary">
+		Changes: <span id="adds">0</span> added lines, 
+			<span id="dels">0</span> deleted lines, 
+			<span id="changes">0</span> changed lines
+	</div>
 </body>
 </html>

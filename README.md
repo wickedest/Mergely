@@ -318,6 +318,28 @@ Search the editor for `text`, scrolling to the next available match. Repeating t
 $('#mergely').mergely('search', 'lhs', 'needle');
 ```
 
+### summary
+
+Gets a summary of the editors.  Returns an object with summarized properties:
+
+|Name|Description|
+|----|-----------|
+|a|The number of added lines.|
+|c|The number of changed lines.|
+|d|The number of deleted lines.|
+|lhsLength|The number of characters in the lhs text.|
+|rhsLength|The number of characters in the rhs text.|
+|numChanges|The total number of changed lines.|
+
+#### Parameters
+None.
+
+#### Example
+```js
+console.log($('#mergely').mergely('summary'));
+// { a: 0, c: 1, d: 0, lhsLength: 44, numChanges: 1, rhsLength: 45 }
+```
+
 ### swap
 
 Swaps the content of the left and right editors.
@@ -352,4 +374,17 @@ None.
 #### Example
 ```js
 $('#mergely').mergely('update');
+```
+
+## Events
+
+### updated
+
+Triggered after the editor is updated.
+
+#### Example
+```js
+$('#mergely').on('updated', () => {
+    // updated
+});
 ```

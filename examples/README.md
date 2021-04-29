@@ -3,10 +3,11 @@
 To run these examples, you need to run:
 
 ```bash
+$ npm run build
 $ npm start
 ```
 
-This runs Mergely in a hot dev-server for development.  
+This runs Mergely in a hot dev-server for development.  However, only the main example is hot-reloaded when mergely is changed.  The others require a rebuild.
 
 ## Main example
 http://localhost:8080

@@ -606,8 +606,22 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		if (side == 'lhs' && !this.lhs_cmsettings.readOnly) le.setValue(re.getValue());
 		else if (!this.rhs_cmsettings.readOnly) re.setValue(le.getValue());
 	},
-	getDiffNumber: function() {
-		return this.changes.length;
+	summary: function() {
+		//console.log('HERE');
+		return {
+			numChanges: this.changes.length,
+			lhsLength: this.editor[this.id + '-lhs'].getValue().length,
+			rhsLength: this.editor[this.id + '-rhs'].getValue().length,
+			c: this.changes.filter(function (a) {
+				return a.op === 'c';
+			}).length,
+			a: this.changes.filter(function (a) {
+				return a.op === 'a';
+			}).length,
+			d: this.changes.filter(function (a) {
+				return a.op === 'd';
+			}).length
+		}
 	},
 	get: function(side) {
 		var ed = this.editor[this.id + '-' + side];
