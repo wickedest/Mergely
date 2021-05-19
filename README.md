@@ -100,7 +100,7 @@ $(document).ready(function () {
 |<a name="fgcolor"></a>fgcolor|string\|number\|object|`{a:'#4ba3fa', c:'#a3a3a3', d:'#ff7f7f', ca:'#4b73ff', cc:'#434343', cd:'#ff4f4f'}`|The foreground color that mergely marks changes with on the canvas.  The value **a** is additions, **c** changes, **d** deletions, and the prefix *c* indicates current/active change (e.g. **cd** current delection).|
 |<a name="ignorews"></a>ignorews|boolean|`false`|Ignores white-space.|
 |<a name="ignorecase"></a>ignorecase|boolean|`false`|Ignores case when differientiating.|
-|<a name="ignoreaccents"></a>ignorews|boolean|`false`|Ignores accented characters.|
+|<a name="ignoreaccents"></a>ignoreaccents|boolean|`false`|Ignores accented characters.|
 |<a name="lcs"></a>lcs|boolean|`true`|Enables/disables LCS computation for paragraphs (word-by-word changes). Disabling can give a performance gain for large documents.|
 |<a name="license"></a>license|string|`lgpl`|The choice of license to use with Mergely.  Valid values are: `lgpl`, `gpl`, `mpl` or `lgpl-separate-notice`, `gpl-separate-notice`, `mpl-separate-notice` (the license requirements are met in a separate notice file).|
 |<a name="line_numbers"></a>line_numbers|boolean|`true`|Enables/disables line numbers. Enabling line numbers will toggle the visibility of the line number margins.|
