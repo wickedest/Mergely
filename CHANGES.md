@@ -1,5 +1,11 @@
 # Changes
 
+## 4.3.1
+* patch: Updated README.md to fix incorrect option name.
+
+## 4.3.0
+* feat: Added `summary` method
+
 ## 4.2.4
 * patch: fixes [#142](https://github.com/wickedest/Mergely/issues/142).  Added README.md to examples.
 
