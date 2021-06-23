@@ -1,5 +1,8 @@
 # Changes
 
+## 4.3.2
+* patch: Reset the current change position when [setValue](https://mergely.com/doc##options_callbacks), [clear](https://mergely.com/doc#clear), [lhs](https://mergely.com/doc#lhs) or [rhs](https://mergely.com/doc#rhs) are called.
+
 ## 4.3.1
 * patch: Updated README.md to fix incorrect option name.
 

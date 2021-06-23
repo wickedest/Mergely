@@ -489,11 +489,15 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		this.unbind();
 	},
 	lhs: function(text) {
-		this.changes = []; // invalidate existing changes
+		// invalidate existing changes and current position
+		this.changes = [];
+		delete this._current_diff;
 		this.editor[this.id + '-lhs'].setValue(text);
 	},
 	rhs: function(text) {
-		this.changes = []; // invalidate existing changes
+		// invalidate existing changes and current position
+		this.changes = [];
+		delete this._current_diff;
 		this.editor[this.id + '-rhs'].setValue(text);
 	},
 	update: function() {
@@ -607,7 +611,6 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		else if (!this.rhs_cmsettings.readOnly) re.setValue(le.getValue());
 	},
 	summary: function() {
-		//console.log('HERE');
 		return {
 			numChanges: this.changes.length,
 			lhsLength: this.editor[this.id + '-lhs'].getValue().length,
@@ -634,6 +637,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		if (side == 'rhs' && this.rhs_cmsettings.readOnly) return;
 		var ed = this.editor[this.id + '-' + side];
 		ed.setValue('');
+		delete this._current_diff;
 	},
 	cm: function(side) {
 		return this.editor[this.id + '-' + side];
@@ -870,6 +874,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			self.trace('init', 'setting lhs value');
 			this.settings.lhs(function setValue(value) {
 				this._initializing = true;
+				delete this._current_diff;
 				this.editor[this.id + '-lhs'].getDoc().setValue(value);
 			}.bind(this));
 		}
@@ -877,6 +882,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			self.trace('init', 'setting rhs value');
 			this.settings.rhs(function setValue(value) {
 				this._initializing = true;
+				delete this._current_diff;
 				this.editor[this.id + '-rhs'].getDoc().setValue(value);
 			}.bind(this));
 		}
