@@ -25,8 +25,8 @@ Unpack mergely.tgz into a folder, for example, `./lib`, and add the following to
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
 <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/addon/search/searchcursor.min.js"></script>
-<script src="lib/mergely/lib/mergely.js" type="text/javascript"></script>
-<link rel="stylesheet" media="all" href="lib/mergely/lib/mergely.css" />
+<script src="package/lib/mergely.js" type="text/javascript"></script>
+<link rel="stylesheet" media="all" href="package/lib/mergely.css" />
 ```
 
 Create a div for the editor in `<body>`.  
