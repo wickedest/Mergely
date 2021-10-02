@@ -663,6 +663,8 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 		}
 	},
 	resize: function() {
+		// recalculate line height as it may be zoomed
+		this.em_height = null;
 		this.settings.resize();
 		this._changing(this.id + '-lhs', this.id + '-rhs');
 		this._set_top_offset(this.id + '-lhs');
@@ -824,6 +826,7 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 			var sz_timeout1 = null;
 			var sz = function(init) {
 				if (self.settings.resize) self.settings.resize(init);
+				self.resize();
 				self.editor[self.id + '-lhs'].refresh();
 				self.editor[self.id + '-rhs'].refresh();
 			};
