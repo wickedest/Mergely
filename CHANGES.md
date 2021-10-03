@@ -1,5 +1,8 @@
 # Changes
 
+## 4.3.4
+* patch: Fixes inline diff rendering issue with whitespace [#139](https://github.com/wickedest/Mergely/issues/139).
+
 ## 4.3.3
 * patch: Fixes resize issue when using zoom [#152](https://github.com/wickedest/Mergely/issues/152).
 
