@@ -1,5 +1,8 @@
 # Changes
 
+## 4.3.5
+* patch: fixed issue with build
+
 ## 4.3.4
 * patch: Fixes inline diff rendering issue with whitespace [#139](https://github.com/wickedest/Mergely/issues/139).
 
