@@ -42,45 +42,85 @@ Mgly.sizeOf = function(obj) {
 };
 
 Mgly.LCS = function(x, y, options) {
-	this.x = (x && x.replace(/[ ]{1}/g, '\n')) || '';
-	this.y = (y && y.replace(/[ ]{1}/g, '\n')) || '';
+	function getPositionOfWords(text, options) {
+		var exp = new RegExp(/\w+/g);
+		var map = {};
+		var match;
+		var item = 0;
+		var p0 = 0;
+		var p1;
+		var ws0;
+		while ((match = exp.exec(text))) {
+			// if previous ws, then calculate whether not not this should be
+			// included as part of the diff
+			if (!options.ignorews && ws0 && ws0 <= match.index - 1) {
+				map[ item++ ] = {
+					p0: ws0,
+					p1: match.index - 1,
+					ws0,
+					word: text.slice(ws0, match.index)
+				};
+			}
+			// add the words to be matched in diff
+			p0 = match.index;
+			p1 = p0 + match[0].length - 1;
+			ws0 = p1 + 2;
+			map[ item++ ] = {
+				p0,
+				p1,
+				ws0,
+				word: text.slice(p0, p1 + 1)
+			};
+		}
+		return map;
+	}
+
 	this.options = options;
+	if (options.ignorews) {
+		this.xmap = getPositionOfWords(x, this.options);
+		this.ymap = getPositionOfWords(y, this.options);
+		var xmap = this.xmap;
+		this.x = Object.keys(xmap).map(function (i) { return xmap[i].word; });
+		var ymap = this.ymap;
+		this.y = Object.keys(ymap).map(function (i) { return ymap[i].word; });
+	} else {
+		this.x = x.split('');
+		this.y = y.split('');
+	}
 };
 
 jQuery.extend(Mgly.LCS.prototype, {
 	clear: function() { this.ready = 0; },
 	diff: function(added, removed) {
 		var d = new Mgly.diff(this.x, this.y, {
-			ignorews: false,
+			ignorews: !!this.options.ignorews,
 			ignoreaccents: !!this.options.ignoreaccents
 		});
 		var changes = Mgly.DiffParser(d.normal_form());
-		var li = 0, lj = 0;
 		for (var i = 0; i < changes.length; ++i) {
 			var change = changes[i];
-			if (change.op != 'a') {
-				// find the starting index of the line
-				li = d.getLines('lhs').slice(0, change['lhs-line-from']).join(' ').length;
-				// get the index of the the span of the change
-				lj = change['lhs-line-to'] + 1;
-				// get the changed text
-				var lchange = d.getLines('lhs').slice(change['lhs-line-from'], lj).join(' ');
-				if (change.op == 'd') lchange += ' ';// include the leading space
-				else if (li > 0 && change.op == 'c') li += 1; // ignore leading space if not first word
-				// output the changed index and text
-				removed(li, li + lchange.length);
-			}
-			if (change.op != 'd') {
-				// find the starting index of the line
-				li = d.getLines('rhs').slice(0, change['rhs-line-from']).join(' ').length;
-				// get the index of the the span of the change
-				lj = change['rhs-line-to'] + 1;
-				// get the changed text
-				var rchange = d.getLines('rhs').slice(change['rhs-line-from'], lj).join(' ');
-				if (change.op == 'a') rchange += ' ';// include the leading space
-				else if (li > 0 && change.op == 'c') li += 1; // ignore leading space if not first word
-				// output the changed index and text
-				added(li, li + rchange.length);
+			if (this.options.ignorews) {
+				if (change.op != 'a') {
+					var from = this.xmap[change['lhs-line-from']].p0;
+					var to = this.xmap[change['lhs-line-to']].p1 + 1;
+					removed(from, to);
+				}
+				if (change.op !== 'd') {
+					var from = this.ymap[change['rhs-line-from']].p0;
+					var to = this.ymap[change['rhs-line-to']].p1 + 1;
+					added(from, to);
+				}
+			} else {
+				if (change.op != 'a') {
+					var from = change['lhs-line-from'];
+					var to = change['lhs-line-to'] + 1;
+					removed(from, to);
+				}
+				if (change.op !== 'd') {
+					var from = change['rhs-line-from'];
+					var to = change['rhs-line-to'] + 1;
+					added(from, to);
+				}
 			}
 		}
 	}
@@ -91,8 +131,16 @@ Mgly.CodeifyText = function(settings) {
     this._diff_codes = {};
 	this.ctxs = {};
 	jQuery.extend(this, settings);
-	this.lhs = settings.lhs.split('\n');
-	this.rhs = settings.rhs.split('\n');
+	if (typeof settings.lhs === 'string') {
+		this.lhs = settings.lhs.split('\n');
+	} else {
+		this.lhs = settings.lhs;
+	}
+	if (typeof settings.rhs === 'string') {
+		this.rhs = settings.rhs.split('\n');
+	} else {
+		this.rhs = settings.rhs;
+	}
 };
 
 jQuery.extend(Mgly.CodeifyText.prototype, {
@@ -1431,7 +1479,8 @@ jQuery.extend(Mgly.CodeMirrorDiffView.prototype, {
 					lhs_line = led.getLine( j );
 					rhs_line = red.getLine( k );
 					var lcs = new Mgly.LCS(lhs_line, rhs_line, {
-						ignoreaccents: !!this.settings.ignoreaccents
+						ignoreaccents: !!this.settings.ignoreaccents,
+						ignorews: !!this.settings.ignorews
 					});
 					lcs.diff(
 						function added (from, to) {
