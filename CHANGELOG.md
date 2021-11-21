@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 4.3.7 (2021-11-21)
+
+
+### General
+
+* removed unused dev-deps ([4d5c6fa](https://github.com/wickedest/Mergely/commit/4d5c6fa67c92dad461cfd3a7cc991e9b1ec4531b))
+
 ### 4.3.6 (2021-11-21)
 
 ### [4.3.5](https://github.com/wickedest/Mergely/compare/v4.0.13...v4.3.5) (2021-11-21)
