@@ -35,6 +35,9 @@ jobs:
 
       - name: Release
         run: npm run release
+        uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        with:
+          token: '${{ secrets.CI_TOKEN }}'
 
       - name: Publish
         run: npm publish --access public --tag ${{ github.event.inputs.tag }}
