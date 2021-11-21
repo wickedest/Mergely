@@ -17,7 +17,7 @@ function CodeMirrorDiffView(el, options, { jQuery, CodeMirror }) {
 
 CodeMirrorDiffView.prototype.init = function(el, options) {
 	const { jQuery } = this;
-	this.settings = jQuery.extend(true, {
+	this.settings = {
 		autoupdate: true,
 		autoresize: true,
 		rhs_margin: 'right',
@@ -42,13 +42,15 @@ CodeMirrorDiffView.prototype.init = function(el, options) {
 		cmsettings: {
 			styleSelectedText: true
 		},
+		lhs_cmsettings: {},
+		rhs_cmsettings: {},
 		lhs: function(setValue) { },
 		rhs: function(setValue) { },
 		loaded: function() { },
 		resize: function(init) {
-			var parent = jQuery(el).parent();
-			var w;
-			var h;
+			const parent = jQuery(el).parent();
+			let w;
+			let h;
 			if (this.width == 'auto') {
 				w = parent.width();
 			}
@@ -61,9 +63,9 @@ CodeMirrorDiffView.prototype.init = function(el, options) {
 			else {
 				h = this.height;
 			}
-			var content_width = w / 2.0 - 2 * 8 - 8;
-			var content_height = h;
-			var self = jQuery(el);
+			const content_width = w / 2.0 - 2 * 8 - 8;
+			const content_height = h;
+			const self = jQuery(el);
 			self.find('.mergely-column').css({ width: content_width + 'px' });
 			self.find('.mergely-column, .mergely-canvas, .mergely-margin, .mergely-column textarea, .CodeMirror-scroll, .cm-s-default').css({ height: content_height + 'px' });
 			self.find('.mergely-canvas').css({ height: content_height + 'px' });
@@ -80,29 +82,29 @@ CodeMirrorDiffView.prototype.init = function(el, options) {
 			if (this.resized) this.resized();
 		},
 		_debug: '', //scroll,draw,calc,diff,markup,change,init
-		resized: function() { }
-	}, options);
+		resized: function() { },
+		// user supplied options
+		...options
+	};
 	// save this element for faster queries
 	this.element = jQuery(el);
 
 	this.lhs_cmsettings = {
+		...this.settings.cmsettings,
+		...this.settings.lhs_cmsettings,
+		// these override any user-defined CodeMirror settings
 		lineWrapping: this.settings.wrap_lines,
-		lineNumbers: this.settings.line_numbers
+		lineNumbers: this.settings.line_numbers,
+		gutters: (this.settings.line_numbers && ['merge', 'CodeMirror-linenumbers']) || [],
 	};
 	this.rhs_cmsettings = {
+		...this.settings.cmsettings,
+		...this.settings.rhs_cmsettings,
+		// these override any user-defined CodeMirror settings
 		lineWrapping: this.settings.wrap_lines,
-		lineNumbers: this.settings.line_numbers
+		lineNumbers: this.settings.line_numbers,
+		gutters: (this.settings.line_numbers && ['merge', 'CodeMirror-linenumbers']) || [],
 	};
-	var lhs_gutters = [];
-	if (this.lhs_cmsettings.lineNumbers) {
-		lhs_gutters = ['merge', 'CodeMirror-linenumbers']
-	}
-	var rhs_gutters = [];
-	if (this.rhs_cmsettings.lineNumbers) {
-		rhs_gutters = ['merge', 'CodeMirror-linenumbers']
-	}
-	jQuery.extend(true, this.lhs_cmsettings, this.settings.cmsettings, { gutters: lhs_gutters }, this.settings.lhs_cmsettings);
-	jQuery.extend(true, this.rhs_cmsettings, this.settings.cmsettings, { gutters: rhs_gutters }, this.settings.rhs_cmsettings);
 
 	// bind if the element is destroyed
 	this.element.bind('destroyed', jQuery.proxy(this.teardown, this));
@@ -194,11 +196,15 @@ CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
 		re.centerOnCursor();
 	}
 };
+
 CodeMirrorDiffView.prototype._setOptions = function(opts) {
 	const { jQuery } = this;
-	jQuery.extend(this.settings, opts);
+	this.settings = {
+		...this.settings,
+		...opts
+	};
 	if (this.settings.hasOwnProperty('rhs_margin')) {
-		// dynamically swap the margin
+		// dynami259*-6+cally swap the margin
 		if (this.settings.rhs_margin == 'left') {
 			this.element.find('.mergely-margin:last-child').insertAfter(
 				this.element.find('.mergely-canvas'));
@@ -235,6 +241,7 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 		}
 	}
 };
+
 CodeMirrorDiffView.prototype.options = function(opts) {
 	if (opts) {
 		this._setOptions(opts);
@@ -245,6 +252,7 @@ CodeMirrorDiffView.prototype.options = function(opts) {
 		return this.settings;
 	}
 };
+
 CodeMirrorDiffView.prototype.swap = function() {
 	if (this.lhs_cmsettings.readOnly || this.rhs_cmsettings.readOnly) return;
 	var le = this.editor[this.id + '-lhs'];
@@ -253,12 +261,14 @@ CodeMirrorDiffView.prototype.swap = function() {
 	re.setValue(le.getValue());
 	le.setValue(tmp);
 };
+
 CodeMirrorDiffView.prototype.merge = function(side) {
 	var le = this.editor[this.id + '-lhs'];
 	var re = this.editor[this.id + '-rhs'];
 	if (side == 'lhs' && !this.lhs_cmsettings.readOnly) le.setValue(re.getValue());
 	else if (!this.rhs_cmsettings.readOnly) re.setValue(le.getValue());
 };
+
 CodeMirrorDiffView.prototype.summary = function() {
 	return {
 		numChanges: this.changes.length,
@@ -275,12 +285,14 @@ CodeMirrorDiffView.prototype.summary = function() {
 		}).length
 	}
 };
+
 CodeMirrorDiffView.prototype.get = function(side) {
 	var ed = this.editor[this.id + '-' + side];
 	var t = ed.getValue();
 	if (t == undefined) return '';
 	return t;
 };
+
 CodeMirrorDiffView.prototype.clear = function(side) {
 	if (side == 'lhs' && this.lhs_cmsettings.readOnly) return;
 	if (side == 'rhs' && this.rhs_cmsettings.readOnly) return;
@@ -288,9 +300,11 @@ CodeMirrorDiffView.prototype.clear = function(side) {
 	ed.setValue('');
 	delete this._current_diff;
 };
+
 CodeMirrorDiffView.prototype.cm = function(side) {
 	return this.editor[this.id + '-' + side];
 };
+
 CodeMirrorDiffView.prototype.search = function(side, query, direction) {
 	var le = this.editor[this.id + '-lhs'];
 	var re = this.editor[this.id + '-rhs'];
@@ -311,6 +325,7 @@ CodeMirrorDiffView.prototype.search = function(side, query, direction) {
 		cursor = editor.getSearchCursor(query, { line: 0, ch: 0 }, false);
 	}
 };
+
 CodeMirrorDiffView.prototype.resize = function() {
 	// recalculate line height as it may be zoomed
 	this.em_height = null;
@@ -318,12 +333,14 @@ CodeMirrorDiffView.prototype.resize = function() {
 	this._changing(this.id + '-lhs', this.id + '-rhs');
 	this._set_top_offset(this.id + '-lhs');
 };
+
 CodeMirrorDiffView.prototype.diff = function() {
 	var lhs = this.editor[this.id + '-lhs'].getValue();
 	var rhs = this.editor[this.id + '-rhs'].getValue();
 	var d = new diff(lhs, rhs, this.settings);
 	return d.normal_form();
 };
+
 CodeMirrorDiffView.prototype.bind = function(el) {
 	const { jQuery, CodeMirror } = this;
 	this.trace('init', 'bind');
@@ -548,6 +565,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	this.trace('init', 'bound');
 	this.editor[this.id + '-lhs'].focus();
 };
+
 CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	if (!change) return;
 	var self = this;
@@ -561,6 +579,7 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	}
 	led.focus();
 };
+
 CodeMirrorDiffView.prototype._scrolling = function(editor_name) {
 	const { jQuery } = this;
 	if (this._skipscroll[editor_name] === true) {
@@ -652,6 +671,7 @@ CodeMirrorDiffView.prototype._scrolling = function(editor_name) {
 		this.trace('scroll', 'scrolled');
 	}
 };
+
 CodeMirrorDiffView.prototype._changing = function(editor_name1, editor_name2) {
 	this.trace('change', 'changing-timeout', this.changed_timeout);
 	var self = this;
@@ -662,10 +682,12 @@ CodeMirrorDiffView.prototype._changing = function(editor_name1, editor_name2) {
 		self.trace('change', 'total time', Timer.stop());
 	}, this.settings.change_timeout);
 };
+
 CodeMirrorDiffView.prototype._changed = function(editor_name1, editor_name2) {
 	this._clear();
 	this._diff(editor_name1, editor_name2);
 };
+
 CodeMirrorDiffView.prototype._clear = function() {
 	var self = this, name, editor, fns, timer, i, change, l;
 
@@ -717,6 +739,7 @@ CodeMirrorDiffView.prototype._clear = function() {
 	ctx.fillStyle = '#fff';
 	ctx.fillRect(0, 0, this.draw_mid_width, ex.visible_page_height);
 };
+
 CodeMirrorDiffView.prototype._diff = function(editor_name1, editor_name2) {
 	var lhs = this.editor[editor_name1].getValue();
 	var rhs = this.editor[editor_name2].getValue();
@@ -742,6 +765,7 @@ CodeMirrorDiffView.prototype._diff = function(editor_name1, editor_name2) {
 	this.trace('change', 'draw time', Timer.stop());
 	this.element.trigger('updated');
 };
+
 CodeMirrorDiffView.prototype._parse_diff = function (editor_name1, editor_name2, diff) {
 	this.trace('diff', 'diff results:\n', diff);
 	var changes = [];
@@ -773,14 +797,17 @@ CodeMirrorDiffView.prototype._parse_diff = function (editor_name1, editor_name2,
 	}
 	return changes;
 };
+
 CodeMirrorDiffView.prototype._get_viewport_side = function(editor_name) {
 	return this.editor[editor_name].getViewport();
 };
+
 CodeMirrorDiffView.prototype._is_change_in_view = function(side, vp, change) {
 	return (change[`${side}-line-from`] >= vp.from && change[`${side}-line-from`] <= vp.to) ||
 		(change[`${side}-line-to`] >= vp.from && change[`${side}-line-to`] <= vp.to) ||
 		(vp.from >= change[`${side}-line-from`] && vp.to <= change[`${side}-line-to`]);
 };
+
 CodeMirrorDiffView.prototype._set_top_offset = function (editor_name1) {
 	// save the current scroll position of the editor
 	var saveY = this.editor[editor_name1].getScrollInfo().top;
@@ -799,6 +826,7 @@ CodeMirrorDiffView.prototype._set_top_offset = function (editor_name1) {
 	this.draw_top_offset = 0.5 - top_offset;
 	return true;
 };
+
 CodeMirrorDiffView.prototype._calculate_offsets = function (editor_name1, editor_name2, changes) {
 	const { jQuery } = this;
 	if (this.em_height == null) {
@@ -921,6 +949,7 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (editor_name1, editor
 	}
 	return changes;
 };
+
 CodeMirrorDiffView.prototype._markup_changes = function (editor_name1, editor_name2, changes) {
 	const { jQuery } = this;
 	this.element.find('.merge-button').remove(); //clear

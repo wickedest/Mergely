@@ -10,6 +10,38 @@ const $ = jQuery;
     }
 })(jQuery);
 
+const defaultOptions = {
+	autoupdate: true,
+	autoresize: true,
+	rhs_margin: 'right',
+	wrap_lines: false,
+	line_numbers: true,
+	lcs: true,
+	sidebar: true,
+	viewport: false,
+	ignorews: false,
+	ignorecase: false,
+	ignoreaccents: false,
+	fadein: 'fast',
+	resize_timeout: 500,
+	change_timeout: 150,
+	fgcolor: {
+		a: '#4ba3fa',
+		c: '#a3a3a3',
+		d: '#ff7f7f',
+		ca: '#4b73ff',
+		cc: '#434343',
+		cd: '#ff4f4f'
+	},
+	bgcolor: '#eee',
+	vpcolor: 'rgba(0, 0, 200, 0.5)',
+	license: '',
+	width: 'auto',
+	height: 'auto',
+	cmsettings: {
+		styleSelectedText: true
+	}
+};
 
 describe('mergely', function () {
 	function init(options) {
@@ -94,6 +126,54 @@ describe('mergely', function () {
 				expect($(children[4]).attr('class')).to.equal('mergely-column');
 				expect($(children[5]).attr('class')).to.equal('mergely-margin');
 				expect($(children[5]).css('display')).to.equal('none');
+				done();
+			});
+		});
+
+		it('initializes with default options', function (done) {
+			$(document).ready(() => {
+				const editor = init();
+				const el = $('#mergely');
+				const options = el.mergely('options');
+				expect(options).to.deep.include(defaultOptions);
+				expect(options.lhs).to.be.a('function');
+				expect(options.rhs).to.be.a('function');
+				expect(options.loaded).to.be.a('function');
+				expect(options.resize).to.be.a('function');
+				expect(options.resized).to.be.a('function');
+				done();
+			});
+		});
+
+		it('initializes with options', function (done) {
+			$(document).ready(() => {
+				const userOptions = {
+					autoupdate: false,
+					fgcolor: {
+						a: 'red',
+						c: 'green',
+						d: 'blue'
+					},
+					cmsettings: {
+						lineSeparator: '\n',
+						readOnly: true
+					},
+					rhs_cmsettings: {
+						readOnly: false
+					}
+				};
+				const editor = init(userOptions);
+				const el = $('#mergely');
+				const options = el.mergely('options');
+				expect(options).to.deep.include({
+					...defaultOptions,
+					...userOptions
+				});
+				expect(options.lhs).to.be.a('function');
+				expect(options.rhs).to.be.a('function');
+				expect(options.loaded).to.be.a('function');
+				expect(options.resize).to.be.a('function');
+				expect(options.resized).to.be.a('function');
 				done();
 			});
 		});
@@ -625,7 +705,6 @@ describe('mergely', function () {
 			const { mergely } = $('#mergely');
 
 			$('#mergely').on('updated', () => {
-				console.log('updated');
 				const diff = $('#mergely').mergely('diff');;
 				expect(diff).to.equal('');
 				done();
