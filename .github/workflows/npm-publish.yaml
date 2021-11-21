@@ -34,9 +34,11 @@ jobs:
         run: npm run build:dist
 
       - name: Release
-        uses: fusion-engineering/setup-git-credentials@v2
+        uses: oleksiyrudenko/gha-git-credentials@v2.1
         with:
-          credentials: '${{ secrets.CI_TOKEN }}'
+          token: '${{ secrets.CI_TOKEN }}'
+          name: 'Jamie Peabody'
+          email: 'jamie.peabody@gmail.com'
       - run: npm run release
 
       - name: Publish
