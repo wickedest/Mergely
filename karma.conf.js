@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const webpackConfig = require('./webpack.dev.js');
 
 module.exports = function(config) {
 	config.set({
@@ -36,32 +37,7 @@ module.exports = function(config) {
 			captureConsole: true,
 			mocha: {}
 		},
-		webpack: {
-			entry: './src/mergely.js',
-			module: {
-				rules: [{
-					test: /\.(js)$/,
-					exclude: /node_modules/,
-					use: ['babel-loader']
-				}]
-			},
-			resolve: {
-				extensions: ['.js'],
-				alias: {
-					CodeMirror: path.join(__dirname, 'node_modules', 'codemirror'),
-					jQuery: path.join(__dirname, 'node_modules', 'jquery')
-				}
-			},
-			plugins: [
-                new CopyWebpackPlugin({
-                    patterns: [{
-                        from: 'src/mergely.css',
-                        to: 'mergely.css',
-                        toType: 'file'
-                    }]
-                })
-			]
-		},
+		webpack: webpackConfig,
 		webpackServer: {
 			noInfo: true
 		}

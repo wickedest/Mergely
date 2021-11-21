@@ -4,8 +4,8 @@ class Timer {
 	}
 
 	static stop() {
-		var t1 = Date.now();
-		var td = t1 - Timer.t0;
+		const t1 = Date.now();
+		const td = t1 - Timer.t0;
 		Timer.t0 = t1;
 		return td;
 	}

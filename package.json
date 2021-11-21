@@ -66,8 +66,8 @@
     "build": "npm run test && npm run build:dist",
     "build:dist": "rm -rf lib && webpack --config ./webpack.prod.js",
     "start": "webpack serve --config webpack.dev.js",
+    "debug": "karma start --browsers=Chrome --single-run=false",
     "test": "karma start",
-    "test:chrome": "karma start --browsers Chrome --singleRun=false",
     "release": "standard-version -a"
   }
 }
