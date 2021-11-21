@@ -20,7 +20,7 @@ jobs:
 
       - name: Get package version
         run: |
-          export VERSION=`cat package.json | grep version | sed -E 's/.*: "(.*)",/\1/'`
+          export VERSION=`cat package.json | grep '"version"' | sed -E 's/\s+"version": "(.*)",/\1/'`
           echo "PKG_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Update dist-tag
