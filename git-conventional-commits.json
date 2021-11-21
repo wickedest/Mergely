@@ -1,0 +1,42 @@
+{
+  "convention" : {
+    "commitTypes": [
+      "feat",
+      "fix",
+      "perf",
+      "refactor",
+      "style",
+      "test",
+      "build",
+      "ops",
+      "docs",
+      "chore",
+      "merge",
+      "revert"
+    ],
+    "commitScopes": [],
+    "releaseTagGlobPattern": "v[0-9].*",
+    "issueRegexPattern": "(^|\\s)#\\d+(\\s|$)"
+  },
+
+  "changelog" : {
+    "commitTypes": [
+      "feat",
+      "fix",
+      "perf",
+      "merge"
+    ],
+    "commitIgnoreRegexPattern": "^WIP ",
+    "headlines": {
+      "feat": "Features",
+      "fix": "Bug Fixes",
+      "perf": "Performance Improvements",
+      "merge": "Merged Branches",
+      "breakingChange": "BREAKING CHANGES"
+    },
+
+    "commitUrl": "https://github.com/wickedest/Mergely/commit/%commit%",
+    "commitRangeUrl": "https://github.com/wickedest/Mergely/compare/%from%...%to%?diff=split",
+    "issueUrl": "https://github.com/wickedest/Mergely/issues/%issue%"
+  }
+}

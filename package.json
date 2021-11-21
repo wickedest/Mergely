@@ -44,6 +44,7 @@
     "copy-webpack-plugin": "^6.2.1",
     "css-loader": "^5.0.0",
     "file-loader": "^6.1.1",
+    "git-conventional-commits": "^1.1.0",
     "html-webpack-plugin": "^4.5.0",
     "image-webpack-loader": "^7.0.1",
     "jquery": "^3.5.1",
@@ -61,7 +62,8 @@
     "webpack-dev-server": "^3.11.0"
   },
   "scripts": {
-    "build": "rm -rf lib && webpack --config ./webpack.prod.js",
+    "build": "npm run test && npm run build:dist",
+    "build:dist": "rm -rf lib && webpack --config ./webpack.prod.js",
     "start": "webpack serve --config webpack.dev.js",
     "test": "karma start",
     "test:chrome": "karma start --browsers Chrome --singleRun=false"
