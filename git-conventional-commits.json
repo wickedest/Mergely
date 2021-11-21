@@ -8,7 +8,8 @@
       "style",
       "refactor",
       "perf",
-      "test"
+      "test",
+      "merge"
     ],
     "commitScopes": [],
     "releaseTagGlobPattern": "v[0-9].*",
