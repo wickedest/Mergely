@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 4.3.8 (2021-11-21)
+
+
+### General
+
+* Split code into individual files and tidier code ([#160](https://github.com/wickedest/Mergely/issues/160)) ([79cb0dd](https://github.com/wickedest/Mergely/commit/79cb0ddd6a07886435b0e17b0bac33416e67716d))
+
 ### 4.3.7 (2021-11-21)
 
 
