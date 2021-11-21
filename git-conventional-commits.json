@@ -1,18 +1,14 @@
 {
   "convention" : {
     "commitTypes": [
-      "feat",
-      "fix",
-      "perf",
-      "refactor",
-      "style",
-      "test",
       "build",
-      "ops",
-      "docs",
       "chore",
-      "merge",
-      "revert"
+      "ci",
+      "docs",
+      "style",
+      "refactor",
+      "perf",
+      "test"
     ],
     "commitScopes": [],
     "releaseTagGlobPattern": "v[0-9].*",

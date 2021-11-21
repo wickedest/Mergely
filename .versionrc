@@ -1,0 +1,46 @@
+{
+	"types": [
+		{
+			"type": "feat",
+			"section": "Features"
+		},
+		{
+			"type": "fix",
+			"section": "Bug Fixes"
+		},
+		{
+			"type": "chore",
+			"section": "General",
+			"hidden": false
+		},
+		{
+			"type": "style",
+			"section": "General",
+			"hidden": false
+		},
+		{
+			"type": "refactor",
+			"section": "General",
+			"hidden": false
+		},
+		{
+			"type": "perf",
+			"section": "General",
+			"hidden": false
+		},
+		{
+			"type": "test",
+			"section": "General",
+			"hidden": false
+		},
+		{
+			"type": "docs",
+			"section": "Documentation",
+			"hidden": false
+		},
+		{
+			"type": "ci",
+			"hidden": true
+		}
+	]
+}
