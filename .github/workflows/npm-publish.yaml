@@ -1,0 +1,46 @@
+name: Publish to npm
+
+on: 
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'NPM Tag'
+        required: false
+        default: 'next'
+
+jobs:
+  tag-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10
+          registry-url: https://registry.npmjs.org
+
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+        env:
+          CI: true
+
+      - name: Get package version
+        run: |
+          export VERSION=`cat package.json | grep version | sed -E 's/.*: "(.*)",/\1/'`
+          echo "DIST_TAG=v$VERSION" >> $GITHUB_ENV
+
+      - name: Build
+        run: npm test
+
+      - name: Tag repo with $DIST_TAG
+        run: |
+          git tag $DIST_TAG
+          git push origin $DIST_TAG
+
+      - name: Publish to npm with dist-tag next
+        run: npm publish --access public --tag ${{ github.event.inputs.tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
