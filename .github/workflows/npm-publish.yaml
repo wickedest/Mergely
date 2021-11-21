@@ -27,11 +27,6 @@ jobs:
         env:
           CI: true
 
-      - name: Get package version
-        run: |
-          export VERSION=`cat package.json | grep version | sed -E 's/.*: "(.*)",/\1/'`
-          echo "DIST_TAG=v$VERSION" >> $GITHUB_ENV
-
       - name: Test
         run: npm run test
 
