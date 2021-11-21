@@ -16,7 +16,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: 10
+          node-version: 14
           registry-url: https://registry.npmjs.org
 
       - name: Git checkout
@@ -34,10 +34,10 @@ jobs:
         run: npm run build:dist
 
       - name: Release
-        run: npm run release
-        uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        uses: fusion-engineering/setup-git-credentials@v2
         with:
-          token: '${{ secrets.CI_TOKEN }}'
+          credentials: '${{ secrets.CI_TOKEN }}'
+      - run: npm run release
 
       - name: Publish
         run: npm publish --access public --tag ${{ github.event.inputs.tag }}
