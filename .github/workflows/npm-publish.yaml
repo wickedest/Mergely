@@ -40,6 +40,7 @@ jobs:
           name: 'Jamie Peabody'
           email: 'jamie.peabody@gmail.com'
       - run: npm run release
+      - run: git push --follow-tags origin master
 
       - name: Publish
         run: npm publish --access public --tag ${{ github.event.inputs.tag }}
