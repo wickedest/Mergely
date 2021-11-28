@@ -10,6 +10,7 @@ BREAKING:
 Added `.mergely-editor` to the DOM to scope all the CSS changes.
 CSS now prefixes `.mergely-editor`.
 Current active change gutter line number style changed from `.CodeMirror-linenumber` to `.CodeMirror-gutter-background`.
+Removed support for jquery-ui merge buttons.
 
 FEATURE:
 Gutter click now scrolls to any line.
@@ -376,42 +377,28 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	const { jQuery, CodeMirror } = this;
 	this.trace('init', 'bind');
 	this.element.hide();
-	this.id = jQuery(el).attr('id');
+	this.id = el.id;
+	const found = document.querySelector(`#${this.id}`);
+	if (!found) {
+		console.error(`Failed to find mergely: #${this.id}`);
+	}
+
 	this.lhsId = `${this.id}-lhs`;
 	this.rhsId = `${this.id}-rhs`;
-	try {
-		// ensure the id is valid for jQuery
-		jQuery(`#${this.id}`);
-	} catch (ex) {
-		console.error(`jQuery failed to find mergely: #${this.id}`);
-		return;
-	}
 	this.changed_timeout = null;
 	this.chfns = { lhs: [], rhs: [] };
 	this.prev_query = [];
 	this.cursor = [];
 	this._skipscroll = {};
 	this.change_exp = new RegExp(/(\d+(?:,\d+)?)([acd])(\d+(?:,\d+)?)/);
-	if (jQuery.button !== undefined) {
-		//jquery ui
-		this.merge_lhs_button = document.createElement('button');
-		this.merge_lhs_button.title = 'Merge left';
-		this.merge_rhs_button = document.createElement('button');
-		this.merge_rhs_button.title = 'Merge right';
-	}
-	else {
-		// homebrew
-		const style = 'opacity:0.6;height:16px;background-color:#bfbfbf;cursor:pointer;text-align:center;color:#eee;border:1px solid #848484;margin-right:-15px;margin-top:-2px;';
-		const lhsTemplate = `<div style="${style}" class="merge-button" title="Merge left">&lt;</div>`;
-		const rhsTemplate = `<div style="${style}" class="merge-button" title="Merge right">&gt;</div>`;
-		this.merge_lhs_button = htmlToElement(lhsTemplate);
-		this.merge_rhs_button = htmlToElement(rhsTemplate);
-	}
+	// homebrew button
+	const style = 'opacity:0.6;height:16px;background-color:#bfbfbf;cursor:pointer;text-align:center;color:#eee;border:1px solid #848484;margin-right:-15px;margin-top:-2px;';
+	const lhsTemplate = `<div style="${style}" class="merge-button" title="Merge left">&lt;</div>`;
+	const rhsTemplate = `<div style="${style}" class="merge-button" title="Merge right">&gt;</div>`;
+	this.merge_lhs_button = htmlToElement(lhsTemplate);
+	this.merge_rhs_button = htmlToElement(rhsTemplate);
 
 	// create the textarea and canvas elements
-	const height = '10px';
-	const width = '10px';
-
 	this.element.get(0).className += ' mergely-editor';
 	const canvasLhs = htmlToElement(getMarginTemplate({
 		id: this.id,
@@ -461,11 +448,11 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			notice,
 			left: (this.element.parent().width() - 300) / 2
 		}));
-		// FIXME: use editor
-		jQuery('body').one('click', function () {
+		const editor = this._queryElement('.mergely-editor');
+		editor.addEventListener('click', () => {
 			splash.style.cssText += 'visibility: hidden; opacity: 0; transition: visibility 0s 100ms, opacity 100ms linear;';
 			setTimeout(() => splash.remove(), 110);
-		});
+		}, { once: true });
 		this.element.append(splash);
 	}
 
@@ -540,6 +527,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	function gutterClicked(side, line, ev) {
 		// The "Merge left/right" buttons are also located in the gutter.
 		// Don't interfere with them:
+		// FIXME: this is fairly horrible
 		if (ev.target && (jQuery(ev.target).closest('.merge-button').length > 0)) {
 			return;
 		}
@@ -620,10 +608,9 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 };
 
 CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
-	const { jQuery } = this;
-	if (this._skipscroll[id] === true) {
+	if (this._skipscroll[side] === true) {
 		// scrolling one side causes the other to event - ignore it
-		this._skipscroll[id] = false;
+		this._skipscroll[side] = false;
 		return;
 	}
 	if (!this.changes) {
@@ -631,14 +618,23 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		// are calculated
 		return;
 	}
-	const scroller = jQuery(this.editor[side].getScrollerElement());
-	if (this.midway == undefined) {
-		this.midway = (scroller.height() / 2.0 + scroller.offset().top).toFixed(2);
+	const scroller = this.editor[side].getScrollerElement();
+	const { top } = scroller.getBoundingClientRect();
+	let height;
+	if (true || this.midway == undefined) {
+		// this.midway = (scroller.offsetHeight / 2.0 + scroller.scrollTop).toFixed(2);
+		height = scroller.clientHeight
+			- (scroller.offsetHeight - scroller.offsetParent.offsetHeight);
+		this.midway = (height / 2.0 + top).toFixed(2);
 	}
+
 	// balance-line
-	const midline = this.editor[side].coordsChar({left:0, top:this.midway});
-	const top_to = scroller.scrollTop();
-	const left_to = scroller.scrollLeft();
+	const midline = this.editor[side].coordsChar({
+		left: 0,
+		top: this.midway
+	});
+	const top_to = scroller.scrollTop;
+	const left_to = scroller.scrollLeft;
 
 	this.trace('scroll', 'side', side);
 	this.trace('scroll', 'midway', this.midway);
@@ -646,69 +642,63 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	this.trace('scroll', 'top_to', top_to);
 	this.trace('scroll', 'left_to', left_to);
 
-	for (const sideName in this.editor) {
-		if (!this.editor.hasOwnProperty(sideName) || id === sideName) {
-			// this is the same editor, and we want to scroll the other
-			continue;
-		}
-		const this_side = id.replace(this.id + '-', '');
-		const other_side = sideName.replace(this.id + '-', '');
+	const oside = (side === 'lhs') ? 'rhs' : 'lhs';
 
-		// find the last change that is less than or within the midway point
-		// do not move the rhs until the lhs end point is >= the rhs end point.
-		let top_adjust = 0;
-		let last_change = null;
-		let force_scroll = false;
-		for (const change of this.changes) {
-			if ((midline.line >= change[this_side+'-line-from'])) {
-				last_change = change;
-				if (midline.line >= last_change[this_side+'-line-to']) {
-					if (!change.hasOwnProperty(this_side+'-y-start') ||
-						!change.hasOwnProperty(this_side+'-y-end') ||
-						!change.hasOwnProperty(other_side+'-y-start') ||
-						!change.hasOwnProperty(other_side+'-y-end')){
-						// change outside of viewport
-						force_scroll = true;
-					}
-					else {
-						top_adjust +=
-							(change[this_side+'-y-end'] - change[this_side+'-y-start']) -
-							(change[other_side+'-y-end'] - change[other_side+'-y-start']);
-					}
+	// find the last change that is less than or within the midway point
+	// do not move the rhs until the lhs end point is >= the rhs end point.
+	let top_adjust = 0;
+	let last_change = null;
+	let force_scroll = false;
+	for (const change of this.changes) {
+		if ((midline.line >= change[side+'-line-from'])) {
+			last_change = change;
+			if (midline.line >= last_change[side+'-line-to']) {
+				if (!change.hasOwnProperty(side+'-y-start') ||
+					!change.hasOwnProperty(side+'-y-end') ||
+					!change.hasOwnProperty(oside+'-y-start') ||
+					!change.hasOwnProperty(oside+'-y-end')){
+					// change outside of viewport
+					force_scroll = true;
+				}
+				else {
+					top_adjust +=
+						(change[side+'-y-end'] - change[side+'-y-start']) -
+						(change[oside+'-y-end'] - change[oside+'-y-start']);
 				}
 			}
 		}
-
-		const vp = this.editor[sideName].getViewport();
-		let scroll = true;
-		if (last_change) {
-			this.trace('scroll', 'last change before midline', last_change);
-			if (midline.line >= vp.from && midline <= vp.to) {
-				scroll = false;
-			}
-		}
-		this.trace('scroll', 'scroll', scroll);
-		if (scroll || force_scroll) {
-			// scroll the other side
-			this.trace('scroll', 'scrolling other side', top_to - top_adjust);
-			this._skipscroll[sideName] = true;//disable next event
-			this.editor[sideName].scrollTo(left_to, top_to - top_adjust);
-		}
-		else {
-			this.trace('scroll', 'not scrolling other side');
-		}
-
-		if (this.settings.autoupdate) {
-			Timer.start();
-			this._calculate_offsets(this.changes);
-			this.trace('change', 'offsets time', Timer.stop());
-			this._markup_changes(this.changes);
-			this.trace('change', 'markup time', Timer.stop());
-			this._draw_diff(this.changes);
-			this.trace('change', 'draw time', Timer.stop());
-		}
-		this.trace('scroll', 'scrolled');
 	}
+
+	const vp = this.editor[oside].getViewport();
+	let scroll = true;
+	if (last_change) {
+		this.trace('scroll', 'last change before midline', last_change);
+		if (midline.line >= vp.from && midline <= vp.to) {
+			scroll = false;
+		}
+	}
+	this.trace('scroll', 'scroll', scroll);
+	if (scroll || force_scroll) {
+		// scroll the other side
+		this.trace('scroll', 'scrolling other side', top_to - top_adjust);
+		// disable next scroll event because we trigger it
+		this._skipscroll[oside] = true;
+		this.editor[oside].scrollTo(left_to, top_to - top_adjust);
+	}
+	else {
+		this.trace('scroll', 'not scrolling other side');
+	}
+
+	if (this.settings.autoupdate) {
+		Timer.start();
+		this._calculate_offsets(this.changes);
+		this.trace('change', 'offsets time', Timer.stop());
+		this._markup_changes(this.changes);
+		this.trace('change', 'markup time', Timer.stop());
+		this._draw_diff(this.changes);
+		this.trace('change', 'draw time', Timer.stop());
+	}
+	this.trace('scroll', 'scrolled');
 };
 
 CodeMirrorDiffView.prototype._changing = function() {
@@ -845,7 +835,9 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 			this.em_height = 18;
 		}
 		this.draw_lhs_min = 0.5;
-		this.draw_mid_width = jQuery('#' + this.lhsId + '-' + this.rhsId + '-canvas').width();
+
+		this.draw_mid_width
+			= this._queryElement(`#${this.lhsId}-${this.rhsId}-canvas`).offsetWidth;
 		this.draw_rhs_max = this.draw_mid_width - 0.5; //24.5;
 		this.draw_lhs_width = 5;
 		this.draw_rhs_width = 5;
@@ -952,7 +944,6 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 };
 
 CodeMirrorDiffView.prototype._markup_changes = function (changes) {
-	const { jQuery } = this;
 	this.element.find('.merge-button').remove(); //clear
 
 	var self = this;
@@ -1008,10 +999,6 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 			if (!red.getOption('readOnly')) {
 				// add widgets to lhs, if rhs is not read only
 				const rhs_button = this.merge_rhs_button.cloneNode(true);
-				if (rhs_button.button) {
-					//jquery-ui support
-					rhs_button.button({icons: {primary: 'ui-icon-triangle-1-e'}, text: false});
-				}
 				rhs_button.id = `merge-rhs-${i}`;
 				led.setGutterMarker(llf, 'merge', rhs_button);
 			}
@@ -1062,12 +1049,6 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 			if (!led.getOption('readOnly')) {
 				// add widgets to rhs, if lhs is not read only
 				const lhs_button = this.merge_lhs_button.cloneNode(true);
-				if (lhs_button.button) {
-					//jquery-ui support
-					lhs_button.button({icons: {primary: 'ui-icon-triangle-1-w'}, text: false});
-				}
-				// lhs_button.addClass('merge-button');
-				// lhs_button.attr('id', 'merge-lhs-' + i);
 				lhs_button.id = `merge-lhs-${i}`;
 				red.setGutterMarker(rlf, 'merge', lhs_button);
 			}
@@ -1177,7 +1158,7 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 
 	// FIXME: this can be better
 	// merge buttons
-	const ed = {lhs:led, rhs:red};
+	const { jQuery } = this;
 	this.element.find('.merge-button').on('click', (ev) => {
 		// side of mouseenter
 		let side = 'rhs';
@@ -1187,14 +1168,14 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 			side = 'lhs';
 			oside = 'rhs';
 		}
-		const pos = ed[side].coordsChar({
+		const pos = this.editor[side].coordsChar({
 			left: ev.pageX,
 			top: ev.pageY
 		});
 
 		// get the change id
 		let cid = null;
-		const info = ed[side].lineInfo(pos.line);
+		const info = this.editor[side].lineInfo(pos.line);
 		jQuery.each(info.bgClass.split(' '), function(i, clazz) {
 			if (clazz.indexOf('cid-') == 0) {
 				cid = parseInt(clazz.split('-')[1], 10);
@@ -1258,8 +1239,10 @@ CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
 
 CodeMirrorDiffView.prototype._draw_info = function() {
 	const { jQuery } = this;
-	const visible_page_height = jQuery(this.editor.lhs.getScrollerElement()).height() + 17; // fudged
-	const gutter_height = jQuery(this.editor.lhs.getScrollerElement()).children(':first-child').height();
+	const lhsScroll = this.editor.lhs.getScrollerElement();
+	const rhsScroll = this.editor.rhs.getScrollerElement();
+	const visible_page_height = lhsScroll.offsetHeight + 17; // fudged
+	const gutter_height = lhsScroll.querySelector(':first-child').offsetHeight;
 	const dcanvas = document.getElementById(this.lhsId + '-' + this.rhsId + '-canvas');
 	if (dcanvas == undefined) throw 'Failed to find: ' + this.lhsId + '-' + this.rhsId + '-canvas';
 	const clhs = this.element.find('#' + this.id + '-lhs-margin');
@@ -1269,8 +1252,8 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 		gutter_height: gutter_height,
 		visible_page_ratio: (visible_page_height / gutter_height),
 		margin_ratio: (visible_page_height / gutter_height),
-		lhs_scroller: jQuery(this.editor.lhs.getScrollerElement()),
-		rhs_scroller: jQuery(this.editor.rhs.getScrollerElement()),
+		lhs_scroller: lhsScroll,
+		rhs_scroller: rhsScroll,
 		lhs_lines: this.editor.lhs.lineCount(),
 		rhs_lines: this.editor.rhs.lineCount(),
 		dcanvas: dcanvas,
@@ -1293,8 +1276,8 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	this.trace('draw', 'visible_page_height', ex.visible_page_height);
 	this.trace('draw', 'gutter_height', ex.gutter_height);
 	this.trace('draw', 'visible_page_ratio', ex.visible_page_ratio);
-	this.trace('draw', 'lhs-scroller-top', ex.lhs_scroller.scrollTop());
-	this.trace('draw', 'rhs-scroller-top', ex.rhs_scroller.scrollTop());
+	this.trace('draw', 'lhs-scroller-top', ex.lhs_scroller.scrollTop);
+	this.trace('draw', 'rhs-scroller-top', ex.rhs_scroller.scrollTop);
 
 	jQuery.each(this.element.find('canvas'), function () {
 		jQuery(this).get(0).height = ex.visible_page_height;
@@ -1335,10 +1318,10 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 
 		this.trace('draw', change);
 		// margin indicators
-		const lhs_y_start = ((change['lhs-y-start'] + ex.lhs_scroller.scrollTop()) * ex.visible_page_ratio);
-		const lhs_y_end = ((change['lhs-y-end'] + ex.lhs_scroller.scrollTop()) * ex.visible_page_ratio) + 1;
-		const rhs_y_start = ((change['rhs-y-start'] + ex.rhs_scroller.scrollTop()) * ex.visible_page_ratio);
-		const rhs_y_end = ((change['rhs-y-end'] + ex.rhs_scroller.scrollTop()) * ex.visible_page_ratio) + 1;
+		const lhs_y_start = ((change['lhs-y-start'] + ex.lhs_scroller.scrollTop) * ex.visible_page_ratio);
+		const lhs_y_end = ((change['lhs-y-end'] + ex.lhs_scroller.scrollTop) * ex.visible_page_ratio) + 1;
+		const rhs_y_start = ((change['rhs-y-start'] + ex.rhs_scroller.scrollTop) * ex.visible_page_ratio);
+		const rhs_y_end = ((change['rhs-y-end'] + ex.rhs_scroller.scrollTop) * ex.visible_page_ratio) + 1;
 		this.trace('draw', 'marker calculated', lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
 
 		ctx_lhs.beginPath();
@@ -1444,11 +1427,11 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	ctx_rhs.fillStyle = this.settings.vpcolor;
 
 	const lto = ex.clhs.height() * ex.visible_page_ratio;
-	const lfrom = (ex.lhs_scroller.scrollTop() / ex.gutter_height) * ex.clhs.height();
+	const lfrom = (ex.lhs_scroller.scrollTop / ex.gutter_height) * ex.clhs.height();
 	const rto = ex.crhs.height() * ex.visible_page_ratio;
-	const rfrom = (ex.rhs_scroller.scrollTop() / ex.gutter_height) * ex.crhs.height();
+	const rfrom = (ex.rhs_scroller.scrollTop / ex.gutter_height) * ex.crhs.height();
 	this.trace('draw', 'cls.height', ex.clhs.height());
-	this.trace('draw', 'lhs_scroller.scrollTop()', ex.lhs_scroller.scrollTop());
+	this.trace('draw', 'lhs_scroller.scrollTop', ex.lhs_scroller.scrollTop);
 	this.trace('draw', 'gutter_height', ex.gutter_height);
 	this.trace('draw', 'visible_page_ratio', ex.visible_page_ratio);
 	this.trace('draw', 'lhs from', lfrom, 'lhs to', lto);
@@ -1460,12 +1443,14 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	ex.clhs.click(function (ev) {
 		const y = ev.pageY - ex.lhs_xyoffset.top - (lto / 2);
 		const sto = Math.max(0, (y / mcanvas_lhs.height) * ex.lhs_scroller.get(0).scrollHeight);
-		ex.lhs_scroller.scrollTop(sto);
+		console.log('scroll', sto);
+		ex.lhs_scroller.scrollTo({ top: sto });
 	});
 	ex.crhs.click(function (ev) {
 		const y = ev.pageY - ex.rhs_xyoffset.top - (rto / 2);
 		const sto = Math.max(0, (y / mcanvas_rhs.height) * ex.rhs_scroller.get(0).scrollHeight);
-		ex.rhs_scroller.scrollTop(sto);
+		console.log('scroll', sto);
+		ex.rhs_scroller.scrollTo({ top: sto });
 	});
 };
 
