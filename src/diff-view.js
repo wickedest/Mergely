@@ -604,8 +604,10 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	if (!change) {
 		return;
 	}
-	const led = this.editor.lhs;
-	const red = this.editor.rhs;
+	const {
+		lhs: led,
+		rhs: red
+	} = this.editor;
 	// set cursors
 	const llf = Math.max(change['lhs-line-from'], 0);
 	const rlf = Math.max(change['rhs-line-from'], 0);
@@ -828,8 +830,10 @@ CodeMirrorDiffView.prototype._set_top_offset = function (side) {
 
 CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 	const { jQuery } = this;
-	const led = this.editor.lhs;
-	const red = this.editor.rhs;
+	const {
+		lhs: led,
+		rhs: red
+	} = this.editor;
 
 	if (this.em_height == null) {
 		if (!this._set_top_offset('lhs')) {
@@ -952,8 +956,10 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 	this.element.find('.merge-button').remove(); //clear
 
 	var self = this;
-	const led = this.editor.lhs;
-	const red = this.editor.rhs;
+	const {
+		lhs: led,
+		rhs: red
+	} = this.editor;
 	const current_diff = this._current_diff;
 	const lhsvp = this._get_viewport_side('lhs');
 	const rhsvp = this._get_viewport_side('rhs');
@@ -1207,8 +1213,10 @@ CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
 		return;
 	}
 	const { CodeMirror } = this;
-	const led = this.editor.lhs;
-	const red = this.editor.rhs;
+	const {
+		lhs: led,
+		rhs: red
+	} = this.editor;
 	const ed = { lhs: led, rhs: red };
 	const from = change[`${side}-line-from`];
 	const to = change[`${side}-line-to`];
