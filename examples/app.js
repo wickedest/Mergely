@@ -19,7 +19,6 @@ $(document).ready(function () {
 		cmsettings: {
 			readOnly: false
 		},
-		_debug: '',
 		lhs: function(setValue) {
 			setValue(lhs);
 		},

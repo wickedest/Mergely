@@ -6,7 +6,7 @@ const diff = require('./diff');
 const LCS = require('./lcs');
 const CodeMirrorDiffView = require('./diff-view');
 
-var Mgly = {};
+const Mgly = {};
 
 Mgly.diff = diff;
 
@@ -15,8 +15,8 @@ Mgly.LCS = LCS;
 Mgly.CodeMirrorDiffView = CodeMirrorDiffView;
 
 Mgly.sizeOf = function(obj) {
-	var size = 0, key;
-	for (key in obj) {
+	let size = 0;
+	for (const key in obj) {
 		if (obj.hasOwnProperty(key)) size++;
 	}
 	return size;
