@@ -226,7 +226,6 @@ CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
 };
 
 CodeMirrorDiffView.prototype._setOptions = function(opts) {
-	const { jQuery } = this;
 	this.settings = {
 		...this.settings,
 		...opts
@@ -741,8 +740,8 @@ CodeMirrorDiffView.prototype._clear = function() {
 	clearChanges('rhs');
 
 	const ex = this._draw_info();
-	const ctx_lhs = ex.clhs.get(0).getContext('2d');
-	const ctx_rhs = ex.crhs.get(0).getContext('2d');
+	const ctx_lhs = ex.lhs_margin.getContext('2d');
+	const ctx_rhs = ex.rhs_margin.getContext('2d');
 	const ctx = ex.dcanvas.getContext('2d');
 
 	ctx_lhs.beginPath();
@@ -819,7 +818,6 @@ CodeMirrorDiffView.prototype._set_top_offset = function (side) {
 };
 
 CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
-	const { jQuery } = this;
 	const {
 		lhs: led,
 		rhs: red
@@ -1243,10 +1241,16 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 	const rhsScroll = this.editor.rhs.getScrollerElement();
 	const visible_page_height = lhsScroll.offsetHeight + 17; // fudged
 	const gutter_height = lhsScroll.querySelector(':first-child').offsetHeight;
-	const dcanvas = document.getElementById(this.lhsId + '-' + this.rhsId + '-canvas');
-	if (dcanvas == undefined) throw 'Failed to find: ' + this.lhsId + '-' + this.rhsId + '-canvas';
-	const clhs = this.element.find('#' + this.id + '-lhs-margin');
-	const crhs = this.element.find('#' + this.id + '-rhs-margin');
+	const dcanvas = document.getElementById(`${this.lhsId}-${this.rhsId}-canvas`);
+	if (dcanvas == undefined) {
+		throw 'Failed to find: ' + this.lhsId + '-' + this.rhsId + '-canvas';
+	}
+	// const lhs_margin = this.element.find('#' + this.id + '-lhs-margin');
+	// const rhs_margin = this.element.find('#' + this.id + '-rhs-margin');
+
+	const lhs_margin = this._queryElement(`#${this.id}-lhs-margin`);
+	const rhs_margin = this._queryElement(`#${this.id}-rhs-margin`);
+
 	return {
 		visible_page_height: visible_page_height,
 		gutter_height: gutter_height,
@@ -1256,19 +1260,25 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 		rhs_scroller: rhsScroll,
 		lhs_lines: this.editor.lhs.lineCount(),
 		rhs_lines: this.editor.rhs.lineCount(),
-		dcanvas: dcanvas,
-		clhs: clhs,
-		crhs: crhs,
-		lhs_xyoffset: jQuery(clhs).offset(),
-		rhs_xyoffset: jQuery(crhs).offset()
+		dcanvas,
+		lhs_margin,
+		rhs_margin,
+		lhs_xyoffset: {
+			top: lhs_margin.offsetParent.offsetTop,
+			left: lhs_margin.offsetParent.offsetLeft
+		},
+		rhs_xyoffset: {
+			top: rhs_margin.offsetParent.offsetTop,
+			left: rhs_margin.offsetParent.offsetLeft
+		}
 	};
 };
 
 CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	const { jQuery } = this;
 	const ex = this._draw_info();
-	const mcanvas_lhs = ex.clhs.get(0);
-	const mcanvas_rhs = ex.crhs.get(0);
+	const mcanvas_lhs = ex.lhs_margin;
+	const mcanvas_rhs = ex.rhs_margin;
 	const ctx = ex.dcanvas.getContext('2d');
 	const ctx_lhs = mcanvas_lhs.getContext('2d');
 	const ctx_rhs = mcanvas_rhs.getContext('2d');
@@ -1283,8 +1293,8 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		jQuery(this).get(0).height = ex.visible_page_height;
 	});
 
-	ex.clhs.unbind('click');
-	ex.crhs.unbind('click');
+	ex.lhs_margin.removeEventListener('click', this._handleLhsMarginClick);
+	ex.rhs_margin.removeEventListener('click', this._handleRhsMarginClick);
 
 	ctx_lhs.beginPath();
 	ctx_lhs.fillStyle = this.settings.bgcolor;
@@ -1426,11 +1436,11 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	ctx_lhs.fillStyle = this.settings.vpcolor;
 	ctx_rhs.fillStyle = this.settings.vpcolor;
 
-	const lto = ex.clhs.height() * ex.visible_page_ratio;
-	const lfrom = (ex.lhs_scroller.scrollTop / ex.gutter_height) * ex.clhs.height();
-	const rto = ex.crhs.height() * ex.visible_page_ratio;
-	const rfrom = (ex.rhs_scroller.scrollTop / ex.gutter_height) * ex.crhs.height();
-	this.trace('draw', 'cls.height', ex.clhs.height());
+	const lto = ex.lhs_margin.offsetHeight * ex.visible_page_ratio;
+	const lfrom = (ex.lhs_scroller.scrollTop / ex.gutter_height) * ex.lhs_margin.offsetHeight;
+	const rto = ex.rhs_margin.offsetHeight * ex.visible_page_ratio;
+	const rfrom = (ex.rhs_scroller.scrollTop / ex.gutter_height) * ex.rhs_margin.offsetHeight;
+	this.trace('draw', 'cls.height', ex.lhs_margin.offsetHeight);
 	this.trace('draw', 'lhs_scroller.scrollTop', ex.lhs_scroller.scrollTop);
 	this.trace('draw', 'gutter_height', ex.gutter_height);
 	this.trace('draw', 'visible_page_ratio', ex.visible_page_ratio);
@@ -1440,23 +1450,25 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	ctx_lhs.fillRect(1.5, lfrom, 4.5, lto);
 	ctx_rhs.fillRect(1.5, rfrom, 4.5, rto);
 
-	ex.clhs.click(function (ev) {
+	this._handleLhsMarginClick = function (ev) {
 		const y = ev.pageY - ex.lhs_xyoffset.top - (lto / 2);
-		const sto = Math.max(0, (y / mcanvas_lhs.height) * ex.lhs_scroller.get(0).scrollHeight);
+		const sto = Math.max(0, (y / mcanvas_lhs.height) * ex.lhs_scroller.scrollHeight);
 		console.log('scroll', sto);
 		ex.lhs_scroller.scrollTo({ top: sto });
-	});
-	ex.crhs.click(function (ev) {
+	};
+	this._handleRhsMarginClick = function (ev) {
 		const y = ev.pageY - ex.rhs_xyoffset.top - (rto / 2);
-		const sto = Math.max(0, (y / mcanvas_rhs.height) * ex.rhs_scroller.get(0).scrollHeight);
+		const sto = Math.max(0, (y / mcanvas_rhs.height) * ex.rhs_scroller.scrollHeight);
 		console.log('scroll', sto);
 		ex.rhs_scroller.scrollTo({ top: sto });
-	});
+	};
+	ex.lhs_margin.addEventListener('click', this._handleLhsMarginClick);
+	ex.rhs_margin.addEventListener('click', this._handleRhsMarginClick);
 };
 
 CodeMirrorDiffView.prototype.trace = function(name) {
 	if(this.settings._debug.indexOf(name) >= 0) {
-		arguments[0] = name + ':';
+		arguments[0] = `${name}:`;
 		console.log([].slice.apply(arguments));
 	}
 }
