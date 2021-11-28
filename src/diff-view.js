@@ -129,7 +129,7 @@ CodeMirrorDiffView.prototype.init = function(el, options) {
 		// these override any user-defined CodeMirror settings
 		lineWrapping: this.settings.wrap_lines,
 		lineNumbers: this.settings.line_numbers,
-		gutters: (this.settings.line_numbers && ['merge', 'CodeMirror-linenumbers']) || [],
+		gutters: (this.settings.line_numbers && [ 'merge', 'CodeMirror-linenumbers' ]) || [],
 	};
 	this.rhs_cmsettings = {
 		...this.settings.cmsettings,
@@ -137,7 +137,7 @@ CodeMirrorDiffView.prototype.init = function(el, options) {
 		// these override any user-defined CodeMirror settings
 		lineWrapping: this.settings.wrap_lines,
 		lineNumbers: this.settings.line_numbers,
-		gutters: (this.settings.line_numbers && ['merge', 'CodeMirror-linenumbers']) || [],
+		gutters: (this.settings.line_numbers && [ 'merge', 'CodeMirror-linenumbers' ]) || [],
 	};
 
 	// bind if the element is destroyed
@@ -152,8 +152,8 @@ CodeMirrorDiffView.prototype.init = function(el, options) {
 CodeMirrorDiffView.prototype.unbind = function() {
 	const { jQuery } = this;
 	if (this.changed_timeout != null) clearTimeout(this.changed_timeout);
-	this.editor[this.id + '-lhs'].toTextArea();
-	this.editor[this.id + '-rhs'].toTextArea();
+	this.editor.lhs.toTextArea();
+	this.editor.rhs.toTextArea();
 	jQuery(window).off('.mergely');
 };
 
@@ -170,14 +170,14 @@ CodeMirrorDiffView.prototype.lhs = function(text) {
 	// invalidate existing changes and current position
 	this.changes = [];
 	delete this._current_diff;
-	this.editor[this.id + '-lhs'].setValue(text);
+	this.editor.lhs.setValue(text);
 };
 
 CodeMirrorDiffView.prototype.rhs = function(text) {
 	// invalidate existing changes and current position
 	this.changes = [];
 	delete this._current_diff;
-	this.editor[this.id + '-rhs'].setValue(text);
+	this.editor.rhs.setValue(text);
 };
 
 CodeMirrorDiffView.prototype.update = function() {
@@ -219,7 +219,7 @@ CodeMirrorDiffView.prototype.mergeCurrentChange = function(side) {
 };
 
 CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
-	const ed = this.editor[`${this.id}-${side}`];
+	const ed = this.editor[side];
 	ed.setCursor(num);
 	ed.centerOnCursor();
 };
@@ -252,8 +252,8 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 	}
 	// if options set after init
 	if (this.editor) {
-		const le = this.editor[`${this.id}-lhs`];
-		const re = this.editor[`${this.id}-rhs`];
+		const le = this.editor.lhs;
+		const re = this.editor.rhs;
 		if (this.settings.hasOwnProperty('wrap_lines')) {
 			le.setOption('lineWrapping', this.settings.wrap_lines);
 			re.setOption('lineWrapping', this.settings.wrap_lines);
@@ -280,15 +280,15 @@ CodeMirrorDiffView.prototype.swap = function() {
 	if (this.lhs_cmsettings.readOnly || this.rhs_cmsettings.readOnly) {
 		return;
 	}
-	const le = this.editor[`${this.id}-lhs`];
-	const re = this.editor[`${this.id}-rhs`];
+	const le = this.editor.lhs;
+	const re = this.editor.rhs;
 	re.setValue(le.getValue());
 	le.setValue(re.getValue());
 };
 
 CodeMirrorDiffView.prototype.merge = function(side) {
-	const le = this.editor[`${this.id}-lhs`];
-	const re = this.editor[`${this.id}-rhs`];
+	const le = this.editor.lhs;
+	const re = this.editor.rhs;
 	if (side == 'lhs' && !this.lhs_cmsettings.readOnly) {
 		le.setValue(re.getValue());
 	} else if (!this.rhs_cmsettings.readOnly) {
@@ -297,8 +297,8 @@ CodeMirrorDiffView.prototype.merge = function(side) {
 };
 
 CodeMirrorDiffView.prototype.summary = function() {
-	const le = this.editor[`${this.id}-lhs`];
-	const re = this.editor[`${this.id}-rhs`];
+	const le = this.editor.lhs;
+	const re = this.editor.rhs;
 
 	return {
 		numChanges: this.changes.length,
@@ -317,7 +317,7 @@ CodeMirrorDiffView.prototype.summary = function() {
 };
 
 CodeMirrorDiffView.prototype.get = function(side) {
-	const ed = this.editor[`${this.id}-${side}`];
+	const ed = this.editor[side];
 	const value = ed.getValue();
 	if (value === undefined) {
 		return '';
@@ -328,17 +328,17 @@ CodeMirrorDiffView.prototype.get = function(side) {
 CodeMirrorDiffView.prototype.clear = function(side) {
 	if (side == 'lhs' && this.lhs_cmsettings.readOnly) return;
 	if (side == 'rhs' && this.rhs_cmsettings.readOnly) return;
-	const ed = this.editor[`${this.id}-${side}`];
+	const ed = this.editor[side];
 	ed.setValue('');
 	delete this._current_diff;
 };
 
 CodeMirrorDiffView.prototype.cm = function(side) {
-	return this.editor[`${this.id}-${side}`];
+	return this.editor[side];
 };
 
 CodeMirrorDiffView.prototype.search = function(side, query, direction) {
-	const editor = this.editor[`${this.id}-${side}`];
+	const editor = this.editor[side];
 	const searchDirection = (direction === 'prev')
 		? 'findPrevious' : 'findNext';
 	const start = { line: 0, ch: 0 };
@@ -360,12 +360,12 @@ CodeMirrorDiffView.prototype.resize = function() {
 	this.em_height = null;
 	this.settings.resize();
 	this._changing();
-	this._set_top_offset(this.id + '-lhs');
+	this._set_top_offset('lhs');
 };
 
 CodeMirrorDiffView.prototype.diff = function() {
-	const le = this.editor[`${this.id}-lhs`];
-	const re = this.editor[`${this.id}-rhs`];
+	const le = this.editor.lhs;
+	const re = this.editor.rhs;
 	const lhs = le.getValue();
 	const rhs = re.getValue();
 	const comparison = new diff(lhs, rhs, this.settings);
@@ -387,9 +387,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		return;
 	}
 	this.changed_timeout = null;
-	this.chfns = {};
-	this.chfns[this.lhsId] = [];
-	this.chfns[this.rhsId] = [];
+	this.chfns = { lhs: [], rhs: [] };
 	this.prev_query = [];
 	this.cursor = [];
 	this._skipscroll = {};
@@ -498,25 +496,25 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 
 	// bind
 	this.trace('init', 'binding event listeners');
-	this.editor = [];
-	this.editor[this.lhsId] = CodeMirror.fromTextArea(lhstx, this.lhs_cmsettings);
-	this.editor[this.rhsId] = CodeMirror.fromTextArea(rhstx, this.rhs_cmsettings);
-	this.editor[this.lhsId].on('change', () => {
+	this.editor = {};
+	this.editor.lhs = CodeMirror.fromTextArea(lhstx, this.lhs_cmsettings);
+	this.editor.rhs = CodeMirror.fromTextArea(rhstx, this.rhs_cmsettings);
+	this.editor.lhs.on('change', () => {
 		if (!this.settings.autoupdate) {
 			return;
 		}
 		this._changing();
 	});
-	this.editor[this.lhsId].on('scroll', () => {
+	this.editor.lhs.on('scroll', () => {
 		this._scrolling({ side: 'lhs', id: this.lhsId });
 	});
-	this.editor[this.rhsId].on('change', () => {
+	this.editor.rhs.on('change', () => {
 		if (!this.settings.autoupdate) {
 			return;
 		}
 		this._changing();
 	});
-	this.editor[this.rhsId].on('scroll', () => {
+	this.editor.rhs.on('scroll', () => {
 		this._scrolling({ side: 'rhs', id: this.rhsId });
 	});
 
@@ -526,8 +524,8 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		const resize = (init) => {
 			if (this.settings.resize) this.settings.resize(init);
 			this.resize();
-			this.editor[this.lhsId].refresh();
-			this.editor[this.rhsId].refresh();
+			this.editor.lhs.refresh();
+			this.editor.rhs.refresh();
 		};
 		jQuery(window).on('resize.mergely', () => {
 			if (resizeTimeout) {
@@ -545,7 +543,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		if (ev.target && (jQuery(ev.target).closest('.merge-button').length > 0)) {
 			return;
 		}
-		const ed = this.editor[`${this.id}-${side}`];
+		const ed = this.editor[side];
 		// See if the user clicked the line number of a difference:
 		let found = false;
 		for (let i = 0; i < this.changes.length; ++i) {
@@ -566,11 +564,11 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		}
 	}
 
-	this.editor[this.lhsId].on('gutterClick', (cm, n, gutterClass, ev) => {
+	this.editor.lhs.on('gutterClick', (cm, n, gutterClass, ev) => {
 		gutterClicked.call(this, 'lhs', n, ev);
 	});
 
-	this.editor[this.rhsId].on('gutterClick', (cm, n, gutterClass, ev) => {
+	this.editor.rhs.on('gutterClick', (cm, n, gutterClass, ev) => {
 		gutterClicked.call(this, 'rhs', n, ev);
 	});
 
@@ -581,7 +579,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		this.settings.lhs(function setValue(value) {
 			this._initializing = true;
 			delete this._current_diff;
-			this.editor[this.lhsId].getDoc().setValue(value);
+			this.editor.lhs.getDoc().setValue(value);
 		}.bind(this));
 	}
 	if (this.settings.rhs) {
@@ -589,7 +587,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		this.settings.rhs(function setValue(value) {
 			this._initializing = true;
 			delete this._current_diff;
-			this.editor[this.rhsId].getDoc().setValue(value);
+			this.editor.rhs.getDoc().setValue(value);
 		}.bind(this));
 	}
 	this.element.one('updated', () => {
@@ -599,15 +597,15 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		}
 	});
 	this.trace('init', 'bound');
-	this.editor[this.lhsId].focus();
+	this.editor.lhs.focus();
 };
 
 CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	if (!change) {
 		return;
 	}
-	const led = this.editor[this.lhsId];
-	const red = this.editor[this.rhsId];
+	const led = this.editor.lhs;
+	const red = this.editor.rhs;
 	// set cursors
 	const llf = Math.max(change['lhs-line-from'], 0);
 	const rlf = Math.max(change['rhs-line-from'], 0);
@@ -631,12 +629,12 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		// are calculated
 		return;
 	}
-	const scroller = jQuery(this.editor[id].getScrollerElement());
+	const scroller = jQuery(this.editor[side].getScrollerElement());
 	if (this.midway == undefined) {
 		this.midway = (scroller.height() / 2.0 + scroller.offset().top).toFixed(2);
 	}
 	// balance-line
-	const midline = this.editor[id].coordsChar({left:0, top:this.midway});
+	const midline = this.editor[side].coordsChar({left:0, top:this.midway});
 	const top_to = scroller.scrollTop();
 	const left_to = scroller.scrollLeft();
 
@@ -646,13 +644,13 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	this.trace('scroll', 'top_to', top_to);
 	this.trace('scroll', 'left_to', left_to);
 
-	for (const name in this.editor) {
-		if (!this.editor.hasOwnProperty(name) || id === name) {
+	for (const sideName in this.editor) {
+		if (!this.editor.hasOwnProperty(sideName) || id === sideName) {
 			// this is the same editor, and we want to scroll the other
 			continue;
 		}
 		const this_side = id.replace(this.id + '-', '');
-		const other_side = name.replace(this.id + '-', '');
+		const other_side = sideName.replace(this.id + '-', '');
 
 		// find the last change that is less than or within the midway point
 		// do not move the rhs until the lhs end point is >= the rhs end point.
@@ -679,7 +677,7 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 			}
 		}
 
-		const vp = this.editor[name].getViewport();
+		const vp = this.editor[sideName].getViewport();
 		let scroll = true;
 		if (last_change) {
 			this.trace('scroll', 'last change before midline', last_change);
@@ -691,8 +689,8 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		if (scroll || force_scroll) {
 			// scroll the other side
 			this.trace('scroll', 'scrolling other side', top_to - top_adjust);
-			this._skipscroll[name] = true;//disable next event
-			this.editor[name].scrollTo(left_to, top_to - top_adjust);
+			this._skipscroll[sideName] = true;//disable next event
+			this.editor[sideName].scrollTo(left_to, top_to - top_adjust);
 		}
 		else {
 			this.trace('scroll', 'not scrolling other side');
@@ -727,9 +725,9 @@ CodeMirrorDiffView.prototype._changed = function() {
 };
 
 CodeMirrorDiffView.prototype._clear = function() {
-	const clearChanges = (id) => {
+	const clearChanges = (side) => {
 		Timer.start();
-		const editor = this.editor[id];
+		const editor = this.editor[side];
 		editor.operation(() => {
 			const lineCount = editor.lineCount();
 			// FIXME: there is no need to call `removeLineClass` for every line
@@ -737,7 +735,7 @@ CodeMirrorDiffView.prototype._clear = function() {
 				editor.removeLineClass(i, 'background');
 				editor.removeLineClass(i, 'gutter');
 			}
-			for (const fn of this.chfns[id]) {
+			for (const fn of this.chfns[side]) {
 				if (fn.lines.length) {
 					this.trace('change', 'clear text', fn.lines[0].text);
 				}
@@ -747,8 +745,8 @@ CodeMirrorDiffView.prototype._clear = function() {
 			this.trace('change', 'clear time', Timer.stop());
 		});
 	};
-	clearChanges(this.lhsId);
-	clearChanges(this.rhsId);
+	clearChanges('lhs');
+	clearChanges('rhs');
 
 	const ex = this._draw_info();
 	const ctx_lhs = ex.clhs.get(0).getContext('2d');
@@ -773,8 +771,8 @@ CodeMirrorDiffView.prototype._clear = function() {
 };
 
 CodeMirrorDiffView.prototype._diff = function() {
-	const lhs = this.editor[this.lhsId].getValue();
-	const rhs = this.editor[this.rhsId].getValue();
+	const lhs = this.editor.lhs.getValue();
+	const rhs = this.editor.rhs.getValue();
 	Timer.start();
 	const comparison = new diff(lhs, rhs, this.settings);
 	this.trace('change', 'diff time', Timer.stop());
@@ -798,8 +796,8 @@ CodeMirrorDiffView.prototype._diff = function() {
 	this.element.trigger('updated');
 };
 
-CodeMirrorDiffView.prototype._get_viewport_side = function(editor_name) {
-	return this.editor[editor_name].getViewport();
+CodeMirrorDiffView.prototype._get_viewport_side = function(side) {
+	return this.editor[side].getViewport();
 };
 
 CodeMirrorDiffView.prototype._is_change_in_view = function(side, vp, change) {
@@ -808,11 +806,11 @@ CodeMirrorDiffView.prototype._is_change_in_view = function(side, vp, change) {
 		(vp.from >= change[`${side}-line-from`] && vp.to <= change[`${side}-line-to`]);
 };
 
-CodeMirrorDiffView.prototype._set_top_offset = function (editor_name1) {
+CodeMirrorDiffView.prototype._set_top_offset = function (side) {
 	// save the current scroll position of the editor
-	const saveY = this.editor[editor_name1].getScrollInfo().top;
+	const saveY = this.editor[side].getScrollInfo().top;
 	// temporarily scroll to top
-	this.editor[editor_name1].scrollTo(null, 0);
+	this.editor[side].scrollTo(null, 0);
 
 	// this is the distance from the top of the screen to the top of the
 	// content of the first codemirror editor
@@ -822,7 +820,7 @@ CodeMirrorDiffView.prototype._set_top_offset = function (editor_name1) {
 		return false;
 	}
 	// restore editor's scroll position
-	this.editor[editor_name1].scrollTo(null, saveY);
+	this.editor[side].scrollTo(null, saveY);
 
 	this.draw_top_offset = 0.5 - top_offset;
 	return true;
@@ -830,11 +828,13 @@ CodeMirrorDiffView.prototype._set_top_offset = function (editor_name1) {
 
 CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 	const { jQuery } = this;
-	const led = this.editor[this.lhsId];
-	const red = this.editor[this.rhsId];
+	const led = this.editor.lhs;
+	const red = this.editor.rhs;
 
 	if (this.em_height == null) {
-		if(!this._set_top_offset(this.lhsId)) return; //try again
+		if (!this._set_top_offset('lhs')) {
+			return; // try again
+		}
 		this.em_height = led.defaultTextHeight();
 		if (!this.em_height) {
 			console.warn('Failed to calculate offsets, using 18 by default');
@@ -855,8 +855,8 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 	}
 	const lhschc = led.charCoords({line: 0});
 	const rhschc = red.charCoords({line: 0});
-	const lhsvp = this._get_viewport_side(this.lhsId);
-	const rhsvp = this._get_viewport_side(this.rhsId);
+	const lhsvp = this._get_viewport_side('lhs');
+	const rhsvp = this._get_viewport_side('rhs');
 
 	for (const change of changes) {
 		if (this.settings.viewport &&
@@ -952,11 +952,11 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 	this.element.find('.merge-button').remove(); //clear
 
 	var self = this;
-	const led = this.editor[this.lhsId];
-	const red = this.editor[this.rhsId];
+	const led = this.editor.lhs;
+	const red = this.editor.rhs;
 	const current_diff = this._current_diff;
-	const lhsvp = this._get_viewport_side(this.lhsId);
-	const rhsvp = this._get_viewport_side(this.rhsId);
+	const lhsvp = this._get_viewport_side('lhs');
+	const rhsvp = this._get_viewport_side('rhs');
 
 	Timer.start();
 	led.operation(() => {
@@ -1155,7 +1155,7 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 		for (let i = 0; i < marktext.length; ++i) {
 			const m = marktext[i];
 			if (m[0].doc.id != led.getDoc().id) continue;
-			this.chfns[`${this.id}-lhs`].push(m[0].markText(m[1], m[2], m[3]));
+			this.chfns.lhs.push(m[0].markText(m[1], m[2], m[3]));
 		}
 	});
 	red.operation(() => {
@@ -1163,7 +1163,7 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 		for (let i = 0; i < marktext.length; ++i) {
 			const m = marktext[i];
 			if (m[0].doc.id != red.getDoc().id) continue;
-			this.chfns[`${this.id}-rhs`].push(m[0].markText(m[1], m[2], m[3]));
+			this.chfns.rhs.push(m[0].markText(m[1], m[2], m[3]));
 		}
 	});
 
@@ -1207,8 +1207,8 @@ CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
 		return;
 	}
 	const { CodeMirror } = this;
-	const led = this.editor[this.lhsId];
-	const red = this.editor[this.rhsId];
+	const led = this.editor.lhs;
+	const red = this.editor.rhs;
 	const ed = { lhs: led, rhs: red };
 	const from = change[`${side}-line-from`];
 	const to = change[`${side}-line-to`];
@@ -1250,8 +1250,8 @@ CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
 
 CodeMirrorDiffView.prototype._draw_info = function() {
 	const { jQuery } = this;
-	const visible_page_height = jQuery(this.editor[this.lhsId].getScrollerElement()).height() + 17; // fudged
-	const gutter_height = jQuery(this.editor[this.lhsId].getScrollerElement()).children(':first-child').height();
+	const visible_page_height = jQuery(this.editor.lhs.getScrollerElement()).height() + 17; // fudged
+	const gutter_height = jQuery(this.editor.lhs.getScrollerElement()).children(':first-child').height();
 	const dcanvas = document.getElementById(this.lhsId + '-' + this.rhsId + '-canvas');
 	if (dcanvas == undefined) throw 'Failed to find: ' + this.lhsId + '-' + this.rhsId + '-canvas';
 	const clhs = this.element.find('#' + this.id + '-lhs-margin');
@@ -1261,10 +1261,10 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 		gutter_height: gutter_height,
 		visible_page_ratio: (visible_page_height / gutter_height),
 		margin_ratio: (visible_page_height / gutter_height),
-		lhs_scroller: jQuery(this.editor[this.lhsId].getScrollerElement()),
-		rhs_scroller: jQuery(this.editor[this.rhsId].getScrollerElement()),
-		lhs_lines: this.editor[this.lhsId].lineCount(),
-		rhs_lines: this.editor[this.rhsId].lineCount(),
+		lhs_scroller: jQuery(this.editor.lhs.getScrollerElement()),
+		rhs_scroller: jQuery(this.editor.rhs.getScrollerElement()),
+		lhs_lines: this.editor.lhs.lineCount(),
+		rhs_lines: this.editor.rhs.lineCount(),
 		dcanvas: dcanvas,
 		clhs: clhs,
 		crhs: crhs,
@@ -1309,8 +1309,8 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	ctx_rhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
 	ctx_rhs.stroke();
 
-	const lhsvp = this._get_viewport_side(this.lhsId);
-	const rhsvp = this._get_viewport_side(this.rhsId);
+	const lhsvp = this._get_viewport_side('lhs');
+	const rhsvp = this._get_viewport_side('rhs');
 
 	for (let i = 0; i < changes.length; ++i) {
 		const change = changes[i];
