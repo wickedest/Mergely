@@ -13,9 +13,13 @@ jumped over the lazy dog
 `;
 
 $(document).ready(function () {
-	$('#mergely').mergely({
+	console.log('here', document.innerHTML);
+
+	window.mergely('#mergely', {
 		license: 'lgpl',
 		ignorews: true,
+		wrap_lines: true,
+		//_debug: 'scroll',
 		cmsettings: {
 			readOnly: false
 		},
@@ -26,4 +30,22 @@ $(document).ready(function () {
 			setValue(rhs);
 		}
 	});
+
+	/*
+	$('#mergely').mergely({
+		license: 'lgpl',
+		ignorews: true,
+		wrap_lines: true,
+		//_debug: 'scroll',
+		cmsettings: {
+			readOnly: false
+		},
+		lhs: function(setValue) {
+			setValue(lhs);
+		},
+		rhs: function(setValue) {
+			setValue(rhs);
+		}
+	});
+	*/
 });
