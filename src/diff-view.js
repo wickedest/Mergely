@@ -69,39 +69,51 @@ CodeMirrorDiffView.prototype.init = function(el, options) {
 		lhs: function(setValue) { },
 		rhs: function(setValue) { },
 		loaded: function() { },
-		resize: function(init) {
-			const parent = jQuery(el).parent();
-			let w;
-			let h;
-			if (this.width == 'auto') {
-				w = parent.width();
+		resize: (init) => {
+			const parent = el.parentNode;
+			const { settings } = this;
+			let width;
+			let height;
+			if (settings.width == 'auto') {
+				width = parent.offsetWidth;
 			}
 			else {
-				w = this.width;
+				width = settings.width;
 			}
-			if (this.height == 'auto') {
-				h = parent.height() - 2;
+			if (settings.height == 'auto') {
+				height = parent.offsetHeight - 2;
 			}
 			else {
-				h = this.height;
+				height = settings.height;
 			}
-			const content_width = w / 2.0 - 2 * 8 - 8;
-			const content_height = h;
-			const self = jQuery(el);
-			self.find('.mergely-column').css({ width: content_width + 'px' });
-			self.find('.mergely-column, .mergely-canvas, .mergely-margin, .mergely-column textarea, .CodeMirror-scroll, .cm-s-default').css({ height: content_height + 'px' });
-			self.find('.mergely-canvas').css({ height: content_height + 'px' });
-			self.find('.mergely-column textarea').css({ width: content_width + 'px' });
-			self.css({ width: w, height: h, clear: 'both' });
-			if (self.css('display') === 'none') {
-				if (this.fadein != false) {
-					self.fadeIn(this.fadein);
+			const contentWidth = width / 2.0 - 2 * 8 - 8;
+			const contentHeight = height;
+
+			const lhsEditor = this._queryElement(`#${this.id}-editor-lhs`);
+			lhsEditor.style.width = `${contentWidth}px`;
+			lhsEditor.style.height = `${contentHeight}px`;
+			const rhsEditor = this._queryElement(`#${this.id}-editor-rhs`);
+			rhsEditor.style.width = `${contentWidth}px`;
+			rhsEditor.style.height = `${contentHeight}px`;
+
+			const lhsCM = this._queryElement(`#${this.id}-editor-lhs .cm-s-default`);
+			lhsCM.style.width = `${contentWidth}px`;
+			lhsCM.style.height = `${contentHeight}px`;
+			const rhsCM = this._queryElement(`#${this.id}-editor-rhs .cm-s-default`);
+			rhsCM.style.width = `${contentWidth}px`;
+			rhsCM.style.height = `${contentHeight}px`;
+
+			if (el.style.display === 'none') {
+				if (settings.fadein !== false) {
+					this.element.fadeIn(settings.fadein);
 				}
 				else {
-					self.show();
+					this.element.show();
 				}
 			}
-			if (this.resized) this.resized();
+			if (settings.resized) {
+				settings.resized();
+			}
 		},
 		_debug: '', //scroll,draw,calc,diff,markup,change,init
 		resized: function() { },
@@ -1454,6 +1466,15 @@ CodeMirrorDiffView.prototype.trace = function(name) {
 		arguments[0] = name + ':';
 		console.log([].slice.apply(arguments));
 	}
+}
+
+CodeMirrorDiffView.prototype._queryElement = function(selector) {
+	const cacheName = `_element:${selector}`;
+	const element = this[cacheName] || document.querySelector(selector);
+	if (!this[cacheName]) {
+		this[cacheName] = element;
+	}
+	return this[cacheName];
 }
 
 /**
