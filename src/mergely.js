@@ -1,23 +1,79 @@
-"use strict";
-
-(function(jQuery, CodeMirror) {
-
 const CodeMirrorDiffView = require('./diff-view');
 
-const Mergely = function() { };
+class Mergely {
+	constructor(element, options) {
+		this._diffView = new CodeMirrorDiffView(element, options, {
+			CodeMirror
+		});
+		this.el = element;
+		this._diffView.bind(element);
+		const methods = [
+			'clear',
+			'cm',
+			'diff',
+			'get',
+			'lhs',
+			'merge',
+			'mergeCurrentChange',
+			'options',
+			'remove',
+			'resize',
+			'rhs',
+			'scrollTo',
+			'scrollToDiff',
+			'search',
+			'summary',
+			'swap',
+			'unmarkup',
+			'update'
+		];
+		for (const method of methods) {
+			this[method] = this._diffView[method].bind(this._diffView);
+		}
+		this._listeners = [];
+		this.addEventListener = element.addEventListener.bind(element);
+		this.removeEventListener = element.removeEventListener.bind(element);
+	}
 
-Mergely.prototype.name = 'mergely';
+	unbind() {
+		for (const [ event, listener ] of this._listeners) {
+			this.removeEventListener(event, listener);
+		}
+		this._diffView.unbind();
+		delete this._diffView;
+	}
 
-Mergely.prototype.init = function(el, options) {
-	this.diffView = new CodeMirrorDiffView(el, options, { jQuery, CodeMirror });
-	this.bind(el);
-};
+	/**
+	 * @deprecated
+	 */
+	mergelyUnregister() {
+	}
 
-Mergely.prototype.bind = function(el) {
-	this.diffView.bind(el);
-};
+	on(event, listener) {
+		this._listeners.push([ event, listener ]);
+		this.addEventListener(event, listener);
+	}
 
-window.mergely = function (selector, options = {}) {
+	once(event, listener) {
+		this._listeners.push([ event, listener ]);
+		this.addEventListener(event, listener, { once: true });
+	}
+
+	/**
+	 * @deprecated
+	 * @param {*} method
+	 * @param  {...any} options
+	 */
+	mergely(method, ...options) {
+		this[method](...options);
+	}
+
+	remove() {
+
+	}
+}
+
+window.Mergely = function (selector, options = {}) {
 	let element = selector;
 	if (typeof selector === 'string') {
 		element = document.querySelector(selector);
@@ -27,8 +83,6 @@ window.mergely = function (selector, options = {}) {
 	} else if (!element) {
 		throw new Error('Element cannot be null');
 	}
-	const mergely = new Mergely();
-	mergely.init(element, options);
+	const mergely = new Mergely(element, options);
+	return mergely;
 };
-
-})(require('jquery'), require('CodeMirror'));

@@ -2,24 +2,25 @@ require('codemirror/addon/selection/mark-selection.js');
 require('codemirror/lib/codemirror.css');
 require('../src/mergely.css');
 
-var lhs = `\
+const lhs = `\
 the quick red fox
 jumped over the hairy dog
 `;
 
-var rhs = `\
+const rhs = `\
 the quick brown fox
 jumped over the lazy dog
 `;
 
-$(document).ready(function () {
-	console.log('here', document.innerHTML);
+document.onreadystatechange = function () {
+	if (document.readyState !== 'complete') {
+		return;
+	}
 
-	window.mergely('#mergely', {
+	const doc = new Mergely('#mergely', {
 		license: 'lgpl',
 		ignorews: true,
 		wrap_lines: true,
-		//_debug: 'scroll',
 		cmsettings: {
 			readOnly: false
 		},
@@ -30,22 +31,4 @@ $(document).ready(function () {
 			setValue(rhs);
 		}
 	});
-
-	/*
-	$('#mergely').mergely({
-		license: 'lgpl',
-		ignorews: true,
-		wrap_lines: true,
-		//_debug: 'scroll',
-		cmsettings: {
-			readOnly: false
-		},
-		lhs: function(setValue) {
-			setValue(lhs);
-		},
-		rhs: function(setValue) {
-			setValue(rhs);
-		}
-	});
-	*/
-});
+};

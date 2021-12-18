@@ -1,11 +1,16 @@
 {
   "name": "mergely",
-  "version": "4.3.8",
+  "version": "5.0.0-rc0",
   "description": "A javascript UI for diff/merge",
-  "directories": {
-    "doc": "doc",
-    "example": "examples",
-    "test": "test"
+  "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1 OR SEE LICENSE IN LICENSE)",
+  "author": {
+    "name": "Jamie Peabody",
+    "email": "jamie.peabody@gmail.com",
+    "url": "https://mergely.com"
+  },
+  "homepage": "https://github.com/wickedest/Mergely#readme",
+  "bugs": {
+    "url": "https://github.com/wickedest/Mergely/issues"
   },
   "repository": {
     "type": "git",
@@ -23,16 +28,6 @@
     "diff",
     "myers"
   ],
-  "author": {
-    "name": "Jamie Peabody",
-    "email": "jamie.peabody@gmail.com",
-    "url": "http://mergely.com"
-  },
-  "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1 OR SEE LICENSE IN LICENSE)",
-  "bugs": {
-    "url": "https://github.com/wickedest/Mergely/issues"
-  },
-  "homepage": "https://github.com/wickedest/Mergely#readme",
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
@@ -47,15 +42,14 @@
     "css-loader": "^5.0.0",
     "git-conventional-commits": "^1.1.0",
     "html-webpack-plugin": "^4.5.0",
-    "jquery": "^3.5.1",
     "karma": "^5.2.3",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
-    "karma-coverage-istanbul-reporter": "^1.3.0",
     "karma-mocha": "^2.0.1",
     "karma-mocha-reporter": "^2.2.5",
     "karma-webpack": "^4.0.2",
     "mocha": "^8.1.3",
+    "simple-mock": "^0.8.0",
     "standard-version": "^9.3.2",
     "style-loader": "^2.0.0",
     "webpack": "^4.44.2",

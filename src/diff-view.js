@@ -1,3 +1,6 @@
+require('codemirror/addon/search/searchcursor.js');
+require('codemirror/addon/selection/mark-selection.js');
+
 const Timer = require('./timer');
 const diff = require('./diff');
 const DiffParser = require('./diff-parser');
@@ -7,15 +10,23 @@ const LCS = require('./lcs');
 CHANGES:
 
 BREAKING:
+Removed dependency on `jQuery`.
 Added `.mergely-editor` to the DOM to scope all the CSS changes.
 CSS now prefixes `.mergely-editor`.
 Current active change gutter line number style changed from `.CodeMirror-linenumber` to `.CodeMirror-gutter-background`.
 Removed support for jquery-ui merge buttons.
+API switched from jQuery style to object methods.
+No longer necessary to separately require codemirror/addon/search/searchcursor
+No longer necessary to separately require codemirror/addon/selection/mark-selection
 
 FEATURE:
 Gutter click now scrolls to any line.
 FIX:
 Fixed issue where canvas markup was not rendered when `viewport` enabled.
+Fixed timing issue where swap sides may not work as expected.
+Fixed issue where unmarkup did not emit an updated event.
+Fixed issue where init triggered an updated event when autoupdate is disabled.
+Fixed documentation issue where `merge` incorrectly stated: from the specified `side` to the opposite side
 */
 const MERGELY_ICON = 'data:image/png;base64,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';
 
@@ -26,20 +37,18 @@ const NOTICES = [
 	'commercial'
 ];
 
-function CodeMirrorDiffView(el, options, { jQuery, CodeMirror }) {
+function CodeMirrorDiffView(el, options, { CodeMirror }) {
 	CodeMirror.defineExtension('centerOnCursor', function() {
 		const coords = this.cursorCoords(null, 'local');
 		this.scrollTo(null,
 			(coords.top + coords.bottom) / 2 - (this.getScrollerElement().clientHeight / 2));
 	});
-	this.jQuery = jQuery;
 	this.CodeMirror = CodeMirror;
 
 	this.init(el, options);
 };
 
 CodeMirrorDiffView.prototype.init = function(el, options = {}) {
-	const { jQuery } = this;
 	this.settings = {
 		autoupdate: true,
 		autoresize: true,
@@ -123,7 +132,6 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		...options
 	};
 	// save this element for faster queries
-	this.element = jQuery(el);
 	this.el = el;
 
 	this.lhs_cmsettings = {
@@ -147,17 +155,21 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 };
 
 CodeMirrorDiffView.prototype.unbind = function() {
-	if (this.changed_timeout != null) clearTimeout(this.changed_timeout);
+	if (this.changed_timeout != null) {
+		clearTimeout(this.changed_timeout);
+	}
 	this.editor.lhs.toTextArea();
 	this.editor.rhs.toTextArea();
+	this._unbound = true;
 };
 
-CodeMirrorDiffView.prototype.destroy = function() {
-	this.teardown();
-};
-
-CodeMirrorDiffView.prototype.teardown = function() {
-	this.unbind();
+CodeMirrorDiffView.prototype.remove = function() {
+	if (!this._unbound) {
+		this.unbind();
+	}
+	while (this.el.lastChild) {
+		this.el.removeChild(this.el.lastChild);
+	}
 };
 
 CodeMirrorDiffView.prototype.lhs = function(text) {
@@ -175,11 +187,13 @@ CodeMirrorDiffView.prototype.rhs = function(text) {
 };
 
 CodeMirrorDiffView.prototype.update = function() {
-	this._changing();
+	this._changing({ force: true });
 };
 
 CodeMirrorDiffView.prototype.unmarkup = function() {
 	this._clear();
+	this.trace('change', 'emit: updated');
+	this.el.dispatchEvent(new Event('updated'));
 };
 
 CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
@@ -213,6 +227,7 @@ CodeMirrorDiffView.prototype.mergeCurrentChange = function(side) {
 };
 
 CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
+	this.trace('scroll', 'scrollTo', side, num);
 	const ed = this.editor[side];
 	ed.setCursor(num);
 	ed.centerOnCursor();
@@ -223,37 +238,38 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 		...this.settings,
 		...opts
 	};
-	if (this.settings.hasOwnProperty('rhs_margin')) {
-		// dynami259*-6+cally swap the margin
-		if (this.settings.rhs_margin == 'left') {
-			this.element.find('.mergely-margin:last-child').insertAfter(
-				this.element.find('.mergely-canvas'));
-		}
-		else {
-			const target = this.element.find('.mergely-margin').last();
-			target.appendTo(target.parent());
-		}
-	}
 	if (this.settings.hasOwnProperty('sidebar')) {
 		// dynamically enable sidebars
 		if (this.settings.sidebar) {
-			this.element.find('.mergely-margin').css({display: 'block'});
+			const divs = document.querySelectorAll('.mergely-margin');
+			for (const div of divs) {
+				div.style.visibility = 'visible';
+			}
 		}
 		else {
-			this.element.find('.mergely-margin').css({display: 'none'});
+			const divs = document.querySelectorAll('.mergely-margin');
+			for (const div of divs) {
+				div.style.visibility = 'hidden';
+			}
 		}
 	}
 	// if options set after init
 	if (this.editor) {
 		const le = this.editor.lhs;
 		const re = this.editor.rhs;
-		if (this.settings.hasOwnProperty('wrap_lines')) {
+		if (opts.hasOwnProperty('wrap_lines')) {
 			le.setOption('lineWrapping', this.settings.wrap_lines);
 			re.setOption('lineWrapping', this.settings.wrap_lines);
 		}
-		if (this.settings.hasOwnProperty('line_numbers')) {
+		if (opts.hasOwnProperty('line_numbers')) {
 			le.setOption('lineNumbers', this.settings.line_numbers);
 			re.setOption('lineNumbers', this.settings.line_numbers);
+		}
+		if (opts.hasOwnProperty('rhs_margin')) {
+			// dynamically swap the margin
+			const divs = document.querySelectorAll('.mergely-editor > div');
+			// [0:margin] [1:lhs] [2:mid] [3:rhs] [4:margin], swaps 4 with 3
+			divs[4].parentNode.insertBefore(divs[4], divs[3]);
 		}
 	}
 };
@@ -275,14 +291,16 @@ CodeMirrorDiffView.prototype.swap = function() {
 	}
 	const le = this.editor.lhs;
 	const re = this.editor.rhs;
-	re.setValue(le.getValue());
-	le.setValue(re.getValue());
+	const lv = le.getValue();
+	const rv = re.getValue();
+	re.setValue(lv);
+	le.setValue(rv);
 };
 
 CodeMirrorDiffView.prototype.merge = function(side) {
 	const le = this.editor.lhs;
 	const re = this.editor.rhs;
-	if (side == 'lhs' && !this.lhs_cmsettings.readOnly) {
+	if (side === 'lhs' && !this.lhs_cmsettings.readOnly) {
 		le.setValue(re.getValue());
 	} else if (!this.rhs_cmsettings.readOnly) {
 		re.setValue(le.getValue());
@@ -332,6 +350,9 @@ CodeMirrorDiffView.prototype.cm = function(side) {
 
 CodeMirrorDiffView.prototype.search = function(side, query, direction) {
 	const editor = this.editor[side];
+	if (!editor.getSearchCursor) {
+		throw new Error('install CodeMirror search addon');
+	}
 	const searchDirection = (direction === 'prev')
 		? 'findPrevious' : 'findNext';
 	const start = { line: 0, ch: 0 };
@@ -424,7 +445,11 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		el.append(canvasRhs);
 	}
 	if (!this.settings.sidebar) {
-		el.find('.mergely-margin').css({ display: 'none' });
+		// it would be better if this just used this.options()
+		const divs = document.querySelectorAll('.mergely-margin');
+		for (const div of divs) {
+			div.style.visibility = 'hidden';
+		}
 	}
 	if (NOTICES.indexOf(this.settings.license) < 0) {
 		const noticeTypes = {
@@ -532,7 +557,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 
 	// scrollToDiff() from gutter
 	function gutterClicked(side, line, ev) {
-		console.log('gutter', ev.target)
 		if (ev.target.className.includes('merge-button')) {
 			ev.preventDefault();
 			return;
@@ -686,7 +710,7 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	this.trace('scroll', 'scroll', scroll);
 	if (scroll || force_scroll) {
 		// scroll the other side
-		this.trace('scroll', 'scrolling other side', top_to - top_adjust);
+		this.trace('scroll', 'scrolling other side to pos:', top_to - top_adjust);
 		// disable next scroll event because we trigger it
 		this._skipscroll[oside] = true;
 		this.editor[oside].scrollTo(left_to, top_to - top_adjust);
@@ -707,10 +731,14 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	this.trace('scroll', 'scrolled');
 };
 
-CodeMirrorDiffView.prototype._changing = function() {
+CodeMirrorDiffView.prototype._changing = function({ force } = { force: false }) {
 	this.trace('change', 'changing-timeout', this.changed_timeout);
 	if (this.changed_timeout != null) clearTimeout(this.changed_timeout);
 	this.changed_timeout = setTimeout(() => {
+		if (!force && !this.settings.autoupdate) {
+			this.trace('change', 'ignore', force, this.settings.autoupdate);
+			return;
+		}
 		Timer.start();
 		this._changed();
 		this.trace('change', 'total time', Timer.stop());
@@ -799,7 +827,6 @@ CodeMirrorDiffView.prototype._diff = function() {
 	this.trace('change', 'markup time', Timer.stop());
 	this._draw_diff(this.changes);
 	this.trace('change', 'draw time', Timer.stop());
-	this.el.dispatchEvent(new Event('updated'));
 };
 
 CodeMirrorDiffView.prototype._get_viewport_side = function(side) {
@@ -1434,17 +1461,18 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	this._handleLhsMarginClick = function (ev) {
 		const y = ev.pageY - ex.lhs_xyoffset.top - (lto / 2);
 		const sto = Math.max(0, (y / mcanvas_lhs.height) * ex.lhs_scroller.scrollHeight);
-		console.log('scroll', sto);
 		ex.lhs_scroller.scrollTo({ top: sto });
 	};
 	this._handleRhsMarginClick = function (ev) {
 		const y = ev.pageY - ex.rhs_xyoffset.top - (rto / 2);
 		const sto = Math.max(0, (y / mcanvas_rhs.height) * ex.rhs_scroller.scrollHeight);
-		console.log('scroll', sto);
 		ex.rhs_scroller.scrollTo({ top: sto });
 	};
 	ex.lhs_margin.addEventListener('click', this._handleLhsMarginClick);
 	ex.rhs_margin.addEventListener('click', this._handleRhsMarginClick);
+
+	this.trace('change', 'emit: updated');
+	this.el.dispatchEvent(new Event('updated'));
 };
 
 CodeMirrorDiffView.prototype.trace = function(name) {

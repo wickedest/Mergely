@@ -17,17 +17,17 @@ module.exports = function(config) {
 		files: [
 			'node_modules/codemirror/lib/codemirror.css',
 			'src/mergely.css',
-			'tests/**/*.spec.js'
+			'test/**/*.spec.js'
 		],
 
 		preprocessors: {
-			'node_modules/jquery/dist/jquery.js': ['webpack'],
 			'node_modules/codemirror/lib/codemirror.js': ['webpack'],
-			'tests/**/*.spec.js': ['webpack'],
+			'test/**/*.spec.js': ['webpack'],
 			'src/**/*.js': ['webpack']
 		},
 
 		reporters: ['mocha'],
+
 		mochaReporter: {
 			showDiff: true
 		},

@@ -29,18 +29,13 @@ module.exports = {
 	resolve: {
 		extensions: ['.js'],
 		alias: {
-			'CodeMirror':	path.join(__dirname, 'node_modules', 'codemirror'),
-			'jQuery':		path.join(__dirname, 'node_modules', 'jquery')
+			'CodeMirror': path.join(__dirname, 'node_modules', 'codemirror')
 		}
 	},
 
 	plugins: [
 		new HtmlWebpackPlugin({
 			template: path.join(__dirname, 'examples', 'app.html')
-		}),
-		new webpack.ProvidePlugin({
-			$: 'jquery',
-			jQuery: 'jquery'
 		}),
 		new webpack.ProvidePlugin({
 			CodeMirror: 'codemirror'

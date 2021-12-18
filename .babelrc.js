@@ -2,7 +2,7 @@ module.exports = function(api) {
 	return {
 		presets: [
 			[
-				"@babel/preset-env",
+				'@babel/preset-env',
 				{
 					targets: {
 						chrome: 59,
@@ -11,9 +11,10 @@ module.exports = function(api) {
 						ie: 11
 					},
 					// for uglifyjs...
-					forceAllTransforms: api.env("production"),
-				},
-			],
+					forceAllTransforms: api.env('production')
+				}
+			]
 		],
+		retainLines: true
 	};
 };
