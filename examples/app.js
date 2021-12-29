@@ -2,6 +2,8 @@ require('codemirror/addon/selection/mark-selection.js');
 require('codemirror/lib/codemirror.css');
 require('../src/mergely.css');
 
+const macbeth = require('../test/data/macbeth');
+
 const lhs = `\
 the quick red fox
 jumped over the hairy dog
@@ -21,14 +23,20 @@ document.onreadystatechange = function () {
 		license: 'lgpl',
 		ignorews: true,
 		wrap_lines: true,
+		change_timeout: 0,
 		cmsettings: {
 			readOnly: false
 		},
 		lhs: function(setValue) {
-			setValue(lhs);
+			setValue(macbeth.join('\n'));
+			// setValue(lhs);
 		},
 		rhs: function(setValue) {
-			setValue(rhs);
-		}
+			setValue(macbeth.join('\n')
+				.replace(/love/g,'bleed')
+				.replace(/heart/g, 'penis'));
+			// setValue(rhs);
+		},
+		_debug: 'change,scroll'
 	});
 };

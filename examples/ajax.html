@@ -8,137 +8,124 @@ This example demonstrates how to set left and right editors using ajax.
 	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 	<meta name="description" content="Merge and Diff your documents with diff online and share" />
-	<meta name="keywords" content="diff,merge,compare,jsdiff,comparison,difference,file,text,unix,patch,algorithm,saas,longest common subsequence" />
+	<meta name="keywords" content="mergely,diff,merge,compare" />
 	<meta name="author" content="Jamie Peabody" />
 
-	<!-- Requires CodeMirror -->
+	<!-- CodeMirror peer dependency -->
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/addon/search/searchcursor.min.js"></script>
 	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css" />
 
-	<!-- Requires Mergely -->
-	<script type="text/javascript" src="../lib/mergely.js"></script>
-	<link type="text/css" rel="stylesheet" href="../lib/mergely.css" />
+	<!-- Mergely -->
+	<script type="text/javascript" src="/lib/mergely.js"></script>
+	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
 
 	<style type='text/css'>
-		.drop_zone {
-			border: 2px dashed #BBBBBB;
-			border-radius: 5px 5px 5px 5px;
-			color: #BBBBBB;
+		.drop-zone {
+			border: 2px dashed #BBB;
+			border-radius: 5px;
+			color: #BBB;
 			padding: 10px 25px;
 			text-align: center;
 			align: center;
 			width: 80%;
 		}
+		.drop-zone.hover {
+			border-color: #000;
+		}
+		label:hover { cursor: pointer; }
+		#summary { color: #aaa; }
 	</style>
 	<script type="text/javascript">
-
-		$(document).ready(function () {
-			$('#compare').mergely({
-				width: 'auto',
-				height: 'auto', // containing div must be given a height
-				cmsettings: { readOnly: false },
-			});
-			var lhs_url = 'lhs.txt';
-			var rhs_url = 'rhs.txt'
-			$.ajax({
-				type: 'GET', async: true, dataType: 'text',
-				url: lhs_url,
-				success: function (response) {
-					$('#path-lhs').text(lhs_url);
-					$('#compare').mergely('lhs', response);
-				}
-			});
-			$.ajax({
-				type: 'GET', async: true, dataType: 'text',
-				url: rhs_url,
-				success: function (response) {
-					$('#path-rhs').text(rhs_url);
-					$('#compare').mergely('rhs', response);
-				}
+		document.onreadystatechange = function () {
+			if (document.readyState !== 'complete') {
+				return;
+			}
+			const doc = new Mergely('#mergely', {
+				license: 'lgpl',
+				ignorews: false,
+				wrap_lines: false,
+				change_timout: 0
 			});
 
-			function checkFileList(files) {
-				if (typeof window.FileReader !== 'function')
-					error_msg("The file API isn't supported on this browser yet.");
-
-				if (files.length>0) readFile(files[0], "lhs");
-				if (files.length>1) readFile(files[1], "rhs");
-			}
-
-			$('#compare').on('updated', function () {
-				var changes = $('#compare').mergely('summary');
-				console.log(changes);
-				$('#adds').text(changes.a);
-				$('#changes').text(changes.c);
-				$('#dels').text(changes.d);
-			});
-
-			function readFile(file, side) {
-				var reader = new FileReader();
-				reader.onload = function file_onload() {
-					// document.getElementById('td1').innerHTML = ..
-					$('#path-'+side).text(file.name);
-					$('#compare').mergely(side, reader.result);
-				}
-				reader.readAsBinaryString(file);
-			}
-			function handleDragOver(evt) {
-				evt.stopPropagation();
-				evt.preventDefault();
-				evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-			}
-			function handleFileSelect(evt) {
-				document.getElementById('drop_zone').visibility = "collapse";
-				evt.stopPropagation();
-				evt.preventDefault();
-				var files = evt.dataTransfer.files; // FileList object.
-				checkFileList(files);
-			}
-			var dropZone = document.getElementById('drop_zone');
-			document.body.addEventListener('dragover', handleDragOver, false);
-			document.body.addEventListener('drop', handleFileSelect, false);
-
-			function download_content(a, side) {
-				//a.innerHTML = "preparing content..";
-				var txt = $('#compare').mergely('get', side);
-				var datauri = "data:plain/text;charset=UTF-8," + encodeURIComponent(txt);
-				a.setAttribute('download', side+".txt");
-				a.setAttribute('href', datauri);
-				//a.innerHTML = "content ready.";
-			}
-			document.getElementById('save-lhs').addEventListener('mouseover', function() { download_content(this, "lhs"); }, false);
-			document.getElementById('save-rhs').addEventListener('mouseover', function() { download_content(this, "rhs"); }, false);
-			document.getElementById('ignorews').addEventListener('change', function() {
-				$('#compare').mergely('options', { ignorews: this.checked });
+			// toggle options listners
+			document.getElementById('ignorews').addEventListener('change', (ev) => {
+				doc.options({ ignorews: ev.target.checked });
+			}, false);
+			document.getElementById('wraplines').addEventListener('change', (ev) => {
+				doc.options({ wrap_lines: ev.target.checked });
 			}, false);
 
-		});
+			// summary listner
+			doc.on('updated', function () {
+				const changes = doc.summary();
+				console.log(changes);
+				const summary = [];
+				const types = { a: 'added', c: 'changed', d: 'deleted' };
+				for (const t in types) {
+					const type = types[t];
+					if (!changes[t]) {
+						continue;
+					}
+					summary.push(`${changes[t]} ${type}`);
+				}
+				if (!summary.length) {
+					summary.push(`no changes`);
+				}
+				document.getElementById('summary').innerHTML = summary.join(', ');
+			});
+
+			// download listener
+			function setDownloadContent(target, side) {
+				const value = doc.get(side);
+				const dataUri = `data:plain/text;charset=UTF-8,${encodeURIComponent(value)}`;
+				target.setAttribute('download', `${side}.txt`);
+				target.setAttribute('href', dataUri);
+			}
+			document.getElementById('save-lhs').addEventListener('mouseover', (ev) => {
+				setDownloadContent(ev.target, 'lhs');
+			});
+			document.getElementById('save-rhs').addEventListener('mouseover', (ev) => {
+				setDownloadContent(ev.target, 'rhs');
+			});
+
+			// async fetch
+			fetch('/examples/lhs.txt')
+				.then((resp) => resp.text())
+				.then(data => doc.lhs(data));
+
+			fetch('/examples/rhs.txt')
+				.then((resp) => resp.text())
+				.then(data => doc.rhs(data));
+		};
 	</script>
 </head>
 <body style="width: 100%; margin: 0;">
-	<table  style="width: 100%;"><tr>
-		<td style="width: 50%;"><div id="drop_zone" class="drop_zone">Drop files here</div></td>
-		<td style="width: 50%;"><input type="checkbox" id="ignorews">ignore witespaces</td>
-	</tr></table>
-	<br/>
+	<div style="display:flex">
+		<span>
+			<input type="checkbox" id="ignorews"><label for="ignorews">ignore white-space</label>
+		</span>
+		<span>
+			<input type="checkbox" id="wraplines"><label for="wraplines">wrap lines</label>
+		</span>
+	</div>
 
-	<table  style="width: 100%;"><tr>
-		<td style="width: 50%;"><tt id="path-lhs"></tt> &nbsp; <a id="save-lhs" class="save-link" href="#">save</a></td>
-		<td style="width: 50%;"><tt id="path-rhs"></tt> &nbsp; <a id="save-rhs" class="save-link" href="#">save</a></td>
-	</tr></table>
+	<div style="display:flex">
+		<span style="flex-grow:1;">
+			<a id="save-lhs" class="save-link" href="#">save</a>
+		</span>
+		<span style="flex-grow:1;margin-left:28px;">
+			<a id="save-rhs" class="save-link" href="#">save</a>
+		</span>
+	</div>
 
 	<div style="height: 450px; width: 100%;">
 		<div class="mergely-resizer">
-			<div id="compare">
+			<div id="mergely">
 			</div>
 		</div>
 	</div>
 
-	<div id="summary">
-		Changes: <span id="adds">0</span> added lines,
-			<span id="dels">0</span> deleted lines,
-			<span id="changes">0</span> changed lines
-	</div>
+	<div id="summary" />
 </body>
 </html>

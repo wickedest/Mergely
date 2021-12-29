@@ -8,40 +8,41 @@ This example demonstrates the minimum amount of code required to use Mergely.
 	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 	<meta name="description" content="Merge and Diff your documents with diff online and share" />
-	<meta name="keywords" content="diff,merge,compare,jsdiff,comparison,difference,file,text,unix,patch,algorithm,saas,longest common subsequence" />
+	<meta name="keywords" content="mergely,diff,merge,compare" />
 	<meta name="author" content="Jamie Peabody" />
 
-	<!-- Requires CodeMirror -->
+	<!-- CodeMirror peer dependency -->
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/addon/search/searchcursor.min.js"></script>
 	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css" />
 
-	<!-- Requires Mergely -->
-	<script type="text/javascript" src="../lib/mergely.js"></script>
-	<link type="text/css" rel="stylesheet" href="../lib/mergely.css" />
+	<!-- Mergely -->
+	<script type="text/javascript" src="/lib/mergely.js"></script>
+	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
 
 	<script type="text/javascript">
-		$(document).ready(function () {
-			$('#mergely').mergely({
+		document.onreadystatechange = function () {
+			if (document.readyState !== 'complete') {
+				return;
+			}
+			const doc = new Mergely('#mergely', {
 				license: 'lgpl',
-				cmsettings: {
-					readOnly: true
-				},
-				lhs: function(setValue) {
-					setValue('the quick red fox\njumped over the hairy dog');
-				},
-				rhs: function(setValue) {
+				ignorews: true,
+				wrap_lines: true,
+				change_timout: 0,
+				rhs: (setValue) => {
+					// async, on init
 					setValue('the quick brown fox\njumped over the lazy dog');
 				}
 			});
-		});
+			doc.lhs('the quick red fox\njumped over the hairy dog');
+		};
 	</script>
 </head>
 <body>
 	<div class="mergely-full-screen-8">
 		<div class="mergely-resizer">
-			<div id="mergely">
-			</div>
+			<div id="mergely" />
 		</div>
 	</div>
 </body>
