@@ -32,7 +32,6 @@ Fixed documentation issue where `merge` incorrectly stated: from the specified `
 Fixed performance issue scrolling (find #)
 Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
 */
-const MERGELY_ICON = 'data:image/png;base64,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';
 
 const NOTICES = [
 	'lgpl-separate-notice',
@@ -68,8 +67,14 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		fadein: 'fast',
 		resize_timeout: 500,
 		change_timeout: 150,
-		fgcolor: {a:'#4ba3fa',c:'#a3a3a3',d:'#ff7f7f',  // color for differences (soft color)
-			ca:'#4b73ff',cc:'#434343',cd:'#ff4f4f'},    // color for currently active difference (bright color)
+		fgcolor: {
+			a:'#4ba3fa',
+			c:'#a3a3a3',
+			d:'#ff7f7f',  // color for differences (soft color)
+			ca:'#4b73ff',
+			cc:'#434343',
+			cd:'#ff4f4f'
+		}, // color for currently active difference (bright color)
 		bgcolor: '#eee',
 		vpcolor: 'rgba(0, 0, 200, 0.5)',
 		license: 'lgpl',
@@ -411,9 +416,8 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	this._skipscroll = {};
 	this.change_exp = new RegExp(/(\d+(?:,\d+)?)([acd])(\d+(?:,\d+)?)/);
 	// homebrew button
-	const style = 'opacity:0.6;height:16px;background-color:#bfbfbf;cursor:pointer;text-align:center;color:#eee;border:1px solid #848484;margin-right:-15px;margin-top:-2px;';
-	const lhsTemplate = `<div style="${style}" class="merge-button" title="Merge left">&lt;</div>`;
-	const rhsTemplate = `<div style="${style}" class="merge-button" title="Merge right">&gt;</div>`;
+	const lhsTemplate = `<div class="merge-button" title="Merge left">&#x25C0;</div>`;
+	const rhsTemplate = `<div class="merge-button" title="Merge right">&#x25B6;</div>`;
 	this.merge_lhs_button = htmlToElement(lhsTemplate);
 	this.merge_rhs_button = htmlToElement(rhsTemplate);
 
@@ -468,7 +472,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		}
 		const editor = this._queryElement('.mergely-editor');
 		const splash = htmlToElement(getSplash({
-			icon: MERGELY_ICON,
 			notice,
 			left: (editor.offsetWidth - 300) / 2
 		}));
@@ -495,17 +498,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	const body = this._queryElement('body');
 	body.append(diffColor);
 	this.current_diff_color = window.getComputedStyle(diffColor).borderTopColor;
-
-	// codemirror
-	const cmstyles = [
-		'.CodeMirror { line-height: 18px; }'
-	];
-	if (this.settings.autoresize) {
-		cmstyles.push('.CodeMirror-scroll { height: 100%; overflow: auto; }');
-	}
-	const cmstyle = cmstyles.map(a => `#${this.id} ${a}`).join('\n');
-	const css = htmlToElement(`<style type="text/css">${cmstyle}</style>`);
-	document.head.appendChild(css);
 
 	// make a throttled render function
 	this._renderDiff = throttle.apply(this, [
@@ -1335,10 +1327,13 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 			continue;
 		}
 
-		let fill = this.settings.fgcolor[change.op];
-		if (this._current_diff === i) {
-			fill = this.current_diff_color;
-		}
+		const lhs_y_start = change['lhs-y-start'] - lhsScrollTop;
+		const lhs_y_end = change['lhs-y-end'] - lhsScrollTop;
+		const rhs_y_start = change['rhs-y-start'] - rhsScrollTop;
+		const rhs_y_end = change['rhs-y-end'] - rhsScrollTop;
+
+		const fill = (this._current_diff === i) ?
+			this.current_diff_color : this.settings.fgcolor[change.op];
 
 		this.trace('draw', change);
 
@@ -1398,11 +1393,6 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		ctx.stroke();
 
 		// draw right box
-
-		const lhs_y_start = change['lhs-y-start'] - lhsScrollTop;
-		const lhs_y_end = change['lhs-y-end'] - lhsScrollTop;
-		const rhs_y_start = change['rhs-y-start'] - rhsScrollTop;
-		const rhs_y_end = change['rhs-y-end'] - rhsScrollTop;
 
 		rectWidth = this.draw_rhs_width;
 		rectHeight = rhs_y_end - rhs_y_start - 1;
@@ -1505,13 +1495,13 @@ function htmlToElement(html) {
 function getMarginTemplate({ id, side }) {
 	return `\
 <div class="mergely-margin">
-	<canvas id="${id}-${side}-margin" style="width: 8px" width="8px"></canvas>
+	<canvas id="${id}-${side}-margin" width="8px"></canvas>
 </div>;`;
 }
 
 function getEditorTemplate({ id, side }) {
 	return `\
-<div style="position: relative;" id="${id}-editor-${side}" class="mergely-column">
+<div id="${id}-editor-${side}" class="mergely-column">
 	<textarea id="${id}-${side}"></textarea>
 </div>`;
 }
@@ -1519,18 +1509,15 @@ function getEditorTemplate({ id, side }) {
 function getCenterCanvasTemplate({ id }) {
 	return `\
 <div class="mergely-canvas">
-	<canvas id="${id}-lhs-${id}-rhs-canvas" style="width:28px" width="28px">
-	</canvas>
+	<canvas id="${id}-lhs-${id}-rhs-canvas" width="28px"></canvas>
 </div>`;
 }
 
 function getSplash({ icon, notice, left }) {
 	return `\
-<div
-	class="mergely-splash"
-	style="position: absolute; z-index: 100; background-color: #fff; border: 1px solid black; height: 70px; width: 300px; left: ${left}px; padding: 10px 10px 0 10px; font-family: arial; font-size: 11px;">
+<div class="mergely-splash">
 	<p>
-		<img width="36" height="36" alt="mergely" src="${icon}" style="float:left;padding-right:10px;" />
+		<span class="mergely-icon"></span>
 		This software is a Combined Work using Mergely and is covered by the
 		${notice} license. For the full license, see
 		<a target="_blank" href="http://www.mergely.com">http://www.mergely.com/license</a>.
