@@ -42,6 +42,7 @@
     "css-loader": "^5.0.0",
     "git-conventional-commits": "^1.1.0",
     "html-webpack-plugin": "^4.5.0",
+    "http-server": "^14.0.0",
     "karma": "^5.2.3",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
@@ -60,6 +61,7 @@
     "build": "npm run test && npm run build:dist",
     "build:dist": "rm -rf lib && webpack --config ./webpack.prod.js",
     "start": "webpack serve --config webpack.dev.js",
+    "examples": "http-server ./ -p 3000 -o examples/index.html",
     "debug": "karma start --browsers=Chrome --single-run=false",
     "test": "karma start",
     "release": "standard-version -a"
