@@ -1324,8 +1324,7 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	const rhsScrollTop = ex.rhs_scroller.scrollTop;
 
 	const lratio = ex.lhs_margin.offsetHeight / ex.lhs_scroller.scrollHeight;
-	const rratio = ex.rhs_margin.offsetHeight / ex.lhs_scroller.scrollHeight;
-	console.log(ex.lhs_margin.offsetHeight , ex.lhs_scroller.scrollHeight)
+	const rratio = ex.rhs_margin.offsetHeight / ex.rhs_scroller.scrollHeight;
 
 	for (let i = 0; i < changes.length; ++i) {
 		const change = changes[i];
@@ -1452,9 +1451,9 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	ctx_rhs.fillStyle = this.settings.vpcolor;
 
 	const lfrom = lhsScrollTop * lratio;
-	const lto = ex.lhs_scroller.clientHeight * lratio;
+	const lto = Math.max(ex.lhs_scroller.clientHeight * lratio, 5);
 	const rfrom = rhsScrollTop * rratio;
-	const rto = ex.lhs_scroller.clientHeight * rratio;
+	const rto = Math.max(ex.rhs_scroller.clientHeight * rratio, 5);
 
 	ctx_lhs.fillRect(1.5, lfrom, 4.5, lto);
 	ctx_rhs.fillRect(1.5, rfrom, 4.5, rto);
