@@ -264,9 +264,8 @@ CodeifyText.prototype._diff_ctx = function(lines) {
 }
 
 CodeifyText.prototype._codeify = function(lines, ctx) {
-	var code = this._max_code;
-	for (var i = 0; i < lines.length; ++i) {
-		var line = lines[i];
+	for (let i = 0; i < lines.length; ++i) {
+		let line = lines[i];
 		if (this.options.ignorews) {
 			line = line.replace(/\s+/g, '');
 		}
@@ -276,12 +275,11 @@ CodeifyText.prototype._codeify = function(lines, ctx) {
 		if (this.options.ignoreaccents) {
 			line = line.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 		}
-		var aCode = this._diff_codes[line];
-		if (aCode != undefined) {
+		const aCode = this._diff_codes[line];
+		if (aCode !== undefined) {
 			ctx.codes[i] = aCode;
-		}
-		else {
-			this._max_code++;
+		} else {
+			++this._max_code;
 			this._diff_codes[line] = this._max_code;
 			ctx.codes[i] = this._max_code;
 		}
