@@ -21,12 +21,16 @@ No longer necessary to separately require codemirror/addon/selection/mark-select
 
 FEATURE:
 Gutter click now scrolls to any line.
+File drop-target indicator.
+
 FIX:
 Fixed issue where canvas markup was not rendered when `viewport` enabled.
 Fixed timing issue where swap sides may not work as expected.
 Fixed issue where unmarkup did not emit an updated event.
 Fixed issue where init triggered an updated event when autoupdate is disabled.
 Fixed documentation issue where `merge` incorrectly stated: from the specified `side` to the opposite side
+Fixed performance issue scrolling (find #)
+Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
 */
 const MERGELY_ICON = 'data:image/png;base64,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';
 
@@ -155,8 +159,8 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 };
 
 CodeMirrorDiffView.prototype.unbind = function() {
-	if (this.changed_timeout != null) {
-		clearTimeout(this.changed_timeout);
+	if (this._changedTimeout != null) {
+		clearTimeout(this._changedTimeout);
 	}
 	this.editor.lhs.toTextArea();
 	this.editor.rhs.toTextArea();
@@ -392,14 +396,14 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	el.style.visibility = 'hidden';
 	el.style.opacity = '0';
 	this.id = el.id;
-	const found = document.querySelector(`#${this.id}`);
+	const found = document.getElementById(this.id);
 	if (!found) {
 		console.error(`Failed to find mergely: #${this.id}`);
+		return;
 	}
-
 	this.lhsId = `${this.id}-lhs`;
 	this.rhsId = `${this.id}-rhs`;
-	this.changed_timeout = null;
+	this._changedTimeout = null;
 	this.chfns = { lhs: [], rhs: [] };
 	this.prev_query = [];
 	this.cursor = [];
@@ -501,6 +505,14 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	const cmstyle = cmstyles.map(a => `#${this.id} ${a}`).join('\n');
 	const css = htmlToElement(`<style type="text/css">${cmstyle}</style>`);
 	document.head.appendChild(css);
+
+	// make a throttled render function
+	this._renderDiff = throttle.apply(this, [
+		this._renderChanges,
+		{
+			delay: 25
+		}
+	]);
 
 	// bind
 	this.trace('init', 'binding event listeners');
@@ -638,6 +650,11 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 };
 
 CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
+	this.trace('scroll', 'scrolling');
+	if (this._changedTimeout) {
+		console.log('change in progress; skipping scroll');
+		return;
+	}
 	if (this._skipscroll[side] === true) {
 		// scrolling one side causes the other to event - ignore it
 		this._skipscroll[side] = false;
@@ -652,7 +669,6 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	const { top } = scroller.getBoundingClientRect();
 	let height;
 	if (true || this.midway == undefined) {
-		// this.midway = (scroller.offsetHeight / 2.0 + scroller.scrollTop).toFixed(2);
 		height = scroller.clientHeight
 			- (scroller.offsetHeight - scroller.offsetParent.offsetHeight);
 		this.midway = (height / 2.0 + top).toFixed(2);
@@ -720,21 +736,21 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	}
 
 	if (this.settings.autoupdate) {
-		Timer.start();
-		this._calculate_offsets(this.changes);
-		this.trace('change', 'offsets time', Timer.stop());
-		this._markup_changes(this.changes);
-		this.trace('change', 'markup time', Timer.stop());
-		this._draw_diff(this.changes);
-		this.trace('change', 'draw time', Timer.stop());
+		// nothing changed, just re-render the current diff. clear the margin
+		// markup while the render is throttled
+		this._clearMarginMarkup();
+		this._renderDiff();
 	}
 	this.trace('scroll', 'scrolled');
 };
 
 CodeMirrorDiffView.prototype._changing = function({ force } = { force: false }) {
-	this.trace('change', 'changing-timeout', this.changed_timeout);
-	if (this.changed_timeout != null) clearTimeout(this.changed_timeout);
-	this.changed_timeout = setTimeout(() => {
+	this.trace('change', 'changing-timeout', this._changedTimeout);
+	if (this._changedTimeout != null) {
+		clearTimeout(this._changedTimeout);
+	}
+	const handleChange = () => {
+		this._changedTimeout = null;
 		if (!force && !this.settings.autoupdate) {
 			this.trace('change', 'ignore', force, this.settings.autoupdate);
 			return;
@@ -742,10 +758,17 @@ CodeMirrorDiffView.prototype._changing = function({ force } = { force: false }) 
 		Timer.start();
 		this._changed();
 		this.trace('change', 'total time', Timer.stop());
-	}, this.settings.change_timeout);
+	};
+	if (this.settings.change_timeout > 0) {
+		this._changedTimeout = setTimeout(handleChange, this.settings.change_timeout);
+	} else {
+		// setImmediate(handleChange);
+		handleChange();
+	}
 };
 
 CodeMirrorDiffView.prototype._changed = function() {
+	this.trace('change', 'changed');
 	this._clear();
 	this._diff();
 };
@@ -771,29 +794,9 @@ CodeMirrorDiffView.prototype._clear = function() {
 			this.trace('change', 'clear time', Timer.stop());
 		});
 	};
+	this._clearMargins();
 	clearChanges('lhs');
 	clearChanges('rhs');
-
-	const ex = this._draw_info();
-	const ctx_lhs = ex.lhs_margin.getContext('2d');
-	const ctx_rhs = ex.rhs_margin.getContext('2d');
-	const ctx = ex.dcanvas.getContext('2d');
-
-	ctx_lhs.beginPath();
-	ctx_lhs.fillStyle = this.settings.bgcolor;
-	ctx_lhs.strokeStyle = '#888';
-	ctx_lhs.fillRect(0, 0, 6.5, ex.visible_page_height);
-	ctx_lhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
-
-	ctx_rhs.beginPath();
-	ctx_rhs.fillStyle = this.settings.bgcolor;
-	ctx_rhs.strokeStyle = '#888';
-	ctx_rhs.fillRect(0, 0, 6.5, ex.visible_page_height);
-	ctx_rhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
-
-	ctx.beginPath();
-	ctx.fillStyle = '#fff';
-	ctx.fillRect(0, 0, this.draw_mid_width, ex.visible_page_height);
 
 	if (this._unbindHandlersOnClear) {
 		for (const [ el, event, handler ] of this._unbindHandlersOnClear) {
@@ -804,6 +807,34 @@ CodeMirrorDiffView.prototype._clear = function() {
 	this._unbindHandlersOnClear = [];
 };
 
+CodeMirrorDiffView.prototype._clearMargins = function() {
+	const ex = this._draw_info();
+
+	const ctx_lhs = ex.lhs_margin.getContext('2d');
+	ctx_lhs.beginPath();
+	ctx_lhs.fillStyle = this.settings.bgcolor;
+	ctx_lhs.strokeStyle = '#888';
+	ctx_lhs.fillRect(0, 0, 6.5, ex.visible_page_height);
+	ctx_lhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
+
+	const ctx_rhs = ex.rhs_margin.getContext('2d');
+	ctx_rhs.beginPath();
+	ctx_rhs.fillStyle = this.settings.bgcolor;
+	ctx_rhs.strokeStyle = '#888';
+	ctx_rhs.fillRect(0, 0, 6.5, ex.visible_page_height);
+	ctx_rhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
+
+	this._clearMarginMarkup();
+};
+
+CodeMirrorDiffView.prototype._clearMarginMarkup = function() {
+	const ex = this._draw_info();
+	const ctx = ex.dcanvas.getContext('2d');
+	ctx.beginPath();
+	ctx.fillStyle = '#fff';
+	ctx.fillRect(0, 0, this.draw_mid_width, ex.visible_page_height);
+};
+
 CodeMirrorDiffView.prototype._diff = function() {
 	const lhs = this.editor.lhs.getValue();
 	const rhs = this.editor.rhs.getValue();
@@ -812,12 +843,17 @@ CodeMirrorDiffView.prototype._diff = function() {
 	this.trace('change', 'diff time', Timer.stop());
 	this.changes = DiffParser(comparison.normal_form());
 	this.trace('change', 'parse time', Timer.stop());
+	this._renderDiff();
+};
+
+CodeMirrorDiffView.prototype._renderChanges = function() {
+	this._clearMargins();
 	if (this._current_diff === undefined && this.changes.length) {
 		// go to first difference on start-up where values are provided in
 		// settings.
 		this._current_diff = 0;
 		if (this._initializing) {
-			this._scroll_to_change(this.changes[0]);
+			this.scrollTo('lhs', this.changes[0]['lhs-line-from']);
 		}
 	}
 	this.trace('change', 'scroll_to_change time', Timer.stop());
@@ -827,7 +863,7 @@ CodeMirrorDiffView.prototype._diff = function() {
 	this.trace('change', 'markup time', Timer.stop());
 	this._draw_diff(this.changes);
 	this.trace('change', 'draw time', Timer.stop());
-};
+}
 
 CodeMirrorDiffView.prototype._get_viewport_side = function(side) {
 	return this.editor[side].getViewport();
@@ -919,10 +955,20 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 			// this is expensive to call.
 			lhsStart = led.cursorCoords({ line: llf, ch: 0 }, 'page');
 			lhsEnd = led.cursorCoords({ line: llt, ch: 0 }, 'page');
-			lhsEnd.bottom = lhsEnd.top + led.getLineHandle(llt).height;
+			// FIXME: changing macbeth to old diff-view cause this to crash,
+			// this fixes the problem but is
+			let ltHandle = led.getLineHandle(llt);
+			if (!ltHandle) {
+				ltHandle = { height: 0 };
+			}
+			lhsEnd.bottom = lhsEnd.top + ltHandle.height;
 			rhsStart = red.cursorCoords({ line: rlf, ch: 0 }, 'page');
 			rhsEnd = red.cursorCoords({ line: rlt, ch: 0 }, 'page');
-			rhsEnd.bottom = rhsEnd.top + red.getLineHandle(rlt).height;
+			let rtHandle = red.getLineHandle(rlt);
+			if (!rtHandle) {
+				rtHandle = { height: 0 };
+			}
+			rhsEnd.bottom = rhsEnd.top + rtHandle.height;
 		}
 		else {
 			// If not using line-wrapping, we can calculate the line position
@@ -969,6 +1015,7 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 		else {
 			change['lhs-y-end'] = this.draw_top_offset + lhsEnd.top;
 		}
+
 		change['rhs-y-start'] = this.draw_top_offset + rhsStart.top;
 		if (change.op == 'c' || change.op == 'a') {
 			change['rhs-y-end'] = this.draw_top_offset + rhsEnd.bottom;
@@ -1110,17 +1157,20 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 		const rlf = change['rhs-line-from'] >= 0 ? change['rhs-line-from'] : 0;
 		const rlt = change['rhs-line-to'] >= 0 ? change['rhs-line-to'] : 0;
 
+		if (!this._is_change_in_view('lhs', lhsvp, change)
+			&& !this._is_change_in_view('lhs', rhsvp, change)) {
+			continue;
+		}
+
 		if (change.op == 'd') {
 			// apply delete to cross-out (left-hand side only)
 			const from = llf;
 			const to = llt;
 
-			if (this._is_change_in_view('lhs', lhsvp, change)) {
-				// the change is within the viewport
-				const to_ln = led.lineInfo(to);
-				if (to_ln) {
-					marktext.push([led, {line:from, ch:0}, {line:to, ch:to_ln.text.length}, {className: 'mergely ch d lhs'}]);
-				}
+			// the change is within the viewport
+			const to_ln = led.lineInfo(to);
+			if (to_ln) {
+				marktext.push([led, {line:from, ch:0}, {line:to, ch:to_ln.text.length}, {className: 'mergely ch d lhs'}]);
 			}
 		}
 		else if (change.op == 'c') {
@@ -1154,28 +1204,25 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 					ignoreaccents: !!this.settings.ignoreaccents,
 					ignorews: !!this.settings.ignorews
 				});
+				// FIXME: function defined within loop
 				lcs.diff(
 					(from, to) => {
 						// added
-						if (this._is_change_in_view('rhs', rhsvp, change)) {
-							marktext.push([
-								red,
-								{ line: k, ch: from },
-								{ line: k, ch: to },
-								{ className: 'mergely ch a rhs' }
-							]);
-						}
+						marktext.push([
+							red,
+							{ line: k, ch: from },
+							{ line: k, ch: to },
+							{ className: 'mergely ch a rhs' }
+						]);
 					},
 					(from, to) => {
 						// removed
-						if (this._is_change_in_view('lhs', lhsvp, change)) {
-							marktext.push([
-								led,
-								{ line: j, ch: from },
-								{ line: j, ch: to },
-								{ className: 'mergely ch d lhs' }
-							]);
-						}
+						marktext.push([
+							led,
+							{ line: j, ch: from },
+							{ line: j, ch: to },
+							{ className: 'mergely ch d lhs' }
+						]);
 					}
 				);
 			}
@@ -1323,8 +1370,9 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 
 	for (let i = 0; i < changes.length; ++i) {
 		const change = changes[i];
-		if (!this._is_change_in_view('lhs', lhsvp, change) &&
-			!this._is_change_in_view('rhs', rhsvp, change)) {
+		if (this.settings.viewport 
+			&& !this._is_change_in_view('lhs', lhsvp, change)
+			&& !this._is_change_in_view('rhs', rhsvp, change)) {
 			// if the change is outside the viewport, skip
 			continue;
 		}
@@ -1335,11 +1383,13 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		}
 
 		this.trace('draw', change);
+
 		// margin indicators
 		const lhs_y_start = ((change['lhs-y-start'] + ex.lhs_scroller.scrollTop) * ex.visible_page_ratio);
 		const lhs_y_end = ((change['lhs-y-end'] + ex.lhs_scroller.scrollTop) * ex.visible_page_ratio) + 1;
 		const rhs_y_start = ((change['rhs-y-start'] + ex.rhs_scroller.scrollTop) * ex.visible_page_ratio);
 		const rhs_y_end = ((change['rhs-y-end'] + ex.rhs_scroller.scrollTop) * ex.visible_page_ratio) + 1;
+
 		this.trace('draw', 'marker calculated', lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
 
 		ctx_lhs.beginPath();
@@ -1536,6 +1586,28 @@ function getSplash({ icon, notice, left }) {
 		<a target="_blank" href="http://www.mergely.com">http://www.mergely.com/license</a>.
 	</p>
 </div>`;
+}
+
+function throttle(func, { delay }) {
+	let lastTime = 0;
+	const throttleFn = () => {
+		const now = Date.now();
+
+		if (now - lastTime >= delay) {
+			func.apply(this);
+			lastTime = now;
+		} else {
+			// call `func` if no other event after `delay`
+			if (this._to) {
+				clearTimeout(this._to);
+			}
+			this._to = setTimeout(() => {
+				func.apply(this);
+				this._to = null;
+			}, delay);
+		}
+	};
+	return throttleFn;
 }
 
 module.exports = CodeMirrorDiffView;
