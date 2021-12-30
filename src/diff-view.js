@@ -394,6 +394,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	const { CodeMirror } = this;
 	this.trace('init', 'bind');
 	el.style.visibility = 'hidden';
+	el.style.position = 'absolute';
 	el.style.opacity = '0';
 	this.id = el.id;
 	const found = document.getElementById(this.id);
@@ -510,7 +511,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	this._renderDiff = throttle.apply(this, [
 		this._renderChanges,
 		{
-			delay: 25
+			delay: 15
 		}
 	]);
 
@@ -899,34 +900,20 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 		rhs: red
 	} = this.editor;
 
-	if (this.em_height == null) {
-		if (!this._set_top_offset('lhs')) {
-			return; // try again
-		}
-		this.em_height = led.defaultTextHeight();
-		if (!this.em_height) {
-			console.warn('Failed to calculate offsets, using 18 by default');
-			this.em_height = 18;
-		}
-		this.draw_lhs_min = 0.5;
+	// calculate extents of diff canvas
+	this.draw_lhs_min = 0.5;
+	this.draw_mid_width
+		= this._queryElement(`#${this.lhsId}-${this.rhsId}-canvas`).offsetWidth;
+	this.draw_rhs_max = this.draw_mid_width - 0.5; //24.5;
+	this.draw_lhs_width = 5;
+	this.draw_rhs_width = 5;
+	this.em_height = led.defaultTextHeight();
 
-		this.draw_mid_width
-			= this._queryElement(`#${this.lhsId}-${this.rhsId}-canvas`).offsetWidth;
-		this.draw_rhs_max = this.draw_mid_width - 0.5; //24.5;
-		this.draw_lhs_width = 5;
-		this.draw_rhs_width = 5;
-		this.trace('calc', 'change offsets calculated', {
-			top_offset: this.draw_top_offset,
-			lhs_min: this.draw_lhs_min,
-			rhs_max: this.draw_rhs_max,
-			lhs_width: this.draw_lhs_width,
-			rhs_width: this.draw_rhs_width
-		});
-	}
-	const lhschc = led.charCoords({line: 0});
-	const rhschc = red.charCoords({line: 0});
-	const lhsvp = this._get_viewport_side('lhs');
-	const rhsvp = this._get_viewport_side('rhs');
+	const mode = 'local';
+	const lineWrapping = led.getOption('lineWrapping')
+		|| red.getOption('lineWrapping');
+	const lhschc = !lineWrapping ? led.charCoords({ line: 0 }, mode) : null;
+	const rhschc = !lineWrapping ? red.charCoords({ line: 0 }, mode) : null;
 
 	for (const change of changes) {
 		if (this.settings.viewport &&
@@ -944,89 +931,68 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 		const rlf = change['rhs-line-from'] >= 0 ? change['rhs-line-from'] : 0;
 		const rlt = change['rhs-line-to'] >= 0 ? change['rhs-line-to'] : 0;
 
-		let lhsStart;
-		let lhsEnd;
-		let rhsStart;
-		let rhsEnd;
-		const lineWrapping = led.getOption('lineWrapping')
-			|| red.getOption('lineWrapping');
 		if (lineWrapping) {
-			// If using line-wrapping, we must get the height of the line, but
-			// this is expensive to call.
-			lhsStart = led.cursorCoords({ line: llf, ch: 0 }, 'page');
-			lhsEnd = led.cursorCoords({ line: llt, ch: 0 }, 'page');
-			// FIXME: changing macbeth to old diff-view cause this to crash,
-			// this fixes the problem but is
-			let ltHandle = led.getLineHandle(llt);
-			if (!ltHandle) {
-				ltHandle = { height: 0 };
+			// if line wrapping is enabled, have to use a more computationally
+			// intensive calculation to determine heights of lines
+			if (change.op === 'c') {
+				change['lhs-y-start'] = led.heightAtLine(llf, mode);
+				change['lhs-y-end'] = led.heightAtLine(llt + 1, mode);
+				change['rhs-y-start'] = red.heightAtLine(rlf, mode);
+				change['rhs-y-end'] =  red.heightAtLine(rlt + 1, mode);
+			} else if (change.op === 'a') {
+				// both lhs start and end are the same value
+				if (change['lhs-line-from'] === -1) {
+					change['lhs-y-start'] = led.heightAtLine(llf, mode);
+				} else {
+					change['lhs-y-start'] = led.heightAtLine(llf + 1, mode);
+				}
+				change['lhs-y-end'] = change['lhs-y-start'];
+				change['rhs-y-start'] = red.heightAtLine(rlf, mode);
+				change['rhs-y-end'] =  red.heightAtLine(rlt + 1, mode);
+			} else {
+				// delete
+				change['lhs-y-start'] = led.heightAtLine(llf, mode);
+				change['lhs-y-end'] = led.heightAtLine(llt + 1, mode);
+				// both rhs start and end are the same value
+				if (change['rhs-line-from'] === -1) {
+					change['rhs-y-start'] = red.heightAtLine(rlf, mode);
+				} else {
+					change['rhs-y-start'] = red.heightAtLine(rlf + 1, mode);
+				}
+				change['rhs-y-end'] = change['rhs-y-start'];
 			}
-			lhsEnd.bottom = lhsEnd.top + ltHandle.height;
-			rhsStart = red.cursorCoords({ line: rlf, ch: 0 }, 'page');
-			rhsEnd = red.cursorCoords({ line: rlt, ch: 0 }, 'page');
-			let rtHandle = red.getLineHandle(rlt);
-			if (!rtHandle) {
-				rtHandle = { height: 0 };
-			}
-			rhsEnd.bottom = rhsEnd.top + rtHandle.height;
-		}
-		else {
-			// If not using line-wrapping, we can calculate the line position
-			lhsStart = {
-				top: lhschc.top + llf * this.em_height,
-				bottom: lhschc.bottom + llf * this.em_height + 2
-			};
-			lhsEnd = {
-				top: lhschc.top + llt * this.em_height,
-				bottom: lhschc.bottom + llt * this.em_height + 2
-			};
-			rhsStart = {
-				top: rhschc.top + rlf * this.em_height,
-				bottom: rhschc.bottom + rlf * this.em_height + 2
-			};
-			rhsEnd = {
-				top: rhschc.top + rlt * this.em_height,
-				bottom: rhschc.bottom + rlt * this.em_height + 2
-			};
-		}
-
-		if (change.op == 'a') {
-			// adds (right), normally start from the end of the lhs,
-			// except for the case when the start of the rhs is 0
-			if (rlf > 0) {
-				lhsStart.top = lhsStart.bottom;
-				lhsStart.bottom += this.em_height;
-				lhsEnd = lhsStart;
+		} else {
+			// if line wrapping is not enabled, we can compute line height.
+			if (change.op === 'c') {
+				change['lhs-y-start'] = lhschc.top + llf * this.em_height;
+				change['lhs-y-end'] = lhschc.bottom + llt * this.em_height;
+				change['rhs-y-start'] = rhschc.top + rlf * this.em_height;
+				change['rhs-y-end'] = rhschc.bottom + rlt * this.em_height;
+			} else if (change.op === 'a') {
+				// both lhs start and end are the same value
+				if (change['lhs-line-from'] === -1) {
+					change['lhs-y-start'] = lhschc.top + llf * this.em_height;
+				} else {
+					change['lhs-y-start'] = lhschc.bottom + llf * this.em_height;
+				}
+				change['lhs-y-end'] = change['lhs-y-start'];
+				change['rhs-y-start'] = rhschc.top + rlf * this.em_height;
+				change['rhs-y-end'] = rhschc.bottom + rlt * this.em_height;
+			} else {
+				// delete
+				change['lhs-y-start'] = lhschc.top + llf * this.em_height;
+				change['lhs-y-end'] = lhschc.bottom + llt * this.em_height;
+				// both rhs start and end are the same value
+				if (change['rhs-line-from'] === -1) {
+					change['rhs-y-start'] = rhschc.top + rlf * this.em_height;
+				} else {
+					change['rhs-y-start'] = rhschc.bottom + rlf * this.em_height;
+				}
+				change['rhs-y-end'] = change['rhs-y-start'];
 			}
 		}
-		else if (change.op == 'd') {
-			// deletes (left) normally finish from the end of the rhs,
-			// except for the case when the start of the lhs is 0
-			if (llf > 0) {
-				rhsStart.top = rhsStart.bottom;
-				rhsStart.bottom += this.em_height;
-				rhsEnd = rhsStart;
-			}
-		}
-		change['lhs-y-start'] = this.draw_top_offset + lhsStart.top;
-		if (change.op == 'c' || change.op == 'd') {
-			change['lhs-y-end'] = this.draw_top_offset + lhsEnd.bottom;
-		}
-		else {
-			change['lhs-y-end'] = this.draw_top_offset + lhsEnd.top;
-		}
-
-		change['rhs-y-start'] = this.draw_top_offset + rhsStart.top;
-		if (change.op == 'c' || change.op == 'a') {
-			change['rhs-y-end'] = this.draw_top_offset + rhsEnd.bottom;
-		}
-		else {
-			change['rhs-y-end'] = this.draw_top_offset + rhsEnd.top;
-		}
-		this.trace('calc', 'change calculated', change);
 	}
-	return changes;
-};
+}
 
 CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 	const {
@@ -1302,7 +1268,7 @@ CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
 CodeMirrorDiffView.prototype._draw_info = function() {
 	const lhsScroll = this.editor.lhs.getScrollerElement();
 	const rhsScroll = this.editor.rhs.getScrollerElement();
-	const visible_page_height = lhsScroll.offsetHeight + 17; // fudged
+	const visible_page_height = lhsScroll.offsetHeight; // fudged
 	const gutter_height = lhsScroll.querySelector(':first-child').offsetHeight;
 	const dcanvas = document.getElementById(`${this.lhsId}-${this.rhsId}-canvas`);
 	if (dcanvas == undefined) {
@@ -1344,7 +1310,6 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 
 	this.trace('draw', 'visible_page_height', ex.visible_page_height);
 	this.trace('draw', 'gutter_height', ex.gutter_height);
-	this.trace('draw', 'visible_page_ratio', ex.visible_page_ratio);
 	this.trace('draw', 'lhs-scroller-top', ex.lhs_scroller.scrollTop);
 	this.trace('draw', 'rhs-scroller-top', ex.rhs_scroller.scrollTop);
 
@@ -1368,6 +1333,10 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	const lhsvp = this._get_viewport_side('lhs');
 	const rhsvp = this._get_viewport_side('rhs');
 
+	const radius = 3;
+	const lhsScrollTop = ex.lhs_scroller.scrollTop;
+	const rhsScrollTop = ex.rhs_scroller.scrollTop;
+
 	for (let i = 0; i < changes.length; ++i) {
 		const change = changes[i];
 		if (this.settings.viewport 
@@ -1377,18 +1346,18 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 			continue;
 		}
 
-		const fill = this.settings.fgcolor[change.op];
+		let fill = this.settings.fgcolor[change.op];
 		if (this._current_diff === i) {
 			fill = this.current_diff_color;
 		}
 
 		this.trace('draw', change);
 
-		// margin indicators
-		const lhs_y_start = ((change['lhs-y-start'] + ex.lhs_scroller.scrollTop) * ex.visible_page_ratio);
-		const lhs_y_end = ((change['lhs-y-end'] + ex.lhs_scroller.scrollTop) * ex.visible_page_ratio) + 1;
-		const rhs_y_start = ((change['rhs-y-start'] + ex.rhs_scroller.scrollTop) * ex.visible_page_ratio);
-		const rhs_y_end = ((change['rhs-y-end'] + ex.rhs_scroller.scrollTop) * ex.visible_page_ratio) + 1;
+		// draw margin indicators
+		const lhs_y_start = change['lhs-y-start'] - lhsScrollTop;
+		const lhs_y_end = change['lhs-y-end'] - lhsScrollTop;
+		const rhs_y_start = change['rhs-y-start'] - rhsScrollTop;
+		const rhs_y_end = change['rhs-y-end'] - rhsScrollTop;
 
 		this.trace('draw', 'marker calculated', lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
 
@@ -1408,22 +1377,15 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		ctx_rhs.strokeRect(1.5, rhs_y_start, 4.5, Math.max(rhs_y_end - rhs_y_start, 5));
 		ctx_rhs.stroke();
 
-		lhs_y_start = change['lhs-y-start'];
-		lhs_y_end = change['lhs-y-end'];
-		rhs_y_start = change['rhs-y-start'];
-		rhs_y_end = change['rhs-y-end'];
-
-		const radius = 3;
-
 		// draw left box
 		ctx.beginPath();
 		ctx.strokeStyle = fill;
 		ctx.lineWidth = (this._current_diff === i) ? 1.5 : 1;
 
-		const rectWidth = this.draw_lhs_width;
-		const rectHeight = lhs_y_end - lhs_y_start - 1;
-		const rectX = this.draw_lhs_min;
-		const rectY = lhs_y_start;
+		let rectWidth = this.draw_lhs_width;
+		let rectHeight = lhs_y_end - lhs_y_start - 1;
+		let rectX = this.draw_lhs_min;
+		let rectY = lhs_y_start;
 		// top and top top-right corner
 
 		// draw left box
@@ -1494,14 +1456,13 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	ctx_lhs.fillStyle = this.settings.vpcolor;
 	ctx_rhs.fillStyle = this.settings.vpcolor;
 
-	const lto = ex.lhs_margin.offsetHeight * ex.visible_page_ratio;
-	const lfrom = (ex.lhs_scroller.scrollTop / ex.gutter_height) * ex.lhs_margin.offsetHeight;
-	const rto = ex.rhs_margin.offsetHeight * ex.visible_page_ratio;
-	const rfrom = (ex.rhs_scroller.scrollTop / ex.gutter_height) * ex.rhs_margin.offsetHeight;
+	const lto = ex.lhs_margin.offsetHeight;
+	const lfrom = (lhsScrollTop / ex.gutter_height) * ex.lhs_margin.offsetHeight;
+	const rto = ex.rhs_margin.offsetHeight;
+	const rfrom = (rhsScrollTop / ex.gutter_height) * ex.rhs_margin.offsetHeight;
 	this.trace('draw', 'cls.height', ex.lhs_margin.offsetHeight);
-	this.trace('draw', 'lhs_scroller.scrollTop', ex.lhs_scroller.scrollTop);
+	this.trace('draw', 'lhs_scroller.scrollTop', lhsScrollTop);
 	this.trace('draw', 'gutter_height', ex.gutter_height);
-	this.trace('draw', 'visible_page_ratio', ex.visible_page_ratio);
 	this.trace('draw', 'lhs from', lfrom, 'lhs to', lto);
 	this.trace('draw', 'rhs from', rfrom, 'rhs to', rto);
 

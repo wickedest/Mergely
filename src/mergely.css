@@ -25,9 +25,9 @@
 
 .mergely-editor .mergely.d.lhs { background-color: #ffe9e9; }
 .mergely-editor .mergely.d.lhs.end,
-.mergely-editor .mergely.d.rhs.start.end { border-bottom: 1px solid #f8e8e8; }
-.mergely-editor .mergely.d.rhs.start.end.first { border-bottom-width: 0; border-top: 1px solid #f8e8e8; }
-.mergely-editor .mergely.d.lhs.start { border-top: 1px solid #f8e8e8; }
+.mergely-editor .mergely.d.rhs.start.end { border-bottom: 1px solid #ff7f7f; }
+.mergely-editor .mergely.d.rhs.start.end.first { border-bottom-width: 0; border-top: 1px solid #ff7f7f; }
+.mergely-editor .mergely.d.lhs.start { border-top: 1px solid #ff7f7f; }
 
 .mergely-editor .mergely.c.lhs,
 .mergely-editor .mergely.c.rhs { background-color: #fafafa; }
