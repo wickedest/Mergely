@@ -1316,20 +1316,6 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	ex.lhs_margin.removeEventListener('click', this._handleLhsMarginClick);
 	ex.rhs_margin.removeEventListener('click', this._handleRhsMarginClick);
 
-	ctx_lhs.beginPath();
-	ctx_lhs.fillStyle = this.settings.bgcolor;
-	ctx_lhs.strokeStyle = '#888';
-	ctx_lhs.fillRect(0, 0, 6.5, ex.visible_page_height);
-	ctx_lhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
-	ctx_lhs.stroke();
-
-	ctx_rhs.beginPath();
-	ctx_rhs.fillStyle = this.settings.bgcolor;
-	ctx_rhs.strokeStyle = '#888';
-	ctx_rhs.fillRect(0, 0, 6.5, ex.visible_page_height);
-	ctx_rhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
-	ctx_rhs.stroke();
-
 	const lhsvp = this._get_viewport_side('lhs');
 	const rhsvp = this._get_viewport_side('rhs');
 
@@ -1337,12 +1323,16 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	const lhsScrollTop = ex.lhs_scroller.scrollTop;
 	const rhsScrollTop = ex.rhs_scroller.scrollTop;
 
+	const lratio = ex.lhs_margin.offsetHeight / ex.lhs_scroller.scrollHeight;
+	const rratio = ex.rhs_margin.offsetHeight / ex.lhs_scroller.scrollHeight;
+	console.log(ex.lhs_margin.offsetHeight , ex.lhs_scroller.scrollHeight)
+
 	for (let i = 0; i < changes.length; ++i) {
 		const change = changes[i];
 		if (this.settings.viewport 
 			&& !this._is_change_in_view('lhs', lhsvp, change)
 			&& !this._is_change_in_view('rhs', rhsvp, change)) {
-			// if the change is outside the viewport, skip
+			// skip if viewport enabled and the change is outside the viewport
 			continue;
 		}
 
@@ -1354,27 +1344,26 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		this.trace('draw', change);
 
 		// draw margin indicators
-		const lhs_y_start = change['lhs-y-start'] - lhsScrollTop;
-		const lhs_y_end = change['lhs-y-end'] - lhsScrollTop;
-		const rhs_y_start = change['rhs-y-start'] - rhsScrollTop;
-		const rhs_y_end = change['rhs-y-end'] - rhsScrollTop;
-
 		this.trace('draw', 'marker calculated', lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
 
+		const mkr_lhs_y_start = change['lhs-y-start'] * lratio;
+		const mkr_lhs_y_end = Math.max(change['lhs-y-end'] * lratio, 5);
 		ctx_lhs.beginPath();
 		ctx_lhs.fillStyle = fill;
 		ctx_lhs.strokeStyle = '#000';
 		ctx_lhs.lineWidth = 0.5;
-		ctx_lhs.fillRect(1.5, lhs_y_start, 4.5, Math.max(lhs_y_end - lhs_y_start, 5));
-		ctx_lhs.strokeRect(1.5, lhs_y_start, 4.5, Math.max(lhs_y_end - lhs_y_start, 5));
+		ctx_lhs.fillRect(1.5, mkr_lhs_y_start, 4.5, Math.max(mkr_lhs_y_end - mkr_lhs_y_start, 5));
+		ctx_lhs.strokeRect(1.5, mkr_lhs_y_start, 4.5, Math.max(mkr_lhs_y_end - mkr_lhs_y_start, 5));
 		ctx_lhs.stroke();
 
+		const mkr_rhs_y_start = change['rhs-y-start'] * lratio;
+		const mkr_rhs_y_end = Math.max(change['rhs-y-end'] * lratio, 5);
 		ctx_rhs.beginPath();
 		ctx_rhs.fillStyle = fill;
 		ctx_rhs.strokeStyle = '#000';
 		ctx_rhs.lineWidth = 0.5;
-		ctx_rhs.fillRect(1.5, rhs_y_start, 4.5, Math.max(rhs_y_end - rhs_y_start, 5));
-		ctx_rhs.strokeRect(1.5, rhs_y_start, 4.5, Math.max(rhs_y_end - rhs_y_start, 5));
+		ctx_rhs.fillRect(1.5, mkr_rhs_y_start, 4.5, Math.max(mkr_rhs_y_end - mkr_rhs_y_start, 5));
+		ctx_rhs.strokeRect(1.5, mkr_rhs_y_start, 4.5, Math.max(mkr_rhs_y_end - mkr_rhs_y_start, 5));
 		ctx_rhs.stroke();
 
 		// draw left box
@@ -1409,12 +1398,18 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		}
 		ctx.stroke();
 
+		// draw right box
+
+		const lhs_y_start = change['lhs-y-start'] - lhsScrollTop;
+		const lhs_y_end = change['lhs-y-end'] - lhsScrollTop;
+		const rhs_y_start = change['rhs-y-start'] - rhsScrollTop;
+		const rhs_y_end = change['rhs-y-end'] - rhsScrollTop;
+
 		rectWidth = this.draw_rhs_width;
 		rectHeight = rhs_y_end - rhs_y_start - 1;
 		rectX = this.draw_rhs_max;
 		rectY = rhs_y_start;
 
-		// draw right box
 		ctx.moveTo(rectX, rectY);
 		if (navigator.appName == 'Microsoft Internet Explorer') {
 			ctx.lineTo(this.draw_rhs_max - this.draw_rhs_width, rhs_y_start);
@@ -1452,19 +1447,14 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		ctx.stroke();
 	}
 
-	// visible window feedback
+	// visible viewport feedback
 	ctx_lhs.fillStyle = this.settings.vpcolor;
 	ctx_rhs.fillStyle = this.settings.vpcolor;
 
-	const lto = ex.lhs_margin.offsetHeight;
-	const lfrom = (lhsScrollTop / ex.gutter_height) * ex.lhs_margin.offsetHeight;
-	const rto = ex.rhs_margin.offsetHeight;
-	const rfrom = (rhsScrollTop / ex.gutter_height) * ex.rhs_margin.offsetHeight;
-	this.trace('draw', 'cls.height', ex.lhs_margin.offsetHeight);
-	this.trace('draw', 'lhs_scroller.scrollTop', lhsScrollTop);
-	this.trace('draw', 'gutter_height', ex.gutter_height);
-	this.trace('draw', 'lhs from', lfrom, 'lhs to', lto);
-	this.trace('draw', 'rhs from', rfrom, 'rhs to', rto);
+	const lfrom = lhsScrollTop * lratio;
+	const lto = ex.lhs_scroller.clientHeight * lratio;
+	const rfrom = rhsScrollTop * rratio;
+	const rto = ex.lhs_scroller.clientHeight * rratio;
 
 	ctx_lhs.fillRect(1.5, lfrom, 4.5, lto);
 	ctx_rhs.fillRect(1.5, rfrom, 4.5, rto);
