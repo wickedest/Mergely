@@ -142,10 +142,6 @@
 	padding-left: 3px;
 }
 
-.mergely-editor .merge-button:hover {
-	opacity: 1;
-}
-
 /* ---------------------------------------------------------------------- */
 .mergely-editor .CodeMirror-code {
 	color: #717171;
@@ -163,6 +159,8 @@
 }
 .mergely-editor .merge-button:hover {
 	color: #fff;
+	mix-blend-mode: darken;
+	opacity: 0.8;
 }
 .mergely-editor .mergely-column {
 	border: 1px solid #ccc;
