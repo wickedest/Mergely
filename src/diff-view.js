@@ -16,10 +16,12 @@ CSS now prefixes `.mergely-editor`.
 Current active change gutter line number style changed from `.CodeMirror-linenumber` to `.CodeMirror-gutter-background`.
 Removed support for jquery-ui merge buttons.
 API switched from jQuery-style to object methods.
-Removed `options.width` and `options.height` and mergely now fills the parent container.
-Removed `options.resize`.
-Removed `options.resized`.
-Removed `options.autoresize`.
+Removed `options.width`
+Removed `options.height`
+Removed `options.resize`
+Removed `options.resized`
+Removed `options.autoresize`
+Removed `options.fadein`
 Remove styles `.mergely-resizer`, `.mergely-full-screen-0`, and `.mergely-full-screen-8`.
 Default for `options.change_timeout` changed to 0.
 No longer necessary to separately require codemirror/addon/search/searchcursor
@@ -40,7 +42,6 @@ Fixed performance issue scrolling (find #)
 Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
 
 TODO:
-Disable the fade-in
 Fix the intermittent render issue
 For some reason ignore-whitespace will mark the "red" differently
 When wrap_lines is false, the CM editor grows, screwing up the layout
@@ -82,7 +83,6 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		ignorews: false,
 		ignorecase: false,
 		ignoreaccents: false,
-		fadein: 'fast',
 		resize_timeout: 500,
 		change_timeout: 0,
 		fgcolor: {
@@ -371,7 +371,6 @@ CodeMirrorDiffView.prototype.resize = function() {
 
 	// recalculate line height as it may be zoomed
 	this.em_height = null;
-	// this.settings.resize();
 	this._changing();
 	this._set_top_offset('lhs');
 };
@@ -388,10 +387,8 @@ CodeMirrorDiffView.prototype.diff = function() {
 CodeMirrorDiffView.prototype.bind = function(el) {
 	const { CodeMirror } = this;
 	this.trace('init', 'bind');
-	el.style.visibility = 'hidden';
 	el.style.display = 'flex';
-	el.style.flexGrow = '1';
-	el.style.opacity = '0';
+	el.style.flexGrow = '1'; // FIXME: needed?
 	el.style.height = '100%';
 	this.id = el.id;
 	const found = document.getElementById(this.id);
@@ -527,19 +524,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 
 	// resize event handeler
 	let resizeTimeout;
-	const resize = (init) => {
-		if (init) {
-			if (this.settings.fadein !== false) {
-				const duration = this.settings.fadein === 'fast' ? 200 : 750;
-				el.style.visibility = 'visible';
-				el.style.opacity = '1.0';
-				el.style.transition = `opacity ${duration}ms linear`;
-			}
-			else {
-				el.style.visibility = 'visible';
-				el.style.opacity = '1.0';
-			}
-		}
+	const resize = () => {
 		this.resize();
 		this.editor.lhs.refresh();
 		this.editor.rhs.refresh();
@@ -551,7 +536,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		resizeTimeout = setTimeout(resize, this.settings.resize_timeout);
 	};
 	window.addEventListener('resize', this._handleResize);
-	resize(true);
+	resize();
 
 	// scrollToDiff() from gutter
 	function gutterClicked(side, line, ev) {

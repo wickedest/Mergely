@@ -4,15 +4,6 @@
 	width: 100%;
 }
 
-/*
-.mergely-editor .mergely-column,
-.mergely-editor .mergely-canvas,
-.mergely-editor .mergely-margin {
-	position: relative;
-	float: left;
-}
-*/
-
 .mergely-editor .mergely-column {
 	flex-grow: 1;
 	width: 100%;
@@ -124,8 +115,7 @@
 .mergely-editor .CodeMirror-code {
 	color: #717171;
 }
-.mergely-editor .mergely.current.CodeMirror-gutter-background {
-	/* FIXME: does this do anything? */
+.mergely-editor .mergely.CodeMirror-gutter-background.current {
 	background-color: #777;
 }
 .mergely-editor .mergely.current .CodeMirror-linenumber {
@@ -157,12 +147,6 @@
 .mergely-editor .mergely.c {
 	border-color: #a3a3a3;
 }
-/*
-.mergely-editor .mergely.c.lhs,
-.mergely-editor .mergely.c.rhs {
-	background-color: #fafafa;
-}
-*/
 .mergely-editor .mergely.ch.d.lhs {
 	text-decoration: line-through;
 	color: #ff0000;
