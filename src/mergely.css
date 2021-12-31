@@ -123,11 +123,13 @@
 	font-weight: bold;
 }
 .mergely-editor .merge-button {
-	color: #383838;
+	color: #ccc;
 }
 .mergely-editor .merge-button:hover {
+	color: #666;
+}
+.mergely-editor .current .merge-button:hover {
 	color: #fff;
-	mix-blend-mode: darken;
 }
 .mergely-editor .mergely-column {
 	border: 1px solid #ccc;

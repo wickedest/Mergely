@@ -49,8 +49,8 @@ Fix the overflow for the rendered diff view
 Fix the margin colorization
 Remove the jump to first diff (instead, make it example)
 Margin indicators are broken for macbeth
-Macbeth needs a resize to render correctly
 Introduce an async render pipeline as it's currently blocking UI
+Merge button with multiple editors
 */
 
 const NOTICES = [
