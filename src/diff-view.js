@@ -15,13 +15,20 @@ Added `.mergely-editor` to the DOM to scope all the CSS changes.
 CSS now prefixes `.mergely-editor`.
 Current active change gutter line number style changed from `.CodeMirror-linenumber` to `.CodeMirror-gutter-background`.
 Removed support for jquery-ui merge buttons.
-API switched from jQuery style to object methods.
+API switched from jQuery-style to object methods.
+Removed `options.width` and `options.height` and mergely now fills the parent container.
+Removed `options.resize`.
+Removed `options.resized`.
+Removed `options.autoresize`.
+Remove styles `.mergely-resizer`, `.mergely-full-screen-0`, and `.mergely-full-screen-8`.
+Default for `options.change_timeout` changed to 0.
 No longer necessary to separately require codemirror/addon/search/searchcursor
 No longer necessary to separately require codemirror/addon/selection/mark-selection
 
 FEATURE:
 Gutter click now scrolls to any line.
 File drop-target indicator.
+Mergely now emits `resize` event on resize.
 
 FIX:
 Fixed issue where canvas markup was not rendered when `viewport` enabled.
@@ -31,6 +38,20 @@ Fixed issue where init triggered an updated event when autoupdate is disabled.
 Fixed documentation issue where `merge` incorrectly stated: from the specified `side` to the opposite side
 Fixed performance issue scrolling (find #)
 Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
+
+TODO:
+Disable the fade-in
+Fix the intermittent render issue
+For some reason ignore-whitespace will mark the "red" differently
+When wrap_lines is false, the CM editor grows, screwing up the layout
+Fix the overflow for the rendered diff view
+Fix the margin colorization
+Remove the jump to first diff (instead, make it example)
+Fix the alignment of the diff visualization and hz lines
+Calculate only once.
+Margin indicators are broken for macbeth
+Macbeth needs a resize to render correctly
+Introduce an async render pipeline as it's currently blocking UI
 */
 
 const NOTICES = [
@@ -54,7 +75,6 @@ function CodeMirrorDiffView(el, options, { CodeMirror }) {
 CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 	this.settings = {
 		autoupdate: true,
-		autoresize: true,
 		rhs_margin: 'right',
 		wrap_lines: false,
 		line_numbers: true,
@@ -66,14 +86,14 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		ignoreaccents: false,
 		fadein: 'fast',
 		resize_timeout: 500,
-		change_timeout: 150,
+		change_timeout: 0,
 		fgcolor: {
-			a:'#4ba3fa',
-			c:'#a3a3a3',
-			d:'#ff7f7f',  // color for differences (soft color)
-			ca:'#4b73ff',
-			cc:'#434343',
-			cd:'#ff4f4f'
+			a: '#4ba3fa',
+			c: '#a3a3a3',
+			d: '#ff7f7f',  // color for differences (soft color)
+			ca: '#4b73ff',
+			cc: '#434343',
+			cd: '#ff4f4f'
 		}, // color for currently active difference (bright color)
 		bgcolor: '#eee',
 		vpcolor: 'rgba(0, 0, 200, 0.5)',
@@ -88,55 +108,7 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		lhs: function(setValue) { },
 		rhs: function(setValue) { },
 		loaded: function() { },
-		resize: (init) => {
-			const parent = el.parentNode;
-			const { settings } = this;
-			let width;
-			let height;
-			if (settings.width == 'auto') {
-				width = parent.offsetWidth;
-			}
-			else {
-				width = settings.width;
-			}
-			if (settings.height == 'auto') {
-				height = parent.offsetHeight - 2;
-			}
-			else {
-				height = settings.height;
-			}
-			const contentWidth = width / 2.0 - 2 * 8 - 8;
-			const contentHeight = height;
-
-			const lhsEditor = this._queryElement(`#${this.id}-editor-lhs`);
-			lhsEditor.style.width = `${contentWidth}px`;
-			lhsEditor.style.height = `${contentHeight}px`;
-			const rhsEditor = this._queryElement(`#${this.id}-editor-rhs`);
-			rhsEditor.style.width = `${contentWidth}px`;
-			rhsEditor.style.height = `${contentHeight}px`;
-
-			const lhsCM = this._queryElement(`#${this.id}-editor-lhs .cm-s-default`);
-			lhsCM.style.width = `${contentWidth}px`;
-			lhsCM.style.height = `${contentHeight}px`;
-			const rhsCM = this._queryElement(`#${this.id}-editor-rhs .cm-s-default`);
-			rhsCM.style.width = `${contentWidth}px`;
-			rhsCM.style.height = `${contentHeight}px`;
-			const lhsMargin = this._queryElement(`#${this.id}-lhs-margin`);
-			lhsMargin.style.height = `${contentHeight}px`;
-			lhsMargin.height = `${contentHeight}`;
-			const midCanvas = this._queryElement(`.mergely-canvas canvas`);
-			midCanvas.style.height = `${contentHeight}px`;
-			midCanvas.height = `${contentHeight}`;
-			const rhsMargin = this._queryElement(`#${this.id}-rhs-margin`);
-			rhsMargin.style.height = `${contentHeight}px`;
-			rhsMargin.height = `${contentHeight}`;
-
-			if (settings.resized) {
-				settings.resized();
-			}
-		},
 		_debug: '', //scroll,draw,calc,diff,markup,change,init
-		resized: function() { },
 		// user supplied options
 		...options
 	};
@@ -144,6 +116,7 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 	this.el = el;
 
 	this.lhs_cmsettings = {
+		viewportMargin: Infinity,
 		...this.settings.cmsettings,
 		...this.settings.lhs_cmsettings,
 		// these override any user-defined CodeMirror settings
@@ -286,8 +259,10 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 CodeMirrorDiffView.prototype.options = function(opts) {
 	if (opts) {
 		this._setOptions(opts);
-		if (this.settings.autoresize) this.resize();
-		if (this.settings.autoupdate) this.update();
+		this.resize();
+		if (this.settings.autoupdate) {
+			this.update();
+		}
 	}
 	else {
 		return this.settings;
@@ -379,9 +354,26 @@ CodeMirrorDiffView.prototype.search = function(side, query, direction) {
 };
 
 CodeMirrorDiffView.prototype.resize = function() {
+	const parent = this.el.parentNode;
+	const { settings } = this;
+	let height;
+	const contentHeight = parent.offsetHeight - 2;
+
+	const lhsMargin = this._queryElement(`#${this.id}-lhs-margin`);
+	lhsMargin.style.height = `${contentHeight}px`;
+	lhsMargin.height = `${contentHeight}`;
+	const midCanvas = this._queryElement(`.mergely-canvas canvas`);
+	midCanvas.style.height = `${contentHeight}px`;
+	midCanvas.height = `${contentHeight}`;
+	const rhsMargin = this._queryElement(`#${this.id}-rhs-margin`);
+	rhsMargin.style.height = `${contentHeight}px`;
+	rhsMargin.height = `${contentHeight}`;
+
+	this.el.dispatchEvent(new Event('resize'));
+
 	// recalculate line height as it may be zoomed
 	this.em_height = null;
-	this.settings.resize();
+	// this.settings.resize();
 	this._changing();
 	this._set_top_offset('lhs');
 };
@@ -399,8 +391,10 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	const { CodeMirror } = this;
 	this.trace('init', 'bind');
 	el.style.visibility = 'hidden';
-	el.style.position = 'absolute';
+	el.style.display = 'flex';
+	el.style.flexGrow = '1';
 	el.style.opacity = '0';
+	el.style.height = '100%';
 	this.id = el.id;
 	const found = document.getElementById(this.id);
 	if (!found) {
@@ -476,7 +470,9 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			left: (editor.offsetWidth - 300) / 2
 		}));
 		editor.addEventListener('click', () => {
-			splash.style.cssText += 'visibility: hidden; opacity: 0; transition: visibility 0s 100ms, opacity 100ms linear;';
+			splash.style.visibility = 'hidden';
+			splash.style.opacity = '0';
+			splash.style.transition = `visibility 0s 100ms, opacity 100ms linear`;
 			setTimeout(() => splash.remove(), 110);
 		}, { once: true });
 		el.append(splash);
@@ -495,8 +491,8 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	// get current diff border color from user-defined css
 	const diffColor
 		= htmlToElement('<div style="display:none" class="mergely current start"></div>')
-	const body = this._queryElement('body');
-	body.append(diffColor);
+	// const body = this._queryElement('body');
+	this.el.append(diffColor);
 	this.current_diff_color = window.getComputedStyle(diffColor).borderTopColor;
 
 	// make a throttled render function
@@ -531,34 +527,33 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		this._scrolling({ side: 'rhs', id: this.rhsId });
 	});
 
-	// resize
-	if (this.settings.autoresize) {
-		let resizeTimeout;
-		const resize = (init) => {
-			if (init) {
-				if (this.settings.fadein !== false) {
-					const duration = this.settings.fadein === 'fast' ? 200 : 750;
-					el.style.cssText += `visibility: visible; opacity: 1.0; transition: opacity ${duration}ms linear;`;
-				}
-				else {
-					el.style.visibility = 'visible';
-					el.style.opacity = '1.0';
-				}
+	// resize event handeler
+	let resizeTimeout;
+	const resize = (init) => {
+		if (init) {
+			if (this.settings.fadein !== false) {
+				const duration = this.settings.fadein === 'fast' ? 200 : 750;
+				el.style.visibility = 'visible';
+				el.style.opacity = '1.0';
+				el.style.transition = `opacity ${duration}ms linear`;
 			}
-			if (this.settings.resize) this.settings.resize(init);
-			this.resize();
-			this.editor.lhs.refresh();
-			this.editor.rhs.refresh();
-		};
-		this._handleResize = () => {
-			if (resizeTimeout) {
-				clearTimeout(resizeTimeout);
+			else {
+				el.style.visibility = 'visible';
+				el.style.opacity = '1.0';
 			}
-			resizeTimeout = setTimeout(resize, this.settings.resize_timeout);
-		};
-		window.addEventListener('resize', this._handleResize);
-		resize(true);
-	}
+		}
+		this.resize();
+		this.editor.lhs.refresh();
+		this.editor.rhs.refresh();
+	};
+	this._handleResize = () => {
+		if (resizeTimeout) {
+			clearTimeout(resizeTimeout);
+		}
+		resizeTimeout = setTimeout(resize, this.settings.resize_timeout);
+	};
+	window.addEventListener('resize', this._handleResize);
+	resize(true);
 
 	// scrollToDiff() from gutter
 	function gutterClicked(side, line, ev) {
@@ -824,8 +819,8 @@ CodeMirrorDiffView.prototype._clearMarginMarkup = function() {
 	const ex = this._draw_info();
 	const ctx = ex.dcanvas.getContext('2d');
 	ctx.beginPath();
-	ctx.fillStyle = '#fff';
-	ctx.fillRect(0, 0, this.draw_mid_width, ex.visible_page_height);
+	ctx.fillStyle = 'rgba(0,0,0,0)'; // transparent
+	ctx.clearRect(0, 0, this.draw_mid_width, ex.visible_page_height);
 };
 
 CodeMirrorDiffView.prototype._diff = function() {
@@ -1531,7 +1526,7 @@ function throttle(func, { delay }) {
 		const now = Date.now();
 
 		if (now - lastTime >= delay) {
-			func.apply(this);
+			setImmediate(func.apply(this));
 			lastTime = now;
 		} else {
 			// call `func` if no other event after `delay`

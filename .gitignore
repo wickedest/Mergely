@@ -3,3 +3,4 @@
 mergely-*.tgz
 package-lock.json
 *.log
+diff-view2.js

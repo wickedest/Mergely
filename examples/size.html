@@ -1,5 +1,5 @@
 <!--
-This example demonstrates how to enable line wrapping
+This example demonstrates the minimum amount of code required to use Mergely.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -7,107 +7,63 @@ This example demonstrates how to enable line wrapping
 	<meta charset="utf-8" /><title>Mergely - Simple Example</title>
 	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-	<meta name="description" content="Merge and Diff your documents with diff online and share" />
-	<meta name="keywords" content="diff,merge,compare,jsdiff,comparison,difference,file,text,unix,patch,algorithm,saas,longest common subsequence" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="mergely,diff,merge,compare" />
 	<meta name="author" content="Jamie Peabody" />
 
-	<!-- Requires CodeMirror -->
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/addon/search/searchcursor.min.js"></script>
-	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css" />
+	<!-- CodeMirror peer dependency -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/addon/search/searchcursor.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css" />
 
-	<!-- Requires Mergely -->
-	<script type="text/javascript" src="../lib/mergely.js"></script>
-	<link type="text/css" rel="stylesheet" href="../lib/mergely.css" />
+	<!-- Mergely -->
+	<script type="text/javascript" src="/lib/mergely.js"></script>
+	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
 
-	<script type="text/javascript">
-
-		$(document).ready(function () {
-			$('#compare1').mergely({
-				width: 'auto',
-				height: 200,
-				license: 'lgpl-separate-notice',
-				cmsettings: {
-					readOnly: false,
-					lineWrapping: true,
-				}
-			});
-			$('#compare2').mergely({
-				width: 'auto',
-				height: 200,
-				license: 'lgpl-separate-notice',
-				cmsettings: {
-					readOnly: false,
-					lineWrapping: true,
-				}
-			});
-			$('#compare3').mergely({
-				width: 500,
-				height: 200,
-				license: 'lgpl-separate-notice',
-				cmsettings: {
-					readOnly: false,
-					lineWrapping: true,
-				}
-			});
-			$('#compare4').mergely({
-				width: 500,
-				height: 200,
-				license: 'lgpl-separate-notice',
-				cmsettings: {
-					readOnly: false,
-					lineWrapping: true,
-				}
-			});
-			$('#compare5').mergely({
-				width: 'auto',
-				height: 200,
-				autoresize: false,
-				license: 'lgpl-separate-notice',
-				cmsettings: {
-					readOnly: false,
-					lineWrapping: true,
-				}
-			});
-
-			$.ajax({
-				type: 'GET', async: true, dataType: 'text',
-				url: 'lhs.txt',
-				success: function (response) {
-					$('#compare1').mergely('lhs', response);
-					$('#compare2').mergely('lhs', response);
-					$('#compare3').mergely('lhs', response);
-					$('#compare4').mergely('lhs', response);
-					$('#compare5').mergely('lhs', response);
-				}
-			});
-			$.ajax({
-				type: 'GET', async: true, dataType: 'text',
-				url: 'rhs.txt',
-				success: function (response) {
-					$('#compare1').mergely('rhs', response);
-					$('#compare2').mergely('rhs', response);
-					$('#compare3').mergely('rhs', response);
-					$('#compare4').mergely('rhs', response);
-					$('#compare5').mergely('rhs', response);
-				}
-			});
-		});
-	</script>
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.column-layout {
+			display: flex;
+			height: 90px;
+		}
+		.column-layout > * {
+			flex: 1;
+		}
+	</style>
 </head>
 <body>
+	<div>
+		<caption>Inserted and removed at start but not end</caption>
+		<div class="column-layout">
+			<div id="mergely0"></div>
+			<div id="mergely1"></div>
+		</div>
+	</div>
 
-	<div id="compare1"></div>
-	<div id="compare2"></div>
-
-	<table style="width:100%">
-		<tr>
-			<td><div id="compare3"></div></td>
-			<td><div id="compare4"></div></td>
-		</tr>
-	</table>
-
-	<div id="compare5"></div>
-
+	<script type="text/javascript">
+		document.onreadystatechange = function () {
+			if (document.readyState !== 'complete') {
+				return;
+			}
+			new Mergely('#mergely', {
+				license: 'lgpl',
+				ignorews: true,
+				wrap_lines: true,
+				change_timeout: 0,
+				cmsettings: {
+					readOnly: false
+				},
+				lhs: function(setValue) {
+					setValue(lhs);
+				},
+				rhs: function(setValue) {
+					setValue(rhs);
+				},
+				_debug: ''
+			});
+	</script>
 </body>
 </html>

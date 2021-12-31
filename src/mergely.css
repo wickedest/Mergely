@@ -1,18 +1,21 @@
 .mergely-editor .CodeMirror {
 	line-height: 18px;
-}
-
-/* FIXME: needed? */
-.CodeMirror-scroll {
 	height: 100%;
-	overflow: auto;
+	width: 100%;
 }
 
+/*
 .mergely-editor .mergely-column,
 .mergely-editor .mergely-canvas,
 .mergely-editor .mergely-margin {
 	position: relative;
 	float: left;
+}
+*/
+
+.mergely-editor .mergely-column {
+	flex-grow: 1;
+	width: 100%;
 }
 
 .mergely-editor .mergely-margin canvas {
@@ -23,43 +26,19 @@
 	width: 28px;
 }
 
-/* resizeable */
-/* FIXME: needed? */
-.mergely-resizer {
-	width: 100%;
-	height: 100%;
-}
-
-/* FIXME: needed? */
-.mergely-full-screen-0 {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	overflow: hidden;
-}
-
-/* FIXME: needed? */
-.mergely-full-screen-8 {
-	position: absolute;
-	top: 8px;
-	bottom: 8px;
-	left: 8px;
-	right: 8px;
-	overflow: hidden;
-}
-
 .mergely-editor .mergely.a.rhs.start {
 	border-top-width: 1px;
 	border-top-style: solid;
+}
+
+.mergely-editor .mergely.a.lhs.start.end {
+	border-top-width: 0px;
 }
 
 .mergely-editor .mergely.a.lhs.start.end,
 .mergely-editor .mergely.a.rhs.end {
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
-	border-top-width: 0px;
 }
 
 .mergely-editor .mergely.d.lhs.end,
@@ -135,10 +114,9 @@
 }
 
 .mergely-editor .merge-button {
-	opacity: 0.6;
 	height: 18px;
 	cursor: pointer;
-	width: 27px;
+	width: 26px;
 	padding-left: 3px;
 }
 
@@ -147,6 +125,7 @@
 	color: #717171;
 }
 .mergely-editor .mergely.current.CodeMirror-gutter-background {
+	/* FIXME: does this do anything? */
 	background-color: #777;
 }
 .mergely-editor .mergely.current .CodeMirror-linenumber {
@@ -154,13 +133,11 @@
 	font-weight: bold;
 }
 .mergely-editor .merge-button {
-	background-color: #bfbfbf;
-	color: #eee;
+	color: #383838;
 }
 .mergely-editor .merge-button:hover {
 	color: #fff;
 	mix-blend-mode: darken;
-	opacity: 0.8;
 }
 .mergely-editor .mergely-column {
 	border: 1px solid #ccc;
@@ -180,10 +157,12 @@
 .mergely-editor .mergely.c {
 	border-color: #a3a3a3;
 }
+/*
 .mergely-editor .mergely.c.lhs,
 .mergely-editor .mergely.c.rhs {
 	background-color: #fafafa;
 }
+*/
 .mergely-editor .mergely.ch.d.lhs {
 	text-decoration: line-through;
 	color: #ff0000;

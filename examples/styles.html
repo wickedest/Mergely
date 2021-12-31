@@ -1,0 +1,278 @@
+<!--
+This example demonstrates the minimum amount of code required to use Mergely.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" /><title>Mergely - Simple Example</title>
+	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta name="description" content="" />
+	<meta name="keywords" content="mergely,diff,merge,compare" />
+	<meta name="author" content="Jamie Peabody" />
+
+	<!-- CodeMirror peer dependency -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/addon/search/searchcursor.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css" />
+
+	<!-- Mergely -->
+	<script type="text/javascript" src="/lib/mergely.js"></script>
+	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
+
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.column-layout {
+			display: flex;
+			height: 90px;
+		}
+		.column-layout > * {
+			flex: 1;
+		}
+		.full-width-layout {
+			height: 90px;
+		}
+		.dark {
+			background-color: #0b0e10;
+		}
+		.dark .CodeMirror {
+			background-color: #12171b;
+		}
+		.dark .CodeMirror-code {
+			color: #fff;
+		}
+		.dark .mergely.a.rhs {
+			color: #fff;
+		}
+		.dark .mergely.current {
+			border-color: #616161;
+		}
+		.dark .mergely.d.lhs {
+			background-color: #541414;
+		}
+		.dark .mergely.a.rhs {
+			background-color: #253e56;
+		}
+		.dark .CodeMirror-gutters {
+			background-color: transparent;
+			border-right: 1px dotted #2E343A;
+		}
+		.dark .mergely.current .CodeMirror-linenumber {
+			background-color: #6a89f7;
+		}
+		.dark .CodeMirror-linenumber {
+			color: #999;
+		}
+		.dark .mergely-column {
+			border: 1px solid transparent;
+		}
+		.dark .mergely.current {
+			border-color: #6a89f7;
+		}
+		.dark .CodeMirror-cursor {
+			border-left: 2px solid #B19F73;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		<caption>Inserted and removed at start but not end</caption>
+		<div class="column-layout">
+			<div id="mergely0"></div>
+			<div id="mergely1"></div>
+		</div>
+	</div>
+	<br />
+
+	<div>
+		<caption>Removed and added, not at the start or end</caption>
+		<div class="column-layout">
+			<div id="mergely2"></div>
+			<div id="mergely3"></div>
+		</div>
+	</div>
+	<br />
+
+	<div>
+		<caption>One document empty, one line</caption>
+		<div class="column-layout">
+			<div id="mergely4"></div>
+			<div id="mergely5"></div>
+		</div>
+	</div>
+	<br />
+
+	<div>
+		<caption>One document empty, multiple lines</caption>
+		<div class="column-layout">
+			<div id="mergely6"></div>
+			<div id="mergely7"></div>
+		</div>
+	</div>
+	<br />
+
+	<div>
+		<caption>Inserted and removed at the end</caption>
+		<div class="column-layout">
+			<div id="mergely8"></div>
+			<div id="mergely9"></div>
+		</div>
+	</div>
+	<br />
+
+	<div>
+		<caption>Changed lines</caption>
+		<div class="full-width-layout">
+			<div id="mergely10"></div>
+		</div>
+	</div>
+	<br />
+
+	<div>
+		<caption>Custom styles</caption>
+		<div class="full-width-layout" style="height:120px">
+			<div class="dark" id="mergely11"></div>
+		</div>
+	</div>
+	<br />
+
+	<script type="text/javascript">
+		document.onreadystatechange = function () {
+			if (document.readyState !== 'complete') {
+				return;
+			}
+
+const data = [{
+	lhs: `\
+
+the quick red fox
+jumped over the hairy dog
+`,
+	rhs: `\
+the quick brown fox
+jumped over the lazy dog
+`
+}, {
+	lhs: `\
+the quick red fox
+jumped over the hairy dog
+`,
+	rhs: `\
+
+the quick brown fox
+jumped over the lazy dog
+`
+}, {
+	lhs: `\
+
+
+the quick red fox
+jumped over the hairy dog
+`,
+	rhs: `\
+
+
+
+the quick brown fox
+jumped over the lazy dog
+`
+}, {
+	lhs: `\
+
+
+the quick brown fox
+jumped over the lazy dog
+`,
+	rhs: `\
+
+
+
+the quick red fox
+jumped over the hairy dog
+`
+}, {
+	lhs: ``,
+	rhs: `\
+the quick brown fox
+`
+}, {
+	lhs: `\
+the quick red fox
+`,
+	rhs: ``
+}, {
+	lhs: ``,
+	rhs: `\
+the quick brown fox
+jumped over the lazy dog
+`
+}, {
+	lhs: `\
+the quick red fox
+jumped over the hairy dog
+`,
+	rhs: ``
+}, {
+	lhs: `\
+the quick brown fox
+jumped over the lazy dog`,
+	rhs: `\
+the quick brown fox
+jumped over the lazy dog
+
+and the fence`
+}, {
+	lhs: `\
+the quick brown fox
+jumped over the lazy dog
+
+and the fence`,
+	rhs: `\
+the quick brown fox
+jumped over the lazy dog`
+}, {
+	lhs: `\
+the quick red fox
+jumped over the hairy dog`,
+	rhs: `\
+the quick brown fox
+jumped over the lazy dog`
+}, {
+	lhs: `\
+the quick red fox
+jumped over the hairy dog
+
+and the fence
+
+`,
+	rhs: `\
+the quick brown fox
+jumped over the lazy dog
+
+
+and the postman
+`
+}];
+
+		for (let i = 0; i < data.length; ++i) {
+			const { lhs, rhs } = data[i];
+			new Mergely(`#mergely${i}`, {
+				license: 'lgpl-separate-notice',
+				wrap_lines: true,
+				ignorews: true,
+				lhs: function(setValue) {
+					setValue(lhs);
+				},
+				rhs: function(setValue) {
+					setValue(rhs);
+				},
+				_debug: ''
+			});
+		}
+	};
+	</script>
+</body>
+</html>

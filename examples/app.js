@@ -29,14 +29,12 @@ document.onreadystatechange = function () {
 		},
 		lhs: function(setValue) {
 			setValue(macbeth.join('\n'));
-			// setValue(lhs);
 		},
 		rhs: function(setValue) {
 			setValue(macbeth.join('\n')
-				.replace(/love/g,'bleed')
-				.replace(/heart/g, 'penis'));
-			// setValue(rhs);
+				.replace(/love/g, 'hate')
+				.replace(/heart/g, 'head'));
 		},
-		_debug: 'change,scroll'
+		_debug: ''
 	});
 };
