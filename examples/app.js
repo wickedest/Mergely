@@ -24,6 +24,7 @@ document.onreadystatechange = function () {
 		ignorews: true,
 		wrap_lines: true,
 		change_timeout: 0,
+		viewport: true,
 		cmsettings: {
 			readOnly: false
 		},

@@ -47,8 +47,6 @@ When wrap_lines is false, the CM editor grows, screwing up the layout
 Fix the overflow for the rendered diff view
 Fix the margin colorization
 Remove the jump to first diff (instead, make it example)
-Fix the alignment of the diff visualization and hz lines
-Calculate only once.
 Margin indicators are broken for macbeth
 Macbeth needs a resize to render correctly
 Introduce an async render pipeline as it's currently blocking UI
@@ -831,6 +829,8 @@ CodeMirrorDiffView.prototype._diff = function() {
 	this.trace('change', 'diff time', Timer.stop());
 	this.changes = DiffParser(comparison.normal_form());
 	this.trace('change', 'parse time', Timer.stop());
+	this._calculate_offsets(this.changes);
+	this.trace('change', 'offsets time', Timer.stop());
 	this._renderDiff();
 };
 
@@ -845,8 +845,6 @@ CodeMirrorDiffView.prototype._renderChanges = function() {
 		}
 	}
 	this.trace('change', 'scroll_to_change time', Timer.stop());
-	this._calculate_offsets(this.changes);
-	this.trace('change', 'offsets time', Timer.stop());
 	this._markup_changes(this.changes);
 	this.trace('change', 'markup time', Timer.stop());
 	this._draw_diff(this.changes);
@@ -901,6 +899,8 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 		|| red.getOption('lineWrapping');
 	const lhschc = !lineWrapping ? led.charCoords({ line: 0 }, mode) : null;
 	const rhschc = !lineWrapping ? red.charCoords({ line: 0 }, mode) : null;
+	const lhsvp = this._get_viewport_side('lhs');
+	const rhsvp = this._get_viewport_side('rhs');
 
 	for (const change of changes) {
 		if (this.settings.viewport &&
@@ -925,7 +925,7 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 				change['lhs-y-start'] = led.heightAtLine(llf, mode);
 				change['lhs-y-end'] = led.heightAtLine(llt + 1, mode);
 				change['rhs-y-start'] = red.heightAtLine(rlf, mode);
-				change['rhs-y-end'] =  red.heightAtLine(rlt + 1, mode);
+				change['rhs-y-end'] = red.heightAtLine(rlt + 1, mode);
 			} else if (change.op === 'a') {
 				// both lhs start and end are the same value
 				if (change['lhs-line-from'] === -1) {
@@ -935,7 +935,7 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 				}
 				change['lhs-y-end'] = change['lhs-y-start'];
 				change['rhs-y-start'] = red.heightAtLine(rlf, mode);
-				change['rhs-y-end'] =  red.heightAtLine(rlt + 1, mode);
+				change['rhs-y-end'] = red.heightAtLine(rlt + 1, mode);
 			} else {
 				// delete
 				change['lhs-y-start'] = led.heightAtLine(llf, mode);
@@ -978,6 +978,11 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 				change['rhs-y-end'] = change['rhs-y-start'];
 			}
 		}
+		// the height and line borders don't aligne - fudge the offset
+		change['lhs-y-start'] += 1.5;
+		change['lhs-y-end'] += 1.5;
+		change['rhs-y-start'] += 1.5;
+		change['rhs-y-end'] += 1.5;
 	}
 }
 
@@ -1358,7 +1363,7 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		// draw left box
 		ctx.beginPath();
 		ctx.strokeStyle = fill;
-		ctx.lineWidth = (this._current_diff === i) ? 1.5 : 1;
+		ctx.lineWidth = 1;
 
 		let rectWidth = this.draw_lhs_width;
 		let rectHeight = lhs_y_end - lhs_y_start - 1;
