@@ -42,13 +42,10 @@ Fixed performance issue scrolling (find #)
 Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
 
 TODO:
-Fix the intermittent render issue
 For some reason ignore-whitespace will mark the "red" differently
 When wrap_lines is false, the CM editor grows, screwing up the layout
 Fix the overflow for the rendered diff view
-Fix the margin colorization
 Remove the jump to first diff (instead, make it example)
-Margin indicators are broken for macbeth
 Introduce an async render pipeline as it's currently blocking UI
 Merge button with multiple editors
 Delete gutter_height (and any unused values)
@@ -1331,15 +1328,13 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		const fill = (this._current_diff === i) ?
 			this.current_diff_color : this.settings.fgcolor[change.op];
 
-		this.trace('draw', fill, change);
-
 		// draw margin indicators
 		this.trace('draw', 'marker calculated', lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
 
 		const mkr_lhs_y_start = change['lhs-y-start'] * lratio;
 		const mkr_lhs_y_end = Math.max(change['lhs-y-end'] * lratio, 5);
 		ctx_lhs.beginPath();
-		ctx_lhs.fillStyle = fill;
+		ctx_lhs.fillStyle = '#a3a3a3';
 		ctx_lhs.strokeStyle = '#000';
 		ctx_lhs.lineWidth = 0.5;
 		ctx_lhs.fillRect(1.5, mkr_lhs_y_start, 4.5, Math.max(mkr_lhs_y_end - mkr_lhs_y_start, 5));
@@ -1349,7 +1344,7 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		const mkr_rhs_y_start = change['rhs-y-start'] * lratio;
 		const mkr_rhs_y_end = Math.max(change['rhs-y-end'] * lratio, 5);
 		ctx_rhs.beginPath();
-		ctx_rhs.fillStyle = fill;
+		ctx_rhs.fillStyle = '#a3a3a3';
 		ctx_rhs.strokeStyle = '#000';
 		ctx_rhs.lineWidth = 0.5;
 		ctx_rhs.fillRect(1.5, mkr_rhs_y_start, 4.5, Math.max(mkr_rhs_y_end - mkr_rhs_y_start, 5));
