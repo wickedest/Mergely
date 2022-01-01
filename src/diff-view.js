@@ -51,6 +51,7 @@ Remove the jump to first diff (instead, make it example)
 Margin indicators are broken for macbeth
 Introduce an async render pipeline as it's currently blocking UI
 Merge button with multiple editors
+Delete gutter_height (and any unused values)
 */
 
 const NOTICES = [
@@ -193,7 +194,7 @@ CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
 		}
 	}
 	this._scroll_to_change(this.changes[this._current_diff]);
-	this._changed();
+	this._changing();
 };
 
 CodeMirrorDiffView.prototype.mergeCurrentChange = function(side) {
@@ -221,13 +222,13 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 	if (this.settings.hasOwnProperty('sidebar')) {
 		// dynamically enable sidebars
 		if (this.settings.sidebar) {
-			const divs = document.querySelectorAll('.mergely-margin');
+			const divs = document.querySelectorAll(`#${this.id} .mergely-margin`);
 			for (const div of divs) {
 				div.style.visibility = 'visible';
 			}
 		}
 		else {
-			const divs = document.querySelectorAll('.mergely-margin');
+			const divs = document.querySelectorAll(`#${this.id} .mergely-margin`);
 			for (const div of divs) {
 				div.style.visibility = 'hidden';
 			}
@@ -247,7 +248,7 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 		}
 		if (opts.hasOwnProperty('rhs_margin')) {
 			// dynamically swap the margin
-			const divs = document.querySelectorAll('.mergely-editor > div');
+			const divs = document.querySelectorAll(`#${this.id} .mergely-editor > div`);
 			// [0:margin] [1:lhs] [2:mid] [3:rhs] [4:margin], swaps 4 with 3
 			divs[4].parentNode.insertBefore(divs[4], divs[3]);
 		}
@@ -352,6 +353,7 @@ CodeMirrorDiffView.prototype.search = function(side, query, direction) {
 };
 
 CodeMirrorDiffView.prototype.resize = function() {
+	this.trace('draw', 'resize');
 	const parent = this.el.parentNode;
 	const { settings } = this;
 	let height;
@@ -360,7 +362,7 @@ CodeMirrorDiffView.prototype.resize = function() {
 	const lhsMargin = this._queryElement(`#${this.id}-lhs-margin`);
 	lhsMargin.style.height = `${contentHeight}px`;
 	lhsMargin.height = `${contentHeight}`;
-	const midCanvas = this._queryElement(`.mergely-canvas canvas`);
+	const midCanvas = this._queryElement(`#${this.id}-lhs-${this.id}-rhs-canvas`);
 	midCanvas.style.height = `${contentHeight}px`;
 	midCanvas.height = `${contentHeight}`;
 	const rhsMargin = this._queryElement(`#${this.id}-rhs-margin`);
@@ -444,7 +446,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	}
 	if (!this.settings.sidebar) {
 		// it would be better if this just used this.options()
-		const divs = document.querySelectorAll('.mergely-margin');
+		const divs = document.querySelectorAll(`#${this.id} .mergely-margin`);
 		for (const div of divs) {
 			div.style.visibility = 'hidden';
 		}
@@ -474,8 +476,8 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	}
 
 	// check initialization
-	const lhstx = document.querySelector(`#${this.id}-lhs`);
-	const rhstx = document.querySelector(`#${this.id}-rhs`);
+	const lhstx = document.getElementById(`${this.id}-lhs`);
+	const rhstx = document.getElementById(`${this.id}-rhs`);
 	if (!lhstx) {
 		console.error('lhs textarea not defined - Mergely not initialized properly');
 	}
@@ -498,23 +500,54 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		}
 	]);
 
-	// bind
+	// bind event listeners
 	this.trace('init', 'binding event listeners');
 	this.editor = {};
 	this.editor.lhs = CodeMirror.fromTextArea(lhstx, this.lhs_cmsettings);
 	this.editor.rhs = CodeMirror.fromTextArea(rhstx, this.rhs_cmsettings);
-	this.editor.lhs.on('change', () => {
+
+	// if `lhs` and `rhs` are passed in, this sets the values in each editor,
+	// but the changes are not picked up until the explicit resize below.
+	if (this.settings.lhs) {
+		this.trace('init', 'setting lhs value');
+		this.settings.lhs(function setValue(value) {
+			this._initializing = true;
+			delete this._current_diff;
+			this.editor.lhs.getDoc().setValue(value);
+		}.bind(this));
+	}
+	if (this.settings.rhs) {
+		this.trace('init', 'setting rhs value');
+		this.settings.rhs(function setValue(value) {
+			this._initializing = true;
+			delete this._current_diff;
+			this.editor.rhs.getDoc().setValue(value);
+		}.bind(this));
+	}
+	// this._changing();
+
+	this.editor.lhs.on('change', (instance, ev) => {
 		if (!this.settings.autoupdate) {
 			return;
+		}
+		if (typeof ev === 'object') {
+			this.trace('change', 'lhs change event', instance, ev);
+		} else {
+			this.trace('change', 'lhs change event (ignored)');
 		}
 		this._changing();
 	});
 	this.editor.lhs.on('scroll', () => {
 		this._scrolling({ side: 'lhs', id: this.lhsId });
 	});
-	this.editor.rhs.on('change', () => {
+	this.editor.rhs.on('change', (instance, ev) => {
 		if (!this.settings.autoupdate) {
 			return;
+		}
+		if (typeof ev === 'object') {
+			this.trace('change', 'rhs change event', instance, ev);
+		} else {
+			this.trace('change', 'rhs change event (ignored)');
 		}
 		this._changing();
 	});
@@ -561,7 +594,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		this.scrollTo(side, line);
 		if (found) {
 			// trigger refresh
-			this._changed();
+			this._changing();
 		}
 	}
 
@@ -573,24 +606,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		gutterClicked.call(this, 'rhs', n, ev);
 	});
 
-	// if `lhs` and `rhs` are passed in, this sets the values in each editor
-	// and kicks off the whole change pipeline.
-	if (this.settings.lhs) {
-		this.trace('init', 'setting lhs value');
-		this.settings.lhs(function setValue(value) {
-			this._initializing = true;
-			delete this._current_diff;
-			this.editor.lhs.getDoc().setValue(value);
-		}.bind(this));
-	}
-	if (this.settings.rhs) {
-		this.trace('init', 'setting rhs value');
-		this.settings.rhs(function setValue(value) {
-			this._initializing = true;
-			delete this._current_diff;
-			this.editor.rhs.getDoc().setValue(value);
-		}.bind(this));
-	}
 	el.addEventListener('updated', () => {
 		this._initializing = false;
 		if (this.settings.loaded) {
@@ -653,12 +668,6 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	const top_to = scroller.scrollTop;
 	const left_to = scroller.scrollLeft;
 
-	this.trace('scroll', 'side', side);
-	this.trace('scroll', 'midway', this.midway);
-	this.trace('scroll', 'midline', midline);
-	this.trace('scroll', 'top_to', top_to);
-	this.trace('scroll', 'left_to', left_to);
-
 	const oside = (side === 'lhs') ? 'rhs' : 'lhs';
 
 	// find the last change that is less than or within the midway point
@@ -694,7 +703,7 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 			scroll = false;
 		}
 	}
-	this.trace('scroll', 'scroll', scroll);
+	this.trace('scroll', scroll);
 	if (scroll || force_scroll) {
 		// scroll the other side
 		this.trace('scroll', 'scrolling other side to pos:', top_to - top_adjust);
@@ -716,7 +725,7 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 };
 
 CodeMirrorDiffView.prototype._changing = function({ force } = { force: false }) {
-	this.trace('change', 'changing-timeout', this._changedTimeout);
+	this.trace('change', 'changing (has _changedTimeout)', !!this._changedTimeout);
 	if (this._changedTimeout != null) {
 		clearTimeout(this._changedTimeout);
 	}
@@ -745,6 +754,7 @@ CodeMirrorDiffView.prototype._changed = function() {
 };
 
 CodeMirrorDiffView.prototype._clear = function() {
+	this.trace('draw', 'clear');
 	const clearChanges = (side) => {
 		Timer.start();
 		const editor = this.editor[side];
@@ -779,6 +789,7 @@ CodeMirrorDiffView.prototype._clear = function() {
 };
 
 CodeMirrorDiffView.prototype._clearMargins = function() {
+	this.trace('change', '_clearMargins');
 	const ex = this._draw_info();
 
 	const ctx_lhs = ex.lhs_margin.getContext('2d');
@@ -1251,8 +1262,8 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 	if (dcanvas == undefined) {
 		throw 'Failed to find: ' + this.lhsId + '-' + this.rhsId + '-canvas';
 	}
-	const lhs_margin = this._queryElement(`#${this.id}-lhs-margin`);
-	const rhs_margin = this._queryElement(`#${this.id}-rhs-margin`);
+	const lhs_margin = document.getElementById(`${this.id}-lhs-margin`);
+	const rhs_margin = document.getElementById(`${this.id}-rhs-margin`);
 
 	return {
 		visible_page_height: visible_page_height,
@@ -1320,7 +1331,7 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		const fill = (this._current_diff === i) ?
 			this.current_diff_color : this.settings.fgcolor[change.op];
 
-		this.trace('draw', change);
+		this.trace('draw', fill, change);
 
 		// draw margin indicators
 		this.trace('draw', 'marker calculated', lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
@@ -1356,53 +1367,38 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		let rectY = lhs_y_start;
 		// top and top top-right corner
 
-		// draw left box
+		this.trace('draw', 'drawing left box');
 		ctx.moveTo(rectX, rectY);
-		if (navigator.appName == 'Microsoft Internet Explorer') {
-			// IE arcs look awful
-			ctx.lineTo(this.draw_lhs_min + this.draw_lhs_width, lhs_y_start);
-			ctx.lineTo(this.draw_lhs_min + this.draw_lhs_width, lhs_y_end + 1);
-			ctx.lineTo(this.draw_lhs_min, lhs_y_end + 1);
+		if (rectHeight <= 0) {
+			ctx.lineTo(rectX + rectWidth, rectY);
 		}
 		else {
-			if (rectHeight <= 0) {
-				ctx.lineTo(rectX + rectWidth, rectY);
-			}
-			else {
-				ctx.arcTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + radius, radius);
-				ctx.arcTo(rectX + rectWidth, rectY + rectHeight, rectX + rectWidth - radius, rectY + rectHeight, radius);
-			}
-			// bottom line
-			ctx.lineTo(rectX, rectY + rectHeight);
+			ctx.arcTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + radius, radius);
+			ctx.arcTo(rectX + rectWidth, rectY + rectHeight, rectX + rectWidth - radius, rectY + rectHeight, radius);
 		}
+		// bottom line
+		ctx.lineTo(rectX, rectY + rectHeight);
 		ctx.stroke();
 
-		// draw right box
-
+		this.trace('draw', 'drawing right box');
 		rectWidth = this.draw_rhs_width;
 		rectHeight = rhs_y_end - rhs_y_start - 1;
 		rectX = this.draw_rhs_max;
 		rectY = rhs_y_start;
 
 		ctx.moveTo(rectX, rectY);
-		if (navigator.appName == 'Microsoft Internet Explorer') {
-			ctx.lineTo(this.draw_rhs_max - this.draw_rhs_width, rhs_y_start);
-			ctx.lineTo(this.draw_rhs_max - this.draw_rhs_width, rhs_y_end + 1);
-			ctx.lineTo(this.draw_rhs_max, rhs_y_end + 1);
+		if (rectHeight <= 0) {
+			ctx.lineTo(rectX - rectWidth, rectY);
 		}
 		else {
-			if (rectHeight <= 0) {
-				ctx.lineTo(rectX - rectWidth, rectY);
-			}
-			else {
-				ctx.arcTo(rectX - rectWidth, rectY, rectX - rectWidth, rectY + radius, radius);
-				ctx.arcTo(rectX - rectWidth, rectY + rectHeight, rectX - radius, rectY + rectHeight, radius);
-			}
-			ctx.lineTo(rectX, rectY + rectHeight);
+			ctx.arcTo(rectX - rectWidth, rectY, rectX - rectWidth, rectY + radius, radius);
+			ctx.arcTo(rectX - rectWidth, rectY + rectHeight, rectX - radius, rectY + rectHeight, radius);
 		}
+		ctx.lineTo(rectX, rectY + rectHeight);
 		ctx.stroke();
 
 		// connect boxes
+		this.trace('draw', 'drawing box connector');
 		const cx = this.draw_lhs_min + this.draw_lhs_width;
 		const cy = lhs_y_start + (lhs_y_end + 1 - lhs_y_start) / 2.0;
 		const dx = this.draw_rhs_max - this.draw_rhs_width;
@@ -1421,6 +1417,7 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		ctx.stroke();
 	}
 
+	this.trace('draw', 'drawing viewport');
 	// visible viewport feedback
 	ctx_lhs.fillStyle = this.settings.vpcolor;
 	ctx_rhs.fillStyle = this.settings.vpcolor;
@@ -1516,9 +1513,10 @@ function throttle(func, { delay }) {
 		const now = Date.now();
 
 		if (now - lastTime >= delay) {
-			setImmediate(func.apply(this));
+			func.apply(this);
 			lastTime = now;
 		} else {
+			this.trace('scroll', 'throttled');
 			// call `func` if no other event after `delay`
 			if (this._to) {
 				clearTimeout(this._to);

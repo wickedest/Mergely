@@ -19,7 +19,7 @@ document.onreadystatechange = function () {
 		return;
 	}
 
-	const doc = new Mergely('#mergely', {
+	new Mergely('#mergely', {
 		license: 'lgpl',
 		ignorews: true,
 		wrap_lines: true,
