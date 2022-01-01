@@ -19,7 +19,7 @@ document.onreadystatechange = function () {
 		return;
 	}
 
-	new Mergely('#mergely', {
+	const doc = new Mergely('#mergely', {
 		license: 'lgpl',
 		ignorews: true,
 		wrap_lines: true,
@@ -37,5 +37,10 @@ document.onreadystatechange = function () {
 				.replace(/heart/g, 'head'));
 		},
 		_debug: ''
+	});
+
+	// On init, scroll to first diff
+	doc.once('updated', () => {
+		doc.scrollToDiff('next');
 	});
 };

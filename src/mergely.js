@@ -6,7 +6,6 @@ class Mergely {
 			CodeMirror
 		});
 		this.el = element;
-		this._diffView.bind(element);
 		const methods = [
 			'clear',
 			'cm',
@@ -33,6 +32,9 @@ class Mergely {
 		this._listeners = [];
 		this.addEventListener = element.addEventListener.bind(element);
 		this.removeEventListener = element.removeEventListener.bind(element);
+		// Use `setImmediate` so that clients have opportunity to bind event
+		// handlers.
+		setImmediate(() => this._diffView.bind(element));
 	}
 
 	unbind() {
@@ -49,14 +51,14 @@ class Mergely {
 	mergelyUnregister() {
 	}
 
-	on(event, listener) {
-		this._listeners.push([ event, listener ]);
-		this.addEventListener(event, listener);
+	on(event, handler) {
+		this._listeners.push([ event, handler ]);
+		this.addEventListener(event, handler);
 	}
 
-	once(event, listener) {
-		this._listeners.push([ event, listener ]);
-		this.addEventListener(event, listener, { once: true });
+	once(event, handler) {
+		this._listeners.push([ event, handler ]);
+		this.addEventListener(event, handler, { once: true });
 	}
 
 	/**

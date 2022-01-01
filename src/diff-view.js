@@ -45,10 +45,10 @@ TODO:
 For some reason ignore-whitespace will mark the "red" differently
 When wrap_lines is false, the CM editor grows, screwing up the layout
 Fix the overflow for the rendered diff view
-Remove the jump to first diff (instead, make it example)
 Introduce an async render pipeline as it's currently blocking UI
 Merge button with multiple editors
 Delete gutter_height (and any unused values)
+Fix performance issue where scroll-to-first-change seems to take a lot of time.
 */
 
 const NOTICES = [
@@ -448,28 +448,31 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			div.style.visibility = 'hidden';
 		}
 	}
+
 	if (NOTICES.indexOf(this.settings.license) < 0) {
-		const noticeTypes = {
-			'lgpl': 'GNU LGPL v3.0',
-			'gpl': 'GNU GPL v3.0',
-			'mpl': 'MPL 1.1'
-		};
-		const notice = noticeTypes[this.settings.license];
-		if (!notice) {
-			notice = noticeTypes.lgpl;
-		}
-		const editor = this._queryElement('.mergely-editor');
-		const splash = htmlToElement(getSplash({
-			notice,
-			left: (editor.offsetWidth - 300) / 2
-		}));
-		editor.addEventListener('click', () => {
-			splash.style.visibility = 'hidden';
-			splash.style.opacity = '0';
-			splash.style.transition = `visibility 0s 100ms, opacity 100ms linear`;
-			setTimeout(() => splash.remove(), 110);
+		el.addEventListener('updated', () => {
+			const noticeTypes = {
+				'lgpl': 'GNU LGPL v3.0',
+				'gpl': 'GNU GPL v3.0',
+				'mpl': 'MPL 1.1'
+			};
+			const notice = noticeTypes[this.settings.license];
+			if (!notice) {
+				notice = noticeTypes.lgpl;
+			}
+			const editor = this._queryElement('.mergely-editor');
+			const splash = htmlToElement(getSplash({
+				notice,
+				left: (editor.offsetWidth - 300) / 2
+			}));
+			editor.addEventListener('click', () => {
+				splash.style.visibility = 'hidden';
+				splash.style.opacity = '0';
+				splash.style.transition = `visibility 0s 100ms, opacity 100ms linear`;
+				setTimeout(() => splash.remove(), 110);
+			}, { once: true });
+			el.append(splash);
 		}, { once: true });
-		el.append(splash);
 	}
 
 	// check initialization
@@ -521,7 +524,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			this.editor.rhs.getDoc().setValue(value);
 		}.bind(this));
 	}
-	// this._changing();
 
 	this.editor.lhs.on('change', (instance, ev) => {
 		if (!this.settings.autoupdate) {
@@ -835,9 +837,6 @@ CodeMirrorDiffView.prototype._renderChanges = function() {
 		// go to first difference on start-up where values are provided in
 		// settings.
 		this._current_diff = 0;
-		if (this._initializing) {
-			this.scrollTo('lhs', this.changes[0]['lhs-line-from']);
-		}
 	}
 	this._markup_changes(this.changes);
 	this.trace('change', 'markup time', Timer.stop());
