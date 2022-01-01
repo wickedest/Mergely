@@ -535,6 +535,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		this._changing();
 	});
 	this.editor.lhs.on('scroll', () => {
+		this.trace('change', 'scroll lhs');
 		this._scrolling({ side: 'lhs', id: this.lhsId });
 	});
 	this.editor.rhs.on('change', (instance, ev) => {
@@ -549,6 +550,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		this._changing();
 	});
 	this.editor.rhs.on('scroll', () => {
+		this.trace('change', 'scroll rhs');
 		this._scrolling({ side: 'rhs', id: this.rhsId });
 	});
 
@@ -786,7 +788,7 @@ CodeMirrorDiffView.prototype._clear = function() {
 };
 
 CodeMirrorDiffView.prototype._clearMargins = function() {
-	this.trace('change', '_clearMargins');
+	this.trace('draw', '_clearMargins');
 	const ex = this._draw_info();
 
 	const ctx_lhs = ex.lhs_margin.getContext('2d');
@@ -837,7 +839,6 @@ CodeMirrorDiffView.prototype._renderChanges = function() {
 			this.scrollTo('lhs', this.changes[0]['lhs-line-from']);
 		}
 	}
-	this.trace('change', 'scroll_to_change time', Timer.stop());
 	this._markup_changes(this.changes);
 	this.trace('change', 'markup time', Timer.stop());
 	this._draw_diff(this.changes);
@@ -1042,7 +1043,6 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 		}
 	});
 
-	this.trace('change', 'markup lhs-editor time', Timer.stop());
 	red.operation(() => {
 		for (let i = 0; i < changes.length; ++i) {
 			const change = changes[i];
@@ -1097,7 +1097,6 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 			}
 		}
 	});
-	this.trace('change', 'markup rhs-editor time', Timer.stop());
 
 	// mark text deleted, LCS changes
 	const marktext = [];
@@ -1512,6 +1511,7 @@ function throttle(func, { delay }) {
 			lastTime = now;
 		} else {
 			this.trace('scroll', 'throttled');
+			console.log('throttled');
 			// call `func` if no other event after `delay`
 			if (this._to) {
 				clearTimeout(this._to);
