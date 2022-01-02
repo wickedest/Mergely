@@ -22,6 +22,7 @@ Removed `options.resize`
 Removed `options.resized`
 Removed `options.autoresize`
 Removed `options.fadein`
+Removed `options.fgcolor`
 Remove styles `.mergely-resizer`, `.mergely-full-screen-0`, and `.mergely-full-screen-8`.
 Default for `options.change_timeout` changed to 0.
 No longer necessary to separately require codemirror/addon/search/searchcursor
@@ -81,14 +82,6 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		ignoreaccents: false,
 		resize_timeout: 500,
 		change_timeout: 0,
-		fgcolor: {
-			a: '#4ba3fa',
-			c: '#a3a3a3',
-			d: '#ff7f7f',  // color for differences (soft color)
-			ca: '#4b73ff',
-			cc: '#434343',
-			cd: '#ff4f4f'
-		}, // color for currently active difference (bright color)
 		bgcolor: '#eee',
 		vpcolor: 'rgba(0, 0, 200, 0.5)',
 		license: 'lgpl',
@@ -149,16 +142,20 @@ CodeMirrorDiffView.prototype.remove = function() {
 };
 
 CodeMirrorDiffView.prototype.lhs = function(text) {
+	this.trace('change', 'set-lhs', text);
 	// invalidate existing changes and current position
 	this.changes = [];
-	delete this._current_diff;
+	this._current_diff = -1;
+	this.trace('change', 'current-diff', this._current_diff);
 	this.editor.lhs.setValue(text);
 };
 
 CodeMirrorDiffView.prototype.rhs = function(text) {
 	// invalidate existing changes and current position
+	this.trace('change', 'set-rhs', text);
 	this.changes = [];
-	delete this._current_diff;
+	this._current_diff = -1;
+	this.trace('change', 'current-diff', this._current_diff);
 	this.editor.rhs.setValue(text);
 };
 
@@ -173,20 +170,24 @@ CodeMirrorDiffView.prototype.unmarkup = function() {
 };
 
 CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
+	this.trace('scroll', 'scrollToDiff', direction);
 	if (!this.changes.length) return;
 	if (direction === 'next') {
-		if (this._current_diff == this.changes.length - 1) {
+		if (this._current_diff === this.changes.length - 1
+			|| this._current_diff === undefined) {
 			this._current_diff = 0;
 		} else {
 			this._current_diff = Math.min(++this._current_diff, this.changes.length - 1);
 		}
 	} else if (direction === 'prev') {
-		if (this._current_diff == 0) {
+		if (this._current_diff == 0
+			|| this._current_diff === undefined) {
 			this._current_diff = this.changes.length - 1;
 		} else {
 			this._current_diff = Math.max(--this._current_diff, 0);
 		}
 	}
+	this.trace('change', 'current-diff', this._current_diff);
 	this._scroll_to_change(this.changes[this._current_diff]);
 };
 
@@ -201,10 +202,13 @@ CodeMirrorDiffView.prototype.mergeCurrentChange = function(side) {
 };
 
 CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
-	this.trace('scroll', 'scrollTo', side, num);
+	this.trace('scroll', 'scrollTo', side, 'line', num);
 	const ed = this.editor[side];
 	ed.setCursor(num);
 	ed.centerOnCursor();
+	// FIXME: maybe move these to an '_updateRender' func
+	this._clearMarginMarkup();
+	this._renderDiff();
 };
 
 CodeMirrorDiffView.prototype._setOptions = function(opts) {
@@ -480,12 +484,10 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	if (!rhstx) {
 		console.error('rhs textarea not defined - Mergely not initialized properly');
 	}
+	this._current_diff = -1;
 
-	// get current diff border color from user-defined css
-	const diffColor
-		= htmlToElement('<div style="display:none" class="mergely current start"></div>')
-	this.el.append(diffColor);
-	this.current_diff_color = window.getComputedStyle(diffColor).borderTopColor;
+	// get colors from user-defined css
+	this._get_colors();
 
 	// make a throttled render function
 	this._renderDiff = throttle.apply(this, [
@@ -506,16 +508,12 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	if (this.settings.lhs) {
 		this.trace('init', 'setting lhs value');
 		this.settings.lhs(function setValue(value) {
-			this._initializing = true;
-			delete this._current_diff;
 			this.editor.lhs.getDoc().setValue(value);
 		}.bind(this));
 	}
 	if (this.settings.rhs) {
 		this.trace('init', 'setting rhs value');
 		this.settings.rhs(function setValue(value) {
-			this._initializing = true;
-			delete this._current_diff;
 			this.editor.rhs.getDoc().setValue(value);
 		}.bind(this));
 	}
@@ -554,6 +552,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	// resize event handeler
 	let resizeTimeout;
 	const resize = () => {
+		this.trace('draw', 'handle resize');
 		this.resize();
 		this.editor.lhs.refresh();
 		this.editor.rhs.refresh();
@@ -603,7 +602,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	});
 
 	el.addEventListener('updated', () => {
-		this._initializing = false;
+		// this._initializing = false;
 		if (this.settings.loaded) {
 			this.settings.loaded();
 		}
@@ -611,6 +610,50 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	this.trace('init', 'bound');
 	this.editor.lhs.focus();
 };
+
+CodeMirrorDiffView.prototype._get_colors = function(change) {
+	// get current diff border color from user-defined css
+	this._colors = {};
+	const currentColor
+		= htmlToElement('<div style="display:none" class="mergely current start"></div>')
+	this.el.append(currentColor);
+	const currentStyle = window.getComputedStyle(currentColor);
+	this._colors.current = {
+		border: currentStyle.borderTopColor
+	};
+	currentColor.remove();
+
+	const aColor
+		= htmlToElement('<div style="display:none" class="mergely start end mergely rhs a"></div>')
+	this.el.append(aColor);
+	const aStyle = window.getComputedStyle(aColor);
+	this._colors.a = {
+		border: aStyle.borderTopColor,
+		bg: aStyle.backgroundColor
+	};
+	aColor.remove();
+
+	const dColor
+		= htmlToElement('<div style="display:none" class="mergely start end lhs d"></div>')
+	this.el.append(dColor);
+	const dStyle = window.getComputedStyle(dColor);
+	this._colors.d = {
+		border: dStyle.borderTopColor,
+		bg: dStyle.backgroundColor
+	};
+	dColor.remove();
+
+	const cColor
+		= htmlToElement('<div style="display:none" class="mergely start end mergely lhs c"></div>')
+	this.el.append(cColor);
+	const cStyle = window.getComputedStyle(cColor);
+	this._colors.c = {
+		border: cStyle.borderTopColor,
+		bg: cStyle.backgroundColor
+	};
+	cColor.remove();
+	this.trace('draw', 'colors', this._colors);
+}
 
 CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	if (!change) {
@@ -625,8 +668,11 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	const rlf = Math.max(change['rhs-line-from'], 0);
 	led.setCursor(llf, 0);
 	red.setCursor(rlf, 0);
+	this.trace('scroll', '_scroll_to_change', change);
 	if (change['lhs-line-to'] >= 0) {
 		this.scrollTo('lhs', change['lhs-line-to'])
+	} else if (change['rhs-line-to'] >= 0) {
+		this.scrollTo('rhs', change['rhs-line-to'])
 	}
 	led.focus();
 };
@@ -828,11 +874,6 @@ CodeMirrorDiffView.prototype._diff = function() {
 
 CodeMirrorDiffView.prototype._renderChanges = function() {
 	this._clearMargins();
-	if (this._current_diff === undefined && this.changes.length) {
-		// go to first difference on start-up where values are provided in
-		// settings.
-		this._current_diff = -1;
-	}
 	this._markup_changes(this.changes);
 	this.trace('change', 'markup time', Timer.stop());
 	this._draw_diff(this.changes);
@@ -1287,8 +1328,9 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 
 	this.trace('draw', 'visible_page_height', ex.visible_page_height);
 	this.trace('draw', 'gutter_height', ex.gutter_height);
-	this.trace('draw', 'lhs-scroller-top', ex.lhs_scroller.scrollTop);
-	this.trace('draw', 'rhs-scroller-top', ex.rhs_scroller.scrollTop);
+	this.trace('draw', 'scroller-top',
+		'lhs', ex.lhs_scroller.scrollTop,
+		'rhs', ex.rhs_scroller.scrollTop);
 
 	ex.lhs_margin.removeEventListener('click', this._handleLhsMarginClick);
 	ex.rhs_margin.removeEventListener('click', this._handleRhsMarginClick);
@@ -1317,8 +1359,11 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 		const rhs_y_start = change['rhs-y-start'] - rhsScrollTop;
 		const rhs_y_end = change['rhs-y-end'] - rhsScrollTop;
 
-		const fill = (this._current_diff === i) ?
-			this.current_diff_color : this.settings.fgcolor[change.op];
+		const borderColor = (this._current_diff === i) ?
+			this._colors.current.border : this._colors[change.op].border;
+
+		this.trace('draw', 'change', i, 'current:', !!(this._current_diff === i), this._current_diff);
+		this.trace('draw', 'border-color', borderColor);
 
 		// draw margin indicators
 		this.trace('draw', 'marker calculated', lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
@@ -1345,7 +1390,7 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 
 		// draw left box
 		ctx.beginPath();
-		ctx.strokeStyle = fill;
+		ctx.strokeStyle = borderColor;
 		ctx.lineWidth = 1;
 
 		let rectWidth = this.draw_lhs_width;

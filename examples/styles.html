@@ -51,7 +51,14 @@ This example demonstrates the minimum amount of code required to use Mergely.
 			border-color: #616161;
 		}
 		.dark .mergely.d.lhs {
-			background-color: #541414;
+			background-color: #2c1b48;
+		}
+		.dark .mergely.d {
+			border-color: #9f3fff;
+		}
+		/* FIXME: Do we need this `ch`? */
+		.dark .mergely.ch.d.lhs {
+			color: #d48eff;
 		}
 		.dark .mergely.a.rhs {
 			background-color: #253e56;
@@ -259,7 +266,7 @@ and the postman
 
 		for (let i = 0; i < data.length; ++i) {
 			const { lhs, rhs } = data[i];
-			new Mergely(`#mergely${i}`, {
+			const doc = new Mergely(`#mergely${i}`, {
 				license: 'lgpl-separate-notice',
 				wrap_lines: true,
 				ignorews: true,
@@ -269,7 +276,13 @@ and the postman
 				rhs: function(setValue) {
 					setValue(rhs);
 				},
-				_debug: (i === 0) ? 'scroll,draw,change' : ''
+				_debug: 'draw,change,scroll'
+			});
+
+			// On init, scroll to first diff
+			doc.once('updated', () => {
+				console.log(`scroll to next diff ${i}`);
+				doc.scrollToDiff('next');
 			});
 		}
 	};
