@@ -44,9 +44,7 @@ Fixed issue where initial render scrolled to first change, showing it at the bot
 TODO:
 For some reason ignore-whitespace will mark the "red" differently
 When wrap_lines is false, the CM editor grows, screwing up the layout
-Fix the overflow for the rendered diff view
 Introduce an async render pipeline as it's currently blocking UI
-Merge button with multiple editors
 Delete gutter_height (and any unused values)
 Fix performance issue where scroll-to-first-change seems to take a lot of time.
 */
