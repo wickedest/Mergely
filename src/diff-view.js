@@ -182,8 +182,7 @@ CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
 		} else {
 			this._current_diff = Math.min(++this._current_diff, this.changes.length - 1);
 		}
-	}
-	else if (direction === 'prev') {
+	} else if (direction === 'prev') {
 		if (this._current_diff == 0) {
 			this._current_diff = this.changes.length - 1;
 		} else {
@@ -191,7 +190,6 @@ CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
 		}
 	}
 	this._scroll_to_change(this.changes[this._current_diff]);
-	this._changing();
 };
 
 CodeMirrorDiffView.prototype.mergeCurrentChange = function(side) {
@@ -488,7 +486,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	// get current diff border color from user-defined css
 	const diffColor
 		= htmlToElement('<div style="display:none" class="mergely current start"></div>')
-	// const body = this._queryElement('body');
 	this.el.append(diffColor);
 	this.current_diff_color = window.getComputedStyle(diffColor).borderTopColor;
 
@@ -631,7 +628,7 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	led.setCursor(llf, 0);
 	red.setCursor(rlf, 0);
 	if (change['lhs-line-to'] >= 0) {
-		led.scrollIntoView({ line: change['lhs-line-to'] });
+		this.scrollTo('lhs', change['lhs-line-to'])
 	}
 	led.focus();
 };
@@ -836,7 +833,7 @@ CodeMirrorDiffView.prototype._renderChanges = function() {
 	if (this._current_diff === undefined && this.changes.length) {
 		// go to first difference on start-up where values are provided in
 		// settings.
-		this._current_diff = 0;
+		this._current_diff = -1;
 	}
 	this._markup_changes(this.changes);
 	this.trace('change', 'markup time', Timer.stop());
@@ -1245,7 +1242,6 @@ CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
 		}
 		odoc.replaceRange(text, CodeMirror.Pos(ofrom, ofromlen));
 	}
-	this._scroll_to_change(change);
 };
 
 CodeMirrorDiffView.prototype._draw_info = function() {
