@@ -46,7 +46,6 @@ TODO:
 For some reason ignore-whitespace will mark the "red" differently
 When wrap_lines is false, the CM editor grows, screwing up the layout
 Introduce an async render pipeline as it's currently blocking UI
-Delete gutter_height (and any unused values)
 Fix performance issue where scroll-to-first-change seems to take a lot of time.
 */
 
@@ -1287,7 +1286,6 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 	const lhsScroll = this.editor.lhs.getScrollerElement();
 	const rhsScroll = this.editor.rhs.getScrollerElement();
 	const visible_page_height = lhsScroll.offsetHeight; // fudged
-	const gutter_height = lhsScroll.querySelector(':first-child').offsetHeight;
 	const dcanvas = document.getElementById(`${this.lhsId}-${this.rhsId}-canvas`);
 	if (dcanvas == undefined) {
 		throw 'Failed to find: ' + this.lhsId + '-' + this.rhsId + '-canvas';
@@ -1297,9 +1295,6 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 
 	return {
 		visible_page_height: visible_page_height,
-		gutter_height: gutter_height,
-		visible_page_ratio: (visible_page_height / gutter_height),
-		margin_ratio: (visible_page_height / gutter_height),
 		lhs_scroller: lhsScroll,
 		rhs_scroller: rhsScroll,
 		lhs_lines: this.editor.lhs.lineCount(),
@@ -1327,7 +1322,6 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	const ctx_rhs = mcanvas_rhs.getContext('2d');
 
 	this.trace('draw', 'visible_page_height', ex.visible_page_height);
-	this.trace('draw', 'gutter_height', ex.gutter_height);
 	this.trace('draw', 'scroller-top',
 		'lhs', ex.lhs_scroller.scrollTop,
 		'rhs', ex.rhs_scroller.scrollTop);
