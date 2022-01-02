@@ -1212,11 +1212,11 @@ CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
 	const ed = { lhs: led, rhs: red };
 	const from = change[`${side}-line-from`];
 	const to = change[`${side}-line-to`];
-	const ofrom = change[`${oside}-line-from`];
+	let ofrom = change[`${oside}-line-from`];
 	const oto = change[`${oside}-line-to`];
 	const doc = ed[side].getDoc();
 	const odoc = ed[oside].getDoc();
-	const fromlen = from >= 0 ? doc.getLine(from).length + 1 : 0;
+	let fromlen = from >= 0 ? doc.getLine(from).length + 1 : 0;
 	const tolen = to >= 0 ? doc.getLine(to).length + 1 : 0;
 	const otolen = oto >= 0 ? odoc.getLine(oto).length + 1 : 0;
 	const ofromlen = ofrom >= 0 ? odoc.getLine(ofrom).length + 1 : 0;
