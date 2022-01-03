@@ -766,12 +766,26 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		trace(Timer.stop(), 'api1', '_scrolling', { side, id });
 	}
 	if (this._changedTimeout) {
+		// FIXME:
+		throw new Error('FIXME: this does not work as expected');
 		console.log('change in progress; skipping scroll');
 		return;
 	}
 	if (this._skipscroll[side] === true) {
-		// scrolling one side causes the other to event - ignore it
+		// scrolling one side causes the other to event - ignore it, but use
+		// the event to trigger a render.
 		this._skipscroll[side] = false;
+		if (this._scrollTimeout) {
+			clearTimeout(this._scrollTimeout);
+			this._scrollTimeout = null;
+		}
+		if (this.settings.autoupdate) {
+			// nothing changed, just re-render the current diff. clear the margin
+			// markup while the render is throttled
+			this._calculate_offsets(this.changes);
+			this._clearMarginMarkup();
+			this._renderChanges();
+		}
 		return;
 	}
 	if (!this.changes) {
@@ -843,23 +857,30 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		}
 		// disable next scroll event because we trigger it
 		this._skipscroll[oside] = true;
+		const top = top_to - top_adjust;
+
+		// will scroll
 		this.editor[oside].scrollTo(left_to, top_to - top_adjust);
-		trace(Timer.stop(), 'api2', '_scrolling done scrolling other side pos:', top_to - top_adjust);
-	}
-	else {
+		trace(Timer.stop(), 'scroll', '_scrolling to other side', top);
+		if (this._scrollTimeout) {
+			clearTimeout(this._scrollTimeout);
+			this._scrollTimeout = null;
+		}
+		this._scrollTimeout = setTimeout(() => {
+			trace(Timer.stop(), 'scroll', '_scrolling forced update');
+			// will not scroll, force an update
+			this._calculate_offsets(this.changes);
+			this._clearMarginMarkup();
+			this._renderChanges();
+		}, 100);
+		trace(Timer.stop(), 'scroll', '_scrolling to other side completed');
+	} else {
 		if (this.settings._debug.includes('api')
 			|| this.settings._debug.includes('scroll')) {
 			trace(Timer.stop(), 'api2', '_scrolling not scrolling other side');
 		}
 	}
 
-	if (false || this.settings.autoupdate) {
-		// nothing changed, just re-render the current diff. clear the margin
-		// markup while the render is throttled
-		this._calculate_offsets(this.changes);
-		this._clearMarginMarkup();
-		this._renderChanges();
-	}
 	if (this.settings._debug.includes('api1')
 		|| this.settings._debug.includes('scroll')) {
 		trace(Timer.stop(), 'api', '_scrolling finsihed', { side, id });
@@ -1162,6 +1183,10 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 	const lhsvp = this._get_viewport_side('lhs');
 	const rhsvp = this._get_viewport_side('rhs');
 
+	const getMergeHandler = (change, side, oside) => {
+		return () => this._merge_change(change, 'lhs', 'rhs');
+	}
+
 	led.operation(() => {
 		for (let i = 0; i < changes.length; ++i) {
 			const change = changes[i];
@@ -1205,10 +1230,7 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 			if (!red.getOption('readOnly')) {
 				const button = this.merge_rhs_button.cloneNode(true);
 				button.className = 'merge-button merge-rhs-button';
-				// FIXME: function defined within loop
-				const handler = () => {
-					this._merge_change(change, 'lhs', 'rhs');
-				};
+				const handler = getMergeHandler(change, 'lhs', 'rhs');
 				this._unbindHandlersOnClear.push([ button, 'click', handler ]);
 				button.addEventListener('click', handler);
 				led.setGutterMarker(llf, 'merge', button);
@@ -1260,19 +1282,26 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 				// add widgets to rhs, if lhs is not read only
 				const button = this.merge_lhs_button.cloneNode(true);
 				button.className = 'merge-button merge-lhs-button';
-				// FIXME: function defined within loop
-				const handler = () => {
-					this._merge_change(change, 'rhs', 'lhs');
-				};
+				const handler = getMergeHandler(change, 'rhs', 'lhs');
 				this._unbindHandlersOnClear.push([ button, 'click', handler ]);
 				button.addEventListener('click', handler);
 				red.setGutterMarker(rlf, 'merge', button);
-
 			}
 		}
 	});
 
 	// mark text deleted, LCS changes
+
+	function getMarkupFunc({ marktext, editor, lineNum, op }) {
+		return (from, to) => {
+			marktext.push([
+				editor,
+				{ line: lineNum, ch: from },
+				{ line: lineNum, ch: to },
+				{ className: `mergely ch ${op}` }
+			]);
+		}
+	}
 	const marktext = [];
 	for (let i = 0; this.settings.lcs && i < changes.length; ++i) {
 		const change = changes[i];
@@ -1324,31 +1353,24 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 				}
 				lhs_line = led.getLine( j );
 				rhs_line = red.getLine( k );
+
 				const lcs = new LCS(lhs_line, rhs_line, {
 					ignoreaccents: !!this.settings.ignoreaccents,
 					ignorews: !!this.settings.ignorews
 				});
-				// FIXME: function defined within loop
+
+				if (this.settings._debug.includes('diff')) {
+					trace(Timer.stop(), 'diff', 'calculating lcs diff');
+				}
+
 				lcs.diff(
-					(from, to) => {
-						// added
-						marktext.push([
-							red,
-							{ line: k, ch: from },
-							{ line: k, ch: to },
-							{ className: 'mergely ch a rhs' }
-						]);
-					},
-					(from, to) => {
-						// removed
-						marktext.push([
-							led,
-							{ line: j, ch: from },
-							{ line: j, ch: to },
-							{ className: 'mergely ch d lhs' }
-						]);
-					}
+					getMarkupFunc({ marktext, editor: red, lineNum: k, op: 'a rhs' }),
+					getMarkupFunc({ marktext, editor: led, lineNum: j, op: 'd lhs' })
 				);
+
+				if (this.settings._debug.includes('diff')) {
+					trace(Timer.stop(), 'diff', 'done calculating lcs diff');
+				}
 			}
 		}
 	}
