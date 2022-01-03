@@ -1196,7 +1196,7 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 	const rhsvp = this._get_viewport_side('rhs');
 
 	const getMergeHandler = (change, side, oside) => {
-		return () => this._merge_change(change, 'lhs', 'rhs');
+		return () => this._merge_change(change, side, oside);
 	}
 
 	this._unbindHandlersOnClear = [];
