@@ -46,7 +46,7 @@ TODO:
 For some reason ignore-whitespace will mark the "red" differently
 When wrap_lines is false, the CM editor grows, screwing up the layout
 Introduce an async render pipeline as it's currently blocking UI
-Fix performance issue where scroll-to-first-change seems to take a lot of time.
+Fix issue where characters like `{}[].?` are not detected by LCS
 */
 
 const NOTICES = [
@@ -230,8 +230,6 @@ CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
 	const ed = this.editor[side];
 	ed.setCursor(num);
 	ed.centerOnCursor();
-	// FIXME: maybe move these to an '_updateRender' func
-	this._clearMarginMarkup();
 	this._renderChanges();
 };
 
@@ -569,6 +567,14 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		});
 	}
 
+	this.editor.lhs.on('beforeChange', () => {
+		this._clear();
+	});
+
+	this.editor.rhs.on('beforeChange', () => {
+		this._clear();
+	});
+
 	this.editor.lhs.on('change', (instance, ev) => {
 		if (this.settings._debug.includes('event')) {
 			trace(Timer.stop(), 'event', 'change lhs', ev);
@@ -649,6 +655,19 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			const lt = change[`${side}-line-to`];
 			if (line >= lf && line <= lt) {
 				found = true;
+				console.log('WTF');
+				if (this._current_diff >= 0) {
+					const current = this.changes[this._current_diff];
+					for (let i = current['lhs-line-from']; i <= current['lhs-line-to']; ++i) {
+						console.log('remove gutter lhs', i);
+						this.editor.lhs.removeLineClass(i, 'gutter');
+					}
+					for (let i = current['rhs-line-from']; i <= current['rhs-line-to']; ++i) {
+						console.log('remove gutter rhs', i);
+						this.editor.rhs.removeLineClass(i, 'gutter');
+					}
+				}
+
 				// clicked on a line within the change
 				this._current_diff = i;
 				break;
@@ -779,13 +798,7 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 			clearTimeout(this._scrollTimeout);
 			this._scrollTimeout = null;
 		}
-		if (this.settings.autoupdate) {
-			// nothing changed, just re-render the current diff. clear the margin
-			// markup while the render is throttled
-			this._calculate_offsets(this.changes);
-			this._clearMarginMarkup();
-			this._renderChanges();
-		}
+		this._renderChanges();
 		return;
 	}
 	if (!this.changes) {
@@ -859,9 +872,9 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		this._skipscroll[oside] = true;
 		const top = top_to - top_adjust;
 
-		// will scroll
+		// will scroll - note that CM scrolling is expensive and can take 70ms
+		// to scroll, which doesn't sound like much, but it can be jittery
 		this.editor[oside].scrollTo(left_to, top_to - top_adjust);
-		trace(Timer.stop(), 'scroll', '_scrolling to other side', top);
 		if (this._scrollTimeout) {
 			clearTimeout(this._scrollTimeout);
 			this._scrollTimeout = null;
@@ -869,11 +882,8 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		this._scrollTimeout = setTimeout(() => {
 			trace(Timer.stop(), 'scroll', '_scrolling forced update');
 			// will not scroll, force an update
-			this._calculate_offsets(this.changes);
-			this._clearMarginMarkup();
 			this._renderChanges();
 		}, 100);
-		trace(Timer.stop(), 'scroll', '_scrolling to other side completed');
 	} else {
 		if (this.settings._debug.includes('api')
 			|| this.settings._debug.includes('scroll')) {
@@ -907,6 +917,7 @@ CodeMirrorDiffView.prototype._changing = function({ force } = { force: false }) 
 	if (this.settings.change_timeout > 0) {
 		this._changedTimeout = setTimeout(handleChange, this.settings.change_timeout);
 	} else {
+		// FIXME: needed?
 		setImmediate(handleChange);
 		// handleChange();
 	}
@@ -916,10 +927,14 @@ CodeMirrorDiffView.prototype._changed = function() {
 	if (this.settings._debug.includes('api1')) {
 		trace(Timer.stop(), 'api', '_changed');
 	}
-	this._clear();
+	// NOTE: clear is handled by the beforeChange event
 	this._diff();
 };
 
+/**
+ * Clears the rendered canvases and text markup.  After, `_renderChanges`
+ * can be called to re-render the current diff.
+ */
 CodeMirrorDiffView.prototype._clear = function() {
 	if (this.settings._debug.includes('api1')) {
 		trace(Timer.stop(), 'api', '_clear');
@@ -928,12 +943,17 @@ CodeMirrorDiffView.prototype._clear = function() {
 		Timer.start();
 		const editor = this.editor[side];
 		editor.operation(() => {
-			const lineCount = editor.lineCount();
-			// FIXME: there is no need to call `removeLineClass` for every line
-			for (let i = 0; i < lineCount; ++i) {
-				editor.removeLineClass(i, 'background');
-				editor.removeLineClass(i, 'gutter');
+			if (this._removeLineClassOnClear) {
+				for (const id in this._removeLineClassOnClear[side].background) {
+					console.log('remove background', id);
+					editor.removeLineClass(parseInt(id, 10), 'background');
+				}
+				for (const id in this._removeLineClassOnClear[side].gutter) {
+					console.log('remove gutter', id);
+					editor.removeLineClass(parseInt(id, 10), 'gutter');
+				}
 			}
+
 			for (const fn of this.chfns[side]) {
 				if (fn.lines.length) {
 					this.trace('change', 'clear text', fn.lines[0].text);
@@ -944,7 +964,7 @@ CodeMirrorDiffView.prototype._clear = function() {
 			this.trace('change', 'clear time', Timer.stop());
 		});
 	};
-	this._clearMargins();
+	this._clearCanvases();
 	clearChanges('lhs');
 	clearChanges('rhs');
 
@@ -954,15 +974,15 @@ CodeMirrorDiffView.prototype._clear = function() {
 			el.remove();
 		}
 	}
-	this._unbindHandlersOnClear = [];
 };
 
-CodeMirrorDiffView.prototype._clearMargins = function() {
+CodeMirrorDiffView.prototype._clearCanvases = function() {
 	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_clearMargins');
+		trace(Timer.stop(), 'api', '_clearCanvases');
 	}
 	const ex = this._draw_info();
 
+	// clear margins
 	const ctx_lhs = ex.lhs_margin.getContext('2d');
 	ctx_lhs.beginPath();
 	ctx_lhs.fillStyle = this.settings.bgcolor;
@@ -977,14 +997,6 @@ CodeMirrorDiffView.prototype._clearMargins = function() {
 	ctx_rhs.fillRect(0, 0, 6.5, ex.visible_page_height);
 	ctx_rhs.strokeRect(0, 0, 6.5, ex.visible_page_height);
 
-	this._clearMarginMarkup();
-};
-
-CodeMirrorDiffView.prototype._clearMarginMarkup = function() {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_clearMarginMarkup');
-	}
-	const ex = this._draw_info();
 	const ctx = ex.dcanvas.getContext('2d');
 	ctx.beginPath();
 	ctx.fillStyle = 'rgba(0,0,0,0)'; // transparent
@@ -1003,22 +1015,22 @@ CodeMirrorDiffView.prototype._diff = function() {
 		trace(Timer.stop(), 'diff', '_diff computed');
 	}
 	this.changes = DiffParser(comparison.normal_form());
-	this._calculate_offsets(this.changes);
+	//this._calculate_offsets(this.changes);
 	this._renderChanges();
-	if (this.settings._debug.includes('diff')) {
-		trace(Timer.stop(), 'diff', '_diff rendered');
-	}
 };
 
 CodeMirrorDiffView.prototype._renderChanges = function() {
-	if (this.settings._debug.includes('api1')) {
+	if (this.settings._debug.includes('api1')
+		|| this.settings._debug.includes('draw')) {
 		trace(Timer.stop(), 'api', '_renderChanges');
 	}
-	this._clearMargins();
-	this._markup_changes(this.changes);
-	this.trace('change', 'markup time', Timer.stop());
-	this._draw_diff(this.changes);
-	this.trace('change', 'draw time', Timer.stop());
+	this._clear();
+	this._calculate_offsets(this.changes);
+	this._markupLineChanges(this.changes);
+	this._renderDiff(this.changes);
+	if (this.settings._debug.includes('draw')) {
+		trace(Timer.stop(), 'draw', '_renderChanges rendered');
+	}
 }
 
 CodeMirrorDiffView.prototype._get_viewport_side = function(side) {
@@ -1170,10 +1182,10 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 	}
 }
 
-CodeMirrorDiffView.prototype._markup_changes = function (changes) {
+CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 	if (this.settings._debug.includes('api')
 		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_markup_changes', changes.length);
+		trace(Timer.stop(), 'api', '_markupLineChanges', changes.length);
 	}
 	const {
 		lhs: led,
@@ -1186,6 +1198,18 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 	const getMergeHandler = (change, side, oside) => {
 		return () => this._merge_change(change, 'lhs', 'rhs');
 	}
+
+	this._unbindHandlersOnClear = [];
+	this._removeLineClassOnClear = {
+		lhs: {
+			background: {},
+			gutter: {}
+		},
+		rhs: {
+			background: {},
+			gutter: {}
+		}
+	};
 
 	led.operation(() => {
 		for (let i = 0; i < changes.length; ++i) {
@@ -1201,7 +1225,9 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 
 			const clazz = ['mergely', 'lhs', change.op, 'cid-' + i];
 			led.addLineClass(llf, 'background', 'start');
+			this._removeLineClassOnClear.lhs.background[llf] = true;
 			led.addLineClass(llt, 'background', 'end');
+			this._removeLineClassOnClear.lhs.background[llt] = true;
 			if (change['lhs-line-from'] < 0) {
 				clazz.push('empty');
 			}
@@ -1209,21 +1235,27 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 			if (current_diff === i) {
 				if (llf != llt) {
 					led.addLineClass(llf, 'background', 'current');
+					this._removeLineClassOnClear.lhs.background[llf] = true;
 				}
 				led.addLineClass(llt, 'background', 'current');
+				this._removeLineClassOnClear.lhs.background[llt] = true;
 				for (let j = llf; j <= llt; ++j) {
 					led.addLineClass(j, 'gutter', 'mergely current');
+					this._removeLineClassOnClear.lhs.gutter[j] = true;
 				}
 			}
 			if (llf == 0 && llt == 0 && rlf == 0) {
 				led.addLineClass(llf, 'background', clazz.join(' '));
 				led.addLineClass(llf, 'background', 'first');
+				this._removeLineClassOnClear.lhs.background[llf] = true;
 			}
 			else {
 				// apply change for each line in-between the changed lines
 				for (let j = llf; j <= llt; ++j) {
 					led.addLineClass(j, 'background', clazz.join(' '));
-					led.addLineClass(j, 'background', clazz.join(' '));
+					// TODO: apply mark start/end changes in gutter
+					// led.addLineClass(j, 'gutter', 'mergely');
+					this._removeLineClassOnClear.lhs.background[j] = true;
 				}
 			}
 
@@ -1252,7 +1284,9 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 
 			const clazz = ['mergely', 'rhs', change.op, 'cid-' + i];
 			red.addLineClass(rlf, 'background', 'start');
+			this._removeLineClassOnClear.rhs.background[rlf] = true;
 			red.addLineClass(rlt, 'background', 'end');
+			this._removeLineClassOnClear.rhs.background[rlt] = true;
 			if (change['rhs-line-from'] < 0) {
 				clazz.push('empty');
 			}
@@ -1260,21 +1294,25 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 			if (current_diff === i) {
 				if (rlf != rlt) {
 					red.addLineClass(rlf, 'background', 'current');
+					this._removeLineClassOnClear.rhs.background[rlf] = true;
 				}
 				red.addLineClass(rlt, 'background', 'current');
+				this._removeLineClassOnClear.rhs.background[rlt] = true;
 				for (let j = rlf; j <= rlt; ++j) {
 					red.addLineClass(j, 'gutter', 'mergely current');
+					this._removeLineClassOnClear.rhs.gutter[j] = true;
 				}
 			}
 			if (rlf == 0 && rlt == 0 && llf == 0) {
 				red.addLineClass(rlf, 'background', clazz.join(' '));
 				red.addLineClass(rlf, 'background', 'first');
+				this._removeLineClassOnClear.rhs.background[rlf] = true;
 			}
 			else {
 				// apply change for each line in-between the changed lines
 				for (let j = rlf; j <= rlt; ++j) {
 					red.addLineClass(j, 'background', clazz.join(' '));
-					red.addLineClass(j, 'background', clazz.join(' '));
+					this._removeLineClassOnClear.rhs.background[j] = true;
 				}
 			}
 
@@ -1377,10 +1415,9 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 
 	if (this.settings._debug.includes('api')
 		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_markup_changes applying', marktext.length, 'markups');
+		trace(Timer.stop(), 'api', '_markupLineChanges applying', marktext.length, 'markups');
 	}
 
-	// mark changes outside closure
 	led.operation(() => {
 		// apply lhs markup
 		for (let i = 0; i < marktext.length; ++i) {
@@ -1400,7 +1437,7 @@ CodeMirrorDiffView.prototype._markup_changes = function (changes) {
 
 	if (this.settings._debug.includes('api')
 		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_markup_changes finished');
+		trace(Timer.stop(), 'api', '_markupLineChanges finished');
 	}
 };
 
@@ -1488,9 +1525,9 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 	};
 };
 
-CodeMirrorDiffView.prototype._draw_diff = function(changes) {
+CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', '_draw_diff');
+		trace(Timer.stop(), 'api', '_renderDiff');
 	}
 	const ex = this._draw_info();
 	const mcanvas_lhs = ex.lhs_margin;
@@ -1655,7 +1692,7 @@ CodeMirrorDiffView.prototype._draw_diff = function(changes) {
 	this.el.dispatchEvent(new Event('updated'));
 
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', '_draw_diff finished');
+		trace(Timer.stop(), 'api', '_renderDiff finished');
 	}
 };
 
