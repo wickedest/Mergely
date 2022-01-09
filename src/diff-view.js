@@ -47,6 +47,9 @@ For some reason ignore-whitespace will mark the "red" differently
 When wrap_lines is false, the CM editor grows, screwing up the layout
 Introduce an async render pipeline as it's currently blocking UI
 Fix issue where characters like `{}[].?` are not detected by LCS
+Fix the popup
+Fix Ctrl+Home not scrolling off initial render + jump to first
+Fix full screen width with macbeth is too wide
 */
 
 const NOTICES = [
@@ -444,7 +447,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	const { CodeMirror } = this;
 	this.trace('init', 'bind');
 	el.style.display = 'flex';
-	el.style.flexGrow = '1'; // FIXME: needed?
+	// el.style.flexGrow = '1'; // FIXME: needed?
 	el.style.height = '100%';
 	this.id = el.id;
 	const found = document.getElementById(this.id);
@@ -791,14 +794,11 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		return;
 	}
 	if (this._skipscroll[side] === true) {
+		trace(Timer.stop(), 'skip scroll', side);
 		// scrolling one side causes the other to event - ignore it, but use
 		// the event to trigger a render.
 		this._skipscroll[side] = false;
-		if (this._scrollTimeout) {
-			clearTimeout(this._scrollTimeout);
-			this._scrollTimeout = null;
-		}
-		this._renderChanges();
+		// this._renderChanges();
 		return;
 	}
 	if (!this.changes) {
@@ -861,7 +861,6 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 			scroll = false;
 		}
 	}
-	this.trace('scroll', scroll);
 	if (scroll || force_scroll) {
 		// scroll the other side
 		if (this.settings._debug.includes('api')
@@ -879,6 +878,8 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 			clearTimeout(this._scrollTimeout);
 			this._scrollTimeout = null;
 		}
+		// FIXME: this renders a "laggy" scroll view but performs better, but
+		// is still not performant enough.
 		this._scrollTimeout = setTimeout(() => {
 			trace(Timer.stop(), 'scroll', '_scrolling forced update');
 			// will not scroll, force an update
@@ -890,6 +891,8 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 			trace(Timer.stop(), 'api2', '_scrolling not scrolling other side');
 		}
 	}
+	// FIXME: this renders a better scroll view but is slower
+	// this._renderChanges(); // FIXME: experimental
 
 	if (this.settings._debug.includes('api1')
 		|| this.settings._debug.includes('scroll')) {
@@ -945,11 +948,9 @@ CodeMirrorDiffView.prototype._clear = function() {
 		editor.operation(() => {
 			if (this._removeLineClassOnClear) {
 				for (const id in this._removeLineClassOnClear[side].background) {
-					console.log('remove background', id);
 					editor.removeLineClass(parseInt(id, 10), 'background');
 				}
 				for (const id in this._removeLineClassOnClear[side].gutter) {
-					console.log('remove gutter', id);
 					editor.removeLineClass(parseInt(id, 10), 'gutter');
 				}
 			}
@@ -1732,9 +1733,7 @@ function getMarginTemplate({ id, side }) {
 
 function getEditorTemplate({ id, side }) {
 	return `\
-<div id="${id}-editor-${side}" class="mergely-column">
-	<textarea id="${id}-${side}"></textarea>
-</div>`;
+<textarea id="${id}-${side}" class="mergely-column"></textarea>`;
 }
 
 function getCenterCanvasTemplate({ id }) {
@@ -1754,6 +1753,33 @@ function getSplash({ icon, notice, left }) {
 		<a target="_blank" href="http://www.mergely.com">http://www.mergely.com/license</a>.
 	</p>
 </div>`;
+}
+
+function throttle(func, { delay }) {
+	let lastTime = 0;
+	const throttleFn = (...args) => {
+		const now = Date.now();
+
+		/*if ((now - lastTime >= delay)) {
+			//console.log('not throttled', `rendering ${!!this._to}`, (now - lastTime), delay);
+			//func.apply(this);
+			//lastTime = now;
+		} else {
+		*/
+			// this.trace('scroll', 'throttled');
+			console.log('throttled');
+			// call `func` if no other event after `delay`
+			if (this._to) {
+				clearTimeout(this._to);
+			}
+			this._to = setTimeout(() => {
+				console.log('apply', delay);
+				func.apply(this, args);
+				this._to = null;
+			}, delay);
+		//}
+	};
+	return throttleFn;
 }
 
 module.exports = CodeMirrorDiffView;

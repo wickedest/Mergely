@@ -6,7 +6,9 @@
 
 .mergely-editor .mergely-column {
 	flex-grow: 1;
+	/*
 	width: 100%;
+	*/
 }
 
 .mergely-editor .mergely-margin canvas {
