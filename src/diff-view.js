@@ -5,6 +5,7 @@ const Timer = require('./timer');
 const diff = require('./diff');
 const DiffParser = require('./diff-parser');
 const LCS = require('./lcs');
+const VDoc = require('./vdoc');
 
 /**
 CHANGES:
@@ -71,6 +72,8 @@ function CodeMirrorDiffView(el, options, { CodeMirror }) {
 };
 
 const trace = console.log;
+const traceTimeStart = console.time;
+const traceTimeEnd = console.timeEnd;
 
 CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 	this.settings = {
@@ -85,7 +88,7 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		ignorecase: false,
 		ignoreaccents: false,
 		resize_timeout: 500,
-		change_timeout: 0,
+		change_timeout: 1150,
 		bgcolor: '#eee',
 		vpcolor: 'rgba(0, 0, 200, 0.5)',
 		license: 'lgpl',
@@ -106,7 +109,7 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 	Timer.start();
 
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'init', options);
+		trace('api', Timer.stop(), 'init', options);
 	}
 	// save this element for faster queries
 	this.el = el;
@@ -128,13 +131,14 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		lineNumbers: this.settings.line_numbers,
 		gutters: (this.settings.line_numbers && [ 'merge', 'CodeMirror-linenumbers' ]) || [],
 	};
+	this._vdoc = new VDoc();
 
 	this._setOptions(options);
 };
 
 CodeMirrorDiffView.prototype.unbind = function() {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'unbind');
+		trace('api', Timer.stop(), 'unbind');
 	}
 	if (this._changedTimeout != null) {
 		clearTimeout(this._changedTimeout);
@@ -146,7 +150,7 @@ CodeMirrorDiffView.prototype.unbind = function() {
 
 CodeMirrorDiffView.prototype.remove = function() {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'remove');
+		trace('api', Timer.stop(), 'remove');
 	}
 	if (!this._unbound) {
 		this.unbind();
@@ -158,7 +162,7 @@ CodeMirrorDiffView.prototype.remove = function() {
 
 CodeMirrorDiffView.prototype.lhs = function(text) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'lhs', text);
+		trace('api', Timer.stop(), 'lhs', text);
 	}
 	// invalidate existing changes and current position
 	this.changes = [];
@@ -169,7 +173,7 @@ CodeMirrorDiffView.prototype.lhs = function(text) {
 CodeMirrorDiffView.prototype.rhs = function(text) {
 	// invalidate existing changes and current position
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'rhs', text);
+		trace('api', Timer.stop(), 'rhs', text);
 	}
 	this.changes = [];
 	this._current_diff = -1;
@@ -178,20 +182,22 @@ CodeMirrorDiffView.prototype.rhs = function(text) {
 
 CodeMirrorDiffView.prototype.update = function() {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'update');
+		trace('api', Timer.stop(), 'update');
 	}
 	this._changing({ force: true });
 };
 
 CodeMirrorDiffView.prototype.unmarkup = function() {
-	if (this.settings._debug.includes('api')) trace(Timer.stop(), 'api', 'unmarkup');
+	if (this.settings._debug.includes('api')) {
+		trace('api', Timer.stop(), 'unmarkup');
+	}
 	this._clear();
 	this.el.dispatchEvent(new Event('updated'));
 };
 
 CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'scrollToDiff', direction);
+		trace('api', Timer.stop(), 'scrollToDiff', direction);
 	}
 	if (!this.changes.length) return;
 	if (direction === 'next') {
@@ -209,13 +215,15 @@ CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
 			this._current_diff = Math.max(--this._current_diff, 0);
 		}
 	}
-	this.trace('change', 'current-diff', this._current_diff);
+	if (this.settings._debug.includes('change')) {
+		trace('change', Timer.stop(), 'current-diff', this._current_diff);
+	}
 	this._scroll_to_change(this.changes[this._current_diff]);
 };
 
 CodeMirrorDiffView.prototype.mergeCurrentChange = function(side) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'mergeCurrentChange', side);
+		trace('api', Timer.stop(), 'mergeCurrentChange', side);
 	}
 	if (!this.changes.length) return;
 	if (side == 'lhs' && !this.lhs_cmsettings.readOnly) {
@@ -227,8 +235,9 @@ CodeMirrorDiffView.prototype.mergeCurrentChange = function(side) {
 };
 
 CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
-	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'scrollTo', side, num);
+	if (this.settings._debug.includes('api')
+		|| this.settings._debug.includes('event')) {
+		trace('api', Timer.stop(), 'scrollTo', side, num);
 	}
 	const ed = this.editor[side];
 	ed.setCursor(num);
@@ -237,9 +246,6 @@ CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
 };
 
 CodeMirrorDiffView.prototype._setOptions = function(opts) {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_setOptions', opts);
-	}
 	this.settings = {
 		...this.settings,
 		...opts
@@ -282,7 +288,7 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 
 CodeMirrorDiffView.prototype.options = function(opts) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'options', opts);
+		trace('api', Timer.stop(), 'options', opts);
 	}
 	if (opts) {
 		this._setOptions(opts);
@@ -298,7 +304,7 @@ CodeMirrorDiffView.prototype.options = function(opts) {
 
 CodeMirrorDiffView.prototype.swap = function() {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'swap');
+		trace('api', Timer.stop(), 'swap');
 	}
 	if (this.lhs_cmsettings.readOnly || this.rhs_cmsettings.readOnly) {
 		return;
@@ -313,7 +319,7 @@ CodeMirrorDiffView.prototype.swap = function() {
 
 CodeMirrorDiffView.prototype.merge = function(side) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'merge', side);
+		trace('api', Timer.stop(), 'merge', side);
 	}
 	const le = this.editor.lhs;
 	const re = this.editor.rhs;
@@ -326,7 +332,7 @@ CodeMirrorDiffView.prototype.merge = function(side) {
 
 CodeMirrorDiffView.prototype.summary = function() {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'summary');
+		trace('api', Timer.stop(), 'summary');
 	}
 	const le = this.editor.lhs;
 	const re = this.editor.rhs;
@@ -349,7 +355,7 @@ CodeMirrorDiffView.prototype.summary = function() {
 
 CodeMirrorDiffView.prototype.get = function(side) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'get', side);
+		trace('api', Timer.stop(), 'get', side);
 	}
 	const ed = this.editor[side];
 	const value = ed.getValue();
@@ -361,7 +367,7 @@ CodeMirrorDiffView.prototype.get = function(side) {
 
 CodeMirrorDiffView.prototype.clear = function(side) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'clear', side);
+		trace('api', Timer.stop(), 'clear', side);
 	}
 	if (side == 'lhs' && this.lhs_cmsettings.readOnly) return;
 	if (side == 'rhs' && this.rhs_cmsettings.readOnly) return;
@@ -372,14 +378,14 @@ CodeMirrorDiffView.prototype.clear = function(side) {
 
 CodeMirrorDiffView.prototype.cm = function(side) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'cm', 'side');
+		trace('api', Timer.stop(), 'cm', 'side');
 	}
 	return this.editor[side];
 };
 
 CodeMirrorDiffView.prototype.search = function(side, query, direction) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'search', side, query, direction);
+		trace('api', Timer.stop(), 'search', side, query, direction);
 	}
 	const editor = this.editor[side];
 	if (!editor.getSearchCursor) {
@@ -403,7 +409,7 @@ CodeMirrorDiffView.prototype.search = function(side, query, direction) {
 
 CodeMirrorDiffView.prototype.resize = function() {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'resize');
+		trace('api', Timer.stop(), 'resize');
 	}
 	const parent = this.el.parentNode;
 	const { settings } = this;
@@ -430,7 +436,7 @@ CodeMirrorDiffView.prototype.resize = function() {
 
 CodeMirrorDiffView.prototype.diff = function() {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'diff');
+		trace('api', Timer.stop(), 'diff');
 	}
 	const le = this.editor.lhs;
 	const re = this.editor.rhs;
@@ -442,10 +448,9 @@ CodeMirrorDiffView.prototype.diff = function() {
 
 CodeMirrorDiffView.prototype.bind = function(el) {
 	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', 'bind', el);
+		trace('api', Timer.stop(), 'bind', el);
 	}
 	const { CodeMirror } = this;
-	this.trace('init', 'bind');
 	el.style.display = 'flex';
 	// el.style.flexGrow = '1'; // FIXME: needed?
 	el.style.height = '100%';
@@ -457,7 +462,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	}
 	this.lhsId = `${this.id}-lhs`;
 	this.rhsId = `${this.id}-rhs`;
-	this._changedTimeout = null;
 	this.chfns = { lhs: [], rhs: [] };
 	this.prev_query = [];
 	this.cursor = [];
@@ -550,7 +554,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	this._get_colors();
 
 	// bind event listeners
-	this.trace('init', 'binding event listeners');
 	this.editor = {};
 	this.editor.lhs = CodeMirror.fromTextArea(lhstx, this.lhs_cmsettings);
 	this.editor.rhs = CodeMirror.fromTextArea(rhstx, this.rhs_cmsettings);
@@ -558,63 +561,51 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	// if `lhs` and `rhs` are passed in, this sets the values in each editor,
 	// but the changes are not picked up until the explicit resize below.
 	if (this.settings.lhs) {
-		this.trace('init', 'setting lhs value');
 		this.settings.lhs((value) => {
 			this.lhs(value);
 		});
 	}
 	if (this.settings.rhs) {
-		this.trace('init', 'setting rhs value');
 		this.settings.rhs((value) => {
 			this.rhs(value);
 		});
 	}
 
+	// If either editor gets a change, clear the view immediately
 	this.editor.lhs.on('beforeChange', () => {
 		this._clear();
 	});
-
 	this.editor.rhs.on('beforeChange', () => {
 		this._clear();
 	});
 
 	this.editor.lhs.on('change', (instance, ev) => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'change lhs', ev);
+			trace('event', Timer.stop(), 'change lhs', ev);
 		}
 		if (!this.settings.autoupdate) {
 			return;
-		}
-		if (typeof ev === 'object') {
-			this.trace('change', 'lhs change event', instance, ev);
-		} else {
-			this.trace('change', 'lhs change event (ignored)');
 		}
 		this._changing();
 	});
 	this.editor.lhs.on('scroll', () => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'scroll lhs');
+			trace('event', Timer.stop(), 'scroll lhs');
 		}
 		this._scrolling({ side: 'lhs', id: this.lhsId });
 	});
 	this.editor.rhs.on('change', (instance, ev) => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'change rhs', ev);
+			trace('event', Timer.stop(), 'change rhs', ev);
 		}
 		if (!this.settings.autoupdate) {
 			return;
-		}
-		if (typeof ev === 'object') {
-			this.trace('change', 'rhs change event', instance, ev);
-		} else {
-			this.trace('change', 'rhs change event (ignored)');
 		}
 		this._changing();
 	});
 	this.editor.rhs.on('scroll', () => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'scroll rhs');
+			trace('event', Timer.stop(), 'scroll rhs');
 		}
 		this._scrolling({ side: 'rhs', id: this.rhsId });
 	});
@@ -623,11 +614,14 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	let resizeTimeout;
 	const resize = () => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'handle resize');
+			traceTimeStart('resize');
 		}
 		this.resize();
 		this.editor.lhs.refresh();
 		this.editor.rhs.refresh();
+		if (this.settings._debug.includes('event')) {
+			traceTimeEnd('resize');
+		}
 	};
 	this._handleResize = () => {
 		if (resizeTimeout) {
@@ -637,7 +631,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	};
 	window.addEventListener('resize', () => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'resize');
+			trace('event', Timer.stop(), 'resize');
 		}
 		this._handleResize();
 	});
@@ -658,7 +652,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			const lt = change[`${side}-line-to`];
 			if (line >= lf && line <= lt) {
 				found = true;
-				console.log('WTF');
 				if (this._current_diff >= 0) {
 					const current = this.changes[this._current_diff];
 					for (let i = current['lhs-line-from']; i <= current['lhs-line-to']; ++i) {
@@ -685,35 +678,31 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 
 	this.editor.lhs.on('gutterClick', (cm, n, gutterClass, ev) => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'gutterClick', 'lhs', n, ev);
+			trace('event', Timer.stop(), 'gutterClick', 'lhs', n, ev);
 		}
 		gutterClicked.call(this, 'lhs', n, ev);
 	});
 
 	this.editor.rhs.on('gutterClick', (cm, n, gutterClass, ev) => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'gutterClick', 'rhs', n, ev);
+			trace('event', Timer.stop(), 'gutterClick', 'rhs', n, ev);
 		}
 		gutterClicked.call(this, 'rhs', n, ev);
 	});
 
 	el.addEventListener('updated', () => {
 		if (this.settings._debug.includes('event')) {
-			trace(Timer.stop(), 'event', 'updated');
+			trace('event', Timer.stop(), 'updated');
 		}
 		// this._initializing = false;
 		if (this.settings.loaded) {
 			this.settings.loaded();
 		}
 	}, { once: true });
-	this.trace('init', 'bound');
 	this.editor.lhs.focus();
 };
 
 CodeMirrorDiffView.prototype._get_colors = function() {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_get_colors');
-	}
 	// get current diff border color from user-defined css
 	this._colors = {};
 	const currentColor
@@ -754,13 +743,12 @@ CodeMirrorDiffView.prototype._get_colors = function() {
 		bg: cStyle.backgroundColor
 	};
 	cColor.remove();
-	this.trace('draw', 'colors', this._colors);
+	if (this.settings._debug.includes('draw')) {
+		trace('draw', Timer.stop(), '_get_colors', this._colors);
+	}
 }
 
 CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_scroll_to_change', change);
-	}
 	if (!change) {
 		return;
 	}
@@ -773,7 +761,6 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	const rlf = Math.max(change['rhs-line-from'], 0);
 	led.setCursor(llf, 0);
 	red.setCursor(rlf, 0);
-	this.trace('scroll', '_scroll_to_change', change);
 	if (change['lhs-line-to'] >= 0) {
 		this.scrollTo('lhs', change['lhs-line-to'])
 	} else if (change['rhs-line-to'] >= 0) {
@@ -783,27 +770,31 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 };
 
 CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
-	if (this.settings._debug.includes('api')
-		|| this.settings._debug.includes('scroll')) {
-		trace(Timer.stop(), 'api1', '_scrolling', { side, id });
+	if (this.settings._debug.includes('scroll')) {
+		traceTimeStart(`_scrolling ${side}`);
+		trace('scroll', Timer.stop(), '_scrolling', side, 'start');
 	}
-	if (this._changedTimeout) {
-		// FIXME:
-		throw new Error('FIXME: this does not work as expected');
-		console.log('change in progress; skipping scroll');
-		return;
-	}
+
+	// if (this._changedTimeout) {
+	// 	// FIXME:
+	// 	throw new Error('FIXME: this does not work as expected');
+	// 	console.log('change in progress; skipping scroll');
+	// 	return;
+	// }
 	if (this._skipscroll[side] === true) {
-		trace(Timer.stop(), 'skip scroll', side);
+		if (this.settings._debug.includes('scroll')) {
+			trace('scroll', Timer.stop(), '_scrolling', 'skip scroll', side);
+		}
 		// scrolling one side causes the other to event - ignore it, but use
 		// the event to trigger a render.
 		this._skipscroll[side] = false;
-		// this._renderChanges();
+		traceTimeEnd(`_scrolling ${side}`);
 		return;
 	}
 	if (!this.changes) {
 		// pasting a wide line can trigger scroll before changes
 		// are calculated
+		traceTimeEnd(`_scrolling ${side}`);
 		return;
 	}
 	const scroller = this.editor[side].getScrollerElement();
@@ -853,9 +844,8 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	const vp = this.editor[oside].getViewport();
 	let scroll = true;
 	if (last_change) {
-		if (this.settings._debug.includes('api')
-			|| this.settings._debug.includes('scroll')) {
-			trace(Timer.stop(), 'api2', '_scrolling last change before midline', last_change);
+		if (this.settings._debug.includes('scroll')) {
+			trace('scroll', Timer.stop(), '_scrolling', 'last change before midline', last_change);
 		}
 		if (midline.line >= vp.from && midline <= vp.to) {
 			scroll = false;
@@ -863,9 +853,8 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	}
 	if (scroll || force_scroll) {
 		// scroll the other side
-		if (this.settings._debug.includes('api')
-			|| this.settings._debug.includes('scroll')) {
-			trace(Timer.stop(), 'api2', '_scrolling other side pos:', top_to - top_adjust);
+		if (this.settings._debug.includes('scroll')) {
+			trace('scroll', Timer.stop(), '_scrolling', 'other side pos:', top_to - top_adjust);
 		}
 		// disable next scroll event because we trigger it
 		this._skipscroll[oside] = true;
@@ -880,58 +869,66 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		}
 		// FIXME: this renders a "laggy" scroll view but performs better, but
 		// is still not performant enough.
-		this._scrollTimeout = setTimeout(() => {
-			trace(Timer.stop(), 'scroll', '_scrolling forced update');
-			// will not scroll, force an update
-			this._renderChanges();
-		}, 100);
-	} else {
-		if (this.settings._debug.includes('api')
-			|| this.settings._debug.includes('scroll')) {
-			trace(Timer.stop(), 'api2', '_scrolling not scrolling other side');
-		}
+		// this._scrollTimeout = setTimeout(() => {
+		// 	if (this.settings._debug.includes('scroll')) {
+		// 		trace('_scrolling', 'forced update');
+		// 	}
+		// 	// will not scroll, force an update
+		// 	this._renderChanges();
+		// }, 100);
+	} else if (this.settings._debug.includes('scroll')) {
+		trace('scroll', Timer.stop(), '_scrolling', 'not scrolling other side');
 	}
 	// FIXME: this renders a better scroll view but is slower
-	// this._renderChanges(); // FIXME: experimental
+	this._renderChanges(); // FIXME: experimental
 
-	if (this.settings._debug.includes('api1')
-		|| this.settings._debug.includes('scroll')) {
-		trace(Timer.stop(), 'api', '_scrolling finsihed', { side, id });
+	if (this.settings._debug.includes('scroll')) {
+		traceTimeEnd(`_scrolling ${side}`);
 	}
 };
 
 CodeMirrorDiffView.prototype._changing = function({ force } = { force: false }) {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_changing', { force });
-	}
-	if (this._changedTimeout != null) {
-		clearTimeout(this._changedTimeout);
+	if (this.settings._debug.includes('change')) {
+		traceTimeStart('_changing');
 	}
 	const handleChange = () => {
 		this._changedTimeout = null;
 		if (!force && !this.settings.autoupdate) {
-			this.trace('change', 'ignore', force, this.settings.autoupdate);
+			if (this.settings._debug.includes('change')) {
+				trace('change', Timer.stop(), '_changing', 'ignore change', force, this.settings.autoupdate);
+			}
 			return;
 		}
-		Timer.start();
 		this._changed();
-		this.trace('change', 'total time', Timer.stop());
 	};
 	if (this.settings.change_timeout > 0) {
+		if (this.settings._debug.includes('change')) {
+			trace('change', Timer.stop(), 'setting timeout', this.settings.change_timeout)
+		}
+		if (this._changedTimeout != null) {
+			clearTimeout(this._changedTimeout);
+		}
 		this._changedTimeout = setTimeout(handleChange, this.settings.change_timeout);
 	} else {
 		// FIXME: needed?
 		setImmediate(handleChange);
 		// handleChange();
 	}
+	if (this.settings._debug.includes('change')) {
+		traceTimeEnd('_changing');
+	}
 };
 
 CodeMirrorDiffView.prototype._changed = function() {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_changed');
+	if (this.settings._debug.includes('change')) {
+		trace('change', Timer.stop(), '_changed', 'start');
+		traceTimeStart('_changed');
 	}
 	// NOTE: clear is handled by the beforeChange event
 	this._diff();
+	if (this.settings._debug.includes('change')) {
+		traceTimeEnd('_changed');
+	}
 };
 
 /**
@@ -939,48 +936,34 @@ CodeMirrorDiffView.prototype._changed = function() {
  * can be called to re-render the current diff.
  */
 CodeMirrorDiffView.prototype._clear = function() {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_clear');
+	if (this.settings._debug.includes('draw')) {
+		traceTimeStart('_clear');
+		trace('draw', Timer.stop(), '_clear', 'start');
 	}
-	const clearChanges = (side) => {
-		Timer.start();
-		const editor = this.editor[side];
-		editor.operation(() => {
-			if (this._removeLineClassOnClear) {
-				for (const id in this._removeLineClassOnClear[side].background) {
-					editor.removeLineClass(parseInt(id, 10), 'background');
-				}
-				for (const id in this._removeLineClassOnClear[side].gutter) {
-					editor.removeLineClass(parseInt(id, 10), 'gutter');
-				}
-			}
-
-			for (const fn of this.chfns[side]) {
-				if (fn.lines.length) {
-					this.trace('change', 'clear text', fn.lines[0].text);
-				}
-				fn.clear();
-			}
-			editor.clearGutter('merge');
-			this.trace('change', 'clear time', Timer.stop());
-		});
-	};
+	this.changes = [];
+	this._clearMarkup();
 	this._clearCanvases();
-	clearChanges('lhs');
-	clearChanges('rhs');
-
-	if (this._unbindHandlersOnClear) {
-		for (const [ el, event, handler ] of this._unbindHandlersOnClear) {
-			el.removeEventListener(event, handler);
-			el.remove();
-		}
+	if (this.settings._debug.includes('draw')) {
+		traceTimeEnd('_clear');
 	}
 };
 
-CodeMirrorDiffView.prototype._clearCanvases = function() {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_clearCanvases');
+CodeMirrorDiffView.prototype._clearMarkup = function () {
+	if (this.settings._debug.includes('draw')) {
+		traceTimeStart('_clearMarkup');
 	}
+	this._vdoc.clear();
+	this._vdoc = new VDoc();
+	if (this.settings._debug.includes('draw')) {
+		traceTimeEnd('_clearMarkup');
+	}
+}
+
+CodeMirrorDiffView.prototype._clearCanvases = function() {
+	if (this.settings._debug.includes('draw')) {
+		traceTimeStart('_clearCanvases');
+	}
+
 	const ex = this._draw_info();
 
 	// clear margins
@@ -1002,42 +985,43 @@ CodeMirrorDiffView.prototype._clearCanvases = function() {
 	ctx.beginPath();
 	ctx.fillStyle = 'rgba(0,0,0,0)'; // transparent
 	ctx.clearRect(0, 0, this.draw_mid_width, ex.visible_page_height);
+
+	if (this.settings._debug.includes('draw')) {
+		traceTimeEnd('_clearCanvases');
+	}
 };
 
 CodeMirrorDiffView.prototype._diff = function() {
-	if (this.settings._debug.includes('diff')) {
-		trace(Timer.stop(), 'diff', '_diff');
-	}
 	const lhs = this.editor.lhs.getValue();
 	const rhs = this.editor.rhs.getValue();
-	Timer.start();
-	const comparison = new diff(lhs, rhs, this.settings);
 	if (this.settings._debug.includes('diff')) {
-		trace(Timer.stop(), 'diff', '_diff computed');
+		trace('draw', Timer.stop(), '_diff', 'start');
+		traceTimeStart('_diff');
 	}
+	const comparison = new diff(lhs, rhs, this.settings);
 	this.changes = DiffParser(comparison.normal_form());
-	//this._calculate_offsets(this.changes);
+	if (this.settings._debug.includes('diff')) {
+		traceTimeEnd('_diff');
+	}
 	this._renderChanges();
+	this.el.dispatchEvent(new Event('updated'));
 };
 
 CodeMirrorDiffView.prototype._renderChanges = function() {
-	if (this.settings._debug.includes('api1')
-		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_renderChanges');
+	if (this.settings._debug.includes('draw')) {
+		trace('draw', Timer.stop(), '_renderChanges', 'start');
+		traceTimeStart('_renderChanges');
 	}
-	this._clear();
+	this._clearCanvases();
 	this._calculate_offsets(this.changes);
 	this._markupLineChanges(this.changes);
 	this._renderDiff(this.changes);
 	if (this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'draw', '_renderChanges rendered');
+		traceTimeEnd('_renderChanges');
 	}
 }
 
 CodeMirrorDiffView.prototype._get_viewport_side = function(side) {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_get_viewport_side', side);
-	}
 	const editor = this.editor[side];
     const rect = editor.getWrapperElement().getBoundingClientRect();
     const topVisibleLine = editor.lineAtHeight(rect.top, 'window');
@@ -1049,18 +1033,12 @@ CodeMirrorDiffView.prototype._get_viewport_side = function(side) {
 };
 
 CodeMirrorDiffView.prototype._is_change_in_view = function(side, vp, change) {
-	if (this.settings._debug.includes('api2')) {
-		trace(Timer.stop(), 'api', '_is_change_in_view', side, vp, change);
-	}
 	return (change[`${side}-line-from`] >= vp.from && change[`${side}-line-from`] <= vp.to) ||
 		(change[`${side}-line-to`] >= vp.from && change[`${side}-line-to`] <= vp.to) ||
 		(vp.from >= change[`${side}-line-from`] && vp.to <= change[`${side}-line-to`]);
 };
 
 CodeMirrorDiffView.prototype._set_top_offset = function (side) {
-	if (this.settings._debug.includes('api1')) {
-		trace(Timer.stop(), 'api', '_set_top_offset', side);
-	}
 	// save the current scroll position of the editor
 	const saveY = this.editor[side].getScrollInfo().top;
 	// temporarily scroll to top
@@ -1079,9 +1057,8 @@ CodeMirrorDiffView.prototype._set_top_offset = function (side) {
 };
 
 CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
-	if (this.settings._debug.includes('api')
-		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_calculate_offsets');
+	if (this.settings._debug.includes('draw')) {
+		traceTimeStart('_calculate_offsets');
 	}
 	const {
 		lhs: led,
@@ -1177,16 +1154,14 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 		change['rhs-y-start'] += 1.5;
 		change['rhs-y-end'] += 1.5;
 	}
-	if (this.settings._debug.includes('api')
-		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_calculate_offsets calculated');
+	if (this.settings._debug.includes('draw')) {
+		traceTimeEnd('_calculate_offsets');
 	}
 }
 
 CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
-	if (this.settings._debug.includes('api')
-		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_markupLineChanges', changes.length);
+	if (this.settings._debug.includes('draw')) {
+		traceTimeStart('_markupLineChanges');
 	}
 	const {
 		lhs: led,
@@ -1195,22 +1170,7 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 	const current_diff = this._current_diff;
 	const lhsvp = this._get_viewport_side('lhs');
 	const rhsvp = this._get_viewport_side('rhs');
-
-	const getMergeHandler = (change, side, oside) => {
-		return () => this._merge_change(change, side, oside);
-	}
-
-	this._unbindHandlersOnClear = [];
-	this._removeLineClassOnClear = {
-		lhs: {
-			background: {},
-			gutter: {}
-		},
-		rhs: {
-			background: {},
-			gutter: {}
-		}
-	};
+	const { _vdoc: vdoc } = this;
 
 	led.operation(() => {
 		for (let i = 0; i < changes.length; ++i) {
@@ -1219,55 +1179,19 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 				// if the change is outside the viewport, skip
 				continue;
 			}
-
-			const llf = change['lhs-line-from'] >= 0 ? change['lhs-line-from'] : 0;
-			const llt = change['lhs-line-to'] >= 0 ? change['lhs-line-to'] : 0;
-			const rlf = change['rhs-line-from'] >= 0 ? change['rhs-line-from'] : 0;
-
-			const clazz = ['mergely', 'lhs', change.op, 'cid-' + i];
-			led.addLineClass(llf, 'background', 'start');
-			this._removeLineClassOnClear.lhs.background[llf] = true;
-			led.addLineClass(llt, 'background', 'end');
-			this._removeLineClassOnClear.lhs.background[llt] = true;
-			if (change['lhs-line-from'] < 0) {
-				clazz.push('empty');
+			if (vdoc.hasRendered('lhs', i)) {
+				// already rendered
+				continue;
 			}
-
-			if (current_diff === i) {
-				if (llf != llt) {
-					led.addLineClass(llf, 'background', 'current');
-					this._removeLineClassOnClear.lhs.background[llf] = true;
-				}
-				led.addLineClass(llt, 'background', 'current');
-				this._removeLineClassOnClear.lhs.background[llt] = true;
-				for (let j = llf; j <= llt; ++j) {
-					led.addLineClass(j, 'gutter', 'mergely current');
-					this._removeLineClassOnClear.lhs.gutter[j] = true;
-				}
-			}
-			if (llf == 0 && llt == 0 && rlf == 0) {
-				led.addLineClass(llf, 'background', clazz.join(' '));
-				led.addLineClass(llf, 'background', 'first');
-				this._removeLineClassOnClear.lhs.background[llf] = true;
-			}
-			else {
-				// apply change for each line in-between the changed lines
-				for (let j = llf; j <= llt; ++j) {
-					led.addLineClass(j, 'background', clazz.join(' '));
-					// TODO: apply mark start/end changes in gutter
-					// led.addLineClass(j, 'gutter', 'mergely');
-					this._removeLineClassOnClear.lhs.background[j] = true;
-				}
-			}
-
-			if (!red.getOption('readOnly')) {
-				const button = this.merge_rhs_button.cloneNode(true);
-				button.className = 'merge-button merge-rhs-button';
-				const handler = getMergeHandler(change, 'lhs', 'rhs');
-				this._unbindHandlersOnClear.push([ button, 'click', handler ]);
-				button.addEventListener('click', handler);
-				led.setGutterMarker(llf, 'merge', button);
-			}
+			vdoc.addRender('lhs', change, i, {
+				isCurrent: current_diff === i,
+				getMergeHandler: (change, side, oside) => {
+					return () => this._merge_change(change, side, oside);
+				},
+				mergeButton: red.getOption('readOnly')
+					? null : this.merge_rhs_button.cloneNode(true) 
+			});
+			vdoc.update('lhs', i, led);
 		}
 	});
 
@@ -1278,54 +1202,19 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 				// if the change is outside the viewport, skip
 				continue;
 			}
-
-			const llf = change['lhs-line-from'] >= 0 ? change['lhs-line-from'] : 0;
-			const rlf = change['rhs-line-from'] >= 0 ? change['rhs-line-from'] : 0;
-			const rlt = change['rhs-line-to'] >= 0 ? change['rhs-line-to'] : 0;
-
-			const clazz = ['mergely', 'rhs', change.op, 'cid-' + i];
-			red.addLineClass(rlf, 'background', 'start');
-			this._removeLineClassOnClear.rhs.background[rlf] = true;
-			red.addLineClass(rlt, 'background', 'end');
-			this._removeLineClassOnClear.rhs.background[rlt] = true;
-			if (change['rhs-line-from'] < 0) {
-				clazz.push('empty');
+			if (vdoc.hasRendered('rhs', i)) {
+				// already rendered
+				continue;
 			}
-
-			if (current_diff === i) {
-				if (rlf != rlt) {
-					red.addLineClass(rlf, 'background', 'current');
-					this._removeLineClassOnClear.rhs.background[rlf] = true;
-				}
-				red.addLineClass(rlt, 'background', 'current');
-				this._removeLineClassOnClear.rhs.background[rlt] = true;
-				for (let j = rlf; j <= rlt; ++j) {
-					red.addLineClass(j, 'gutter', 'mergely current');
-					this._removeLineClassOnClear.rhs.gutter[j] = true;
-				}
-			}
-			if (rlf == 0 && rlt == 0 && llf == 0) {
-				red.addLineClass(rlf, 'background', clazz.join(' '));
-				red.addLineClass(rlf, 'background', 'first');
-				this._removeLineClassOnClear.rhs.background[rlf] = true;
-			}
-			else {
-				// apply change for each line in-between the changed lines
-				for (let j = rlf; j <= rlt; ++j) {
-					red.addLineClass(j, 'background', clazz.join(' '));
-					this._removeLineClassOnClear.rhs.background[j] = true;
-				}
-			}
-
-			if (!led.getOption('readOnly')) {
-				// add widgets to rhs, if lhs is not read only
-				const button = this.merge_lhs_button.cloneNode(true);
-				button.className = 'merge-button merge-lhs-button';
-				const handler = getMergeHandler(change, 'rhs', 'lhs');
-				this._unbindHandlersOnClear.push([ button, 'click', handler ]);
-				button.addEventListener('click', handler);
-				red.setGutterMarker(rlf, 'merge', button);
-			}
+			vdoc.addRender('rhs', change, i, {
+				isCurrent: current_diff === i,
+				getMergeHandler: (change, side, oside) => {
+					return () => this._merge_change(change, side, oside);
+				},
+				mergeButton: led.getOption('readOnly')
+					? null : this.merge_lhs_button.cloneNode(true) 
+			});
+			vdoc.update('rhs', i, red);
 		}
 	});
 
@@ -1393,14 +1282,14 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 				lhs_line = led.getLine( j );
 				rhs_line = red.getLine( k );
 
+				if (this.settings._debug.includes('diff')) {
+					traceTimeStart(`diff lcs change: ${i}`);
+				}
+
 				const lcs = new LCS(lhs_line, rhs_line, {
 					ignoreaccents: !!this.settings.ignoreaccents,
 					ignorews: !!this.settings.ignorews
 				});
-
-				if (this.settings._debug.includes('diff')) {
-					trace(Timer.stop(), 'diff', 'calculating lcs diff');
-				}
 
 				lcs.diff(
 					getMarkupFunc({ marktext, editor: red, lineNum: k, op: 'a rhs' }),
@@ -1408,15 +1297,14 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 				);
 
 				if (this.settings._debug.includes('diff')) {
-					trace(Timer.stop(), 'diff', 'done calculating lcs diff');
+					traceTimeEnd(`diff lcs change: ${i}`);
 				}
 			}
 		}
 	}
 
-	if (this.settings._debug.includes('api')
-		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_markupLineChanges applying', marktext.length, 'markups');
+	if (this.settings._debug.includes('draw')) {
+		trace('draw', Timer.stop(), '_markupLineChanges applying', marktext.length, 'markups');
 	}
 
 	led.operation(() => {
@@ -1436,16 +1324,12 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 		}
 	});
 
-	if (this.settings._debug.includes('api')
-		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'api', '_markupLineChanges finished');
+	if (this.settings._debug.includes('draw')) {
+		traceTimeEnd('_markupLineChanges');
 	}
 };
 
 CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
-	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', '_merge_change', change, side, oside);
-	}
 	if (!change) {
 		return;
 	}
@@ -1493,9 +1377,6 @@ CodeMirrorDiffView.prototype._merge_change = function(change, side, oside) {
 };
 
 CodeMirrorDiffView.prototype._draw_info = function() {
-	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', '_draw_info');
-	}
 	const lhsScroll = this.editor.lhs.getScrollerElement();
 	const rhsScroll = this.editor.rhs.getScrollerElement();
 	const visible_page_height = lhsScroll.offsetHeight; // fudged
@@ -1527,9 +1408,6 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 };
 
 CodeMirrorDiffView.prototype._renderDiff = function(changes) {
-	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', '_renderDiff');
-	}
 	const ex = this._draw_info();
 	const mcanvas_lhs = ex.lhs_margin;
 	const mcanvas_rhs = ex.rhs_margin;
@@ -1537,11 +1415,10 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 	const ctx_lhs = mcanvas_lhs.getContext('2d');
 	const ctx_rhs = mcanvas_rhs.getContext('2d');
 
-	if (this.settings._debug.includes('api')
-		|| this.settings._debug.includes('draw')) {
-		trace(Timer.stop(), 'draw', 'visible page height', ex.visible_page_height);
-		trace(Timer.stop(), 'draw', 'scroller-top lhs', ex.lhs_scroller.scrollTop);
-		trace(Timer.stop(), 'draw', 'scroller-top rhs', ex.rhs_scroller.scrollTop);
+	if (this.settings._debug.includes('draw')) {
+		trace('draw', Timer.stop(), '_renderDiff', 'visible page height', ex.visible_page_height);
+		trace('draw', Timer.stop(), '_renderDiff', 'scroller-top lhs', ex.lhs_scroller.scrollTop);
+		trace('draw', Timer.stop(), '_renderDiff', 'scroller-top rhs', ex.rhs_scroller.scrollTop);
 	}
 
 	ex.lhs_margin.removeEventListener('click', this._handleLhsMarginClick);
@@ -1567,14 +1444,15 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 		const rhs_y_end = change['rhs-y-end'] - rhsScrollTop;
 
 		if (Number.isNaN(lhs_y_start)) {
-			trace('unexpected NaN', change['lhs-y-start'], change['lhs-y-end']);
+			trace('draw', Timer.stop(), '_renderDiff', 'unexpected NaN',
+				change['lhs-y-start'], change['lhs-y-end']);
 			continue;
 		}
 
 		// draw margin indicators
-		if (this.settings._debug.includes('api')
-			|| this.settings._debug.includes('draw1')) {
-			trace(Timer.stop(), 'draw', 'marker', lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
+		if (this.settings._debug.includes('draw1')) {
+			trace('draw', Timer.stop(), '_renderDiff', 'draw1', 'marker',
+				lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
 		}
 
 		const mkr_lhs_y_start = change['lhs-y-start'] * lratio;
@@ -1689,12 +1567,6 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 	};
 	ex.lhs_margin.addEventListener('click', this._handleLhsMarginClick);
 	ex.rhs_margin.addEventListener('click', this._handleRhsMarginClick);
-
-	this.el.dispatchEvent(new Event('updated'));
-
-	if (this.settings._debug.includes('api')) {
-		trace(Timer.stop(), 'api', '_renderDiff finished');
-	}
 };
 
 CodeMirrorDiffView.prototype.trace = function(name) {
