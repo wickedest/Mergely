@@ -25,7 +25,7 @@ Removed `options.autoresize`
 Removed `options.fadein`
 Removed `options.fgcolor`
 Remove styles `.mergely-resizer`, `.mergely-full-screen-0`, and `.mergely-full-screen-8`.
-Default for `options.change_timeout` changed to 0.
+Default for `options.change_timeout` changed to 1000.
 No longer necessary to separately require codemirror/addon/search/searchcursor
 No longer necessary to separately require codemirror/addon/selection/mark-selection
 
@@ -88,7 +88,7 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		ignorecase: false,
 		ignoreaccents: false,
 		resize_timeout: 500,
-		change_timeout: 1150,
+		change_timeout: 1000,
 		bgcolor: '#eee',
 		vpcolor: 'rgba(0, 0, 200, 0.5)',
 		license: 'lgpl',
@@ -775,12 +775,6 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 		trace('scroll', Timer.stop(), '_scrolling', side, 'start');
 	}
 
-	// if (this._changedTimeout) {
-	// 	// FIXME:
-	// 	throw new Error('FIXME: this does not work as expected');
-	// 	console.log('change in progress; skipping scroll');
-	// 	return;
-	// }
 	if (this._skipscroll[side] === true) {
 		if (this.settings._debug.includes('scroll')) {
 			trace('scroll', Timer.stop(), '_scrolling', 'skip scroll', side);
@@ -867,20 +861,10 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 			clearTimeout(this._scrollTimeout);
 			this._scrollTimeout = null;
 		}
-		// FIXME: this renders a "laggy" scroll view but performs better, but
-		// is still not performant enough.
-		// this._scrollTimeout = setTimeout(() => {
-		// 	if (this.settings._debug.includes('scroll')) {
-		// 		trace('_scrolling', 'forced update');
-		// 	}
-		// 	// will not scroll, force an update
-		// 	this._renderChanges();
-		// }, 100);
 	} else if (this.settings._debug.includes('scroll')) {
 		trace('scroll', Timer.stop(), '_scrolling', 'not scrolling other side');
 	}
-	// FIXME: this renders a better scroll view but is slower
-	this._renderChanges(); // FIXME: experimental
+	this._renderChanges();
 
 	if (this.settings._debug.includes('scroll')) {
 		traceTimeEnd(`_scrolling ${side}`);
@@ -910,9 +894,7 @@ CodeMirrorDiffView.prototype._changing = function({ force } = { force: false }) 
 		}
 		this._changedTimeout = setTimeout(handleChange, this.settings.change_timeout);
 	} else {
-		// FIXME: needed?
-		setImmediate(handleChange);
-		// handleChange();
+		handleChange();
 	}
 	if (this.settings._debug.includes('change')) {
 		traceTimeEnd('_changing');
@@ -932,8 +914,7 @@ CodeMirrorDiffView.prototype._changed = function() {
 };
 
 /**
- * Clears the rendered canvases and text markup.  After, `_renderChanges`
- * can be called to re-render the current diff.
+ * Clears current diff, rendered canvases, and text markup.
  */
 CodeMirrorDiffView.prototype._clear = function() {
 	if (this.settings._debug.includes('draw')) {
@@ -1013,7 +994,7 @@ CodeMirrorDiffView.prototype._renderChanges = function() {
 		traceTimeStart('_renderChanges');
 	}
 	this._clearCanvases();
-	this._calculate_offsets(this.changes);
+	this._calculateOffsets(this.changes);
 	this._markupLineChanges(this.changes);
 	this._renderDiff(this.changes);
 	if (this.settings._debug.includes('draw')) {
@@ -1032,7 +1013,7 @@ CodeMirrorDiffView.prototype._get_viewport_side = function(side) {
 	};
 };
 
-CodeMirrorDiffView.prototype._is_change_in_view = function(side, vp, change) {
+CodeMirrorDiffView.prototype._isChangeInView = function(side, vp, change) {
 	return (change[`${side}-line-from`] >= vp.from && change[`${side}-line-from`] <= vp.to) ||
 		(change[`${side}-line-to`] >= vp.from && change[`${side}-line-to`] <= vp.to) ||
 		(vp.from >= change[`${side}-line-from`] && vp.to <= change[`${side}-line-to`]);
@@ -1056,9 +1037,9 @@ CodeMirrorDiffView.prototype._set_top_offset = function (side) {
 	return true;
 };
 
-CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
+CodeMirrorDiffView.prototype._calculateOffsets = function (changes) {
 	if (this.settings._debug.includes('draw')) {
-		traceTimeStart('_calculate_offsets');
+		traceTimeStart('_calculateOffsets');
 	}
 	const {
 		lhs: led,
@@ -1155,7 +1136,7 @@ CodeMirrorDiffView.prototype._calculate_offsets = function (changes) {
 		change['rhs-y-end'] += 1.5;
 	}
 	if (this.settings._debug.includes('draw')) {
-		traceTimeEnd('_calculate_offsets');
+		traceTimeEnd('_calculateOffsets');
 	}
 }
 
@@ -1175,7 +1156,7 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 	led.operation(() => {
 		for (let i = 0; i < changes.length; ++i) {
 			const change = changes[i];
-			if (!this._is_change_in_view('lhs', lhsvp, change)) {
+			if (!this._isChangeInView('lhs', lhsvp, change)) {
 				// if the change is outside the viewport, skip
 				continue;
 			}
@@ -1198,7 +1179,7 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 	red.operation(() => {
 		for (let i = 0; i < changes.length; ++i) {
 			const change = changes[i];
-			if (!this._is_change_in_view('rhs', rhsvp, change)) {
+			if (!this._isChangeInView('rhs', rhsvp, change)) {
 				// if the change is outside the viewport, skip
 				continue;
 			}
@@ -1238,8 +1219,8 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 		const rlf = change['rhs-line-from'] >= 0 ? change['rhs-line-from'] : 0;
 		const rlt = change['rhs-line-to'] >= 0 ? change['rhs-line-to'] : 0;
 
-		if (!this._is_change_in_view('lhs', lhsvp, change)
-			&& !this._is_change_in_view('lhs', rhsvp, change)) {
+		if (!this._isChangeInView('lhs', lhsvp, change)
+			&& !this._isChangeInView('lhs', rhsvp, change)) {
 			continue;
 		}
 
@@ -1476,8 +1457,8 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 		ctx_rhs.stroke();
 
 		// draw canvas markup changes
-		if (!this._is_change_in_view('lhs', lhsvp, change)
-			&& !this._is_change_in_view('rhs', rhsvp, change)) {
+		if (!this._isChangeInView('lhs', lhsvp, change)
+			&& !this._isChangeInView('rhs', rhsvp, change)) {
 			// skip if viewport enabled and the change is outside the viewport
 			continue;
 		}
@@ -1625,33 +1606,6 @@ function getSplash({ icon, notice, left }) {
 		<a target="_blank" href="http://www.mergely.com">http://www.mergely.com/license</a>.
 	</p>
 </div>`;
-}
-
-function throttle(func, { delay }) {
-	let lastTime = 0;
-	const throttleFn = (...args) => {
-		const now = Date.now();
-
-		/*if ((now - lastTime >= delay)) {
-			//console.log('not throttled', `rendering ${!!this._to}`, (now - lastTime), delay);
-			//func.apply(this);
-			//lastTime = now;
-		} else {
-		*/
-			// this.trace('scroll', 'throttled');
-			console.log('throttled');
-			// call `func` if no other event after `delay`
-			if (this._to) {
-				clearTimeout(this._to);
-			}
-			this._to = setTimeout(() => {
-				console.log('apply', delay);
-				func.apply(this, args);
-				this._to = null;
-			}, delay);
-		//}
-	};
-	return throttleFn;
 }
 
 module.exports = CodeMirrorDiffView;
