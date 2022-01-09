@@ -22,9 +22,9 @@ document.onreadystatechange = function () {
 	const doc = new Mergely('#mergely', {
 		license: 'lgpl',
 		ignorews: true,
-		wrap_lines: true,
+		wrap_lines: false,
 		change_timeout: 0,
-		viewport: true,
+		viewport: true, 	
 		cmsettings: {
 			readOnly: false
 		},
@@ -36,7 +36,7 @@ document.onreadystatechange = function () {
 				.replace(/love/g, 'hate')
 				.replace(/heart/g, 'head'));
 		},
-		_debug: ''
+		_debug: 'draw'//'event,scroll,diff,draw'
 	});
 
 	// On init, scroll to first diff
