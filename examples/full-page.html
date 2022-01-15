@@ -30,7 +30,17 @@ should be 100% for `html`, and `body`, and margin should be set to 0.
 			if (document.readyState !== 'complete') {
 				return;
 			}
-			new Mergely('#mergely');
+			const doc = new Mergely('#mergely', {
+				_debug: 'event'
+			});
+			doc.once('updated', () => {
+				fetch('/examples/macbeth.txt')
+					.then(response => response.text())
+					.then(macbeth => {
+						doc.lhs(macbeth);
+						doc.rhs(macbeth);
+					});
+			});
 		}
 	</script>
 </body>

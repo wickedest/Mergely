@@ -49,7 +49,6 @@ For some reason ignore-whitespace will mark the "red" differently
 Introduce an async render pipeline as it's currently blocking UI
 Fix issue where characters like `{}[].?` are not detected by LCS
 Fix the popup
-Fix Ctrl+Home not scrolling off initial render + jump to first
 Fix full screen width with macbeth is too wide
 */
 
@@ -215,7 +214,8 @@ CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
 			this._current_diff = Math.max(--this._current_diff, 0);
 		}
 	}
-	if (this.settings._debug.includes('debug')) {
+	if (this.settings._debug.includes('change')
+		&& this.settings._debug.includes('debug')) {
 		trace('change', Timer.stop(), 'current-diff', this._current_diff);
 	}
 	this._scroll_to_change(this.changes[this._current_diff]);
@@ -592,14 +592,21 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		}
 	});
 	this.editor.lhs.on('scroll', () => {
-		if (this.settings._debug.includes('event')) {
-			trace('event#lhs-scroll');
+		if (this._skipscroll.lhs) {
+			if (this.settings._debug.includes('event')) {
+				trace('event#lhs-scroll (skipped)');
+			}
+			return;
+		} else {
+			if (this.settings._debug.includes('event')) {
+				trace('event#lhs-scroll');
+			}
 		}
 		this._scrolling({ side: 'lhs', id: this.lhsId });
 	});
 	this.editor.rhs.on('change', (instance, ev) => {
 		if (this.settings._debug.includes('event')) {
-			trace('event#lhs-change');
+			trace('event#rhs-change');
 		}
 		if (!this.settings.autoupdate) {
 			return;
@@ -607,8 +614,15 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		this._changing();
 	});
 	this.editor.rhs.on('scroll', () => {
-		if (this.settings._debug.includes('event')) {
-			trace('event#rhs-scroll');
+		if (this._skipscroll.rhs) {
+			if (this.settings._debug.includes('event')) {
+				trace('event#rhs-scroll (skipped)');
+			}
+			return;
+		} else {
+			if (this.settings._debug.includes('event')) {
+				trace('event#rhs-scroll');
+			}
 		}
 		this._scrolling({ side: 'rhs', id: this.rhsId });
 	});
@@ -621,10 +635,6 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			trace('event#resize [start]');
 		}
 		this.resize();
-		console.log('wtf refresh? >');
-		// this.editor.lhs.refresh();
-		// this.editor.rhs.refresh();
-		console.log('wtf refresh? <');
 		if (this.settings._debug.includes('event')) {
 			traceTimeEnd('event#resize');
 		}
@@ -746,7 +756,8 @@ CodeMirrorDiffView.prototype._get_colors = function() {
 		bg: cStyle.backgroundColor
 	};
 	cColor.remove();
-	if (this.settings._debug.includes('debug')) {
+	if (this.settings._debug.includes('draw')
+		&& this.settings._debug.includes('debug')) {
 		trace('draw', Timer.stop(), '_get_colors', this._colors);
 	}
 }
@@ -765,33 +776,23 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	led.setCursor(llf, 0);
 	red.setCursor(rlf, 0);
 	if (change['lhs-line-to'] >= 0) {
-		this.scrollTo('lhs', change['lhs-line-to'])
+		this.scrollTo('lhs', change['lhs-line-to']);
 	} else if (change['rhs-line-to'] >= 0) {
-		this.scrollTo('rhs', change['rhs-line-to'])
+		this.scrollTo('rhs', change['rhs-line-to']);
 	}
 	led.focus();
 };
 
 CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	if (this.settings._debug.includes('scroll')) {
-		traceTimeStart(`_scrolling ${side}`);
-		trace('scroll', Timer.stop(), '_scrolling', side, 'start');
-	}
-
-	if (this._skipscroll[side] === true) {
-		if (this.settings._debug.includes('scroll')) {
-			trace('scroll', Timer.stop(), '_scrolling', 'skip scroll', side);
-		}
-		// scrolling one side causes the other to event - ignore it, but use
-		// the event to trigger a render.
-		this._skipscroll[side] = false;
-		traceTimeEnd(`_scrolling ${side}`);
-		return;
+		traceTimeStart(`scroll#_scrolling ${side}`);
 	}
 	if (!this.changes) {
 		// pasting a wide line can trigger scroll before changes
 		// are calculated
-		traceTimeEnd(`_scrolling ${side}`);
+		if (this.settings._debug.includes('scroll')) {
+			traceTimeEnd(`scroll#_scrolling ${side}`);
+		}
 		return;
 	}
 	const scroller = this.editor[side].getScrollerElement();
@@ -841,8 +842,9 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	const vp = this.editor[oside].getViewport();
 	let scroll = true;
 	if (last_change) {
-		if (this.settings._debug.includes('scroll')) {
-			trace('scroll', Timer.stop(), '_scrolling', 'last change before midline', last_change);
+		if (this.settings._debug.includes('scroll')
+			&& this.settings._debug.includes('debug')) {
+			trace('scroll#_scrolling', 'last change before midline', last_change);
 		}
 		if (midline.line >= vp.from && midline <= vp.to) {
 			scroll = false;
@@ -850,27 +852,35 @@ CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
 	}
 	if (scroll || force_scroll) {
 		// scroll the other side
-		if (this.settings._debug.includes('scroll')) {
-			trace('scroll', Timer.stop(), '_scrolling', 'other side pos:', top_to - top_adjust);
+		if (this.settings._debug.includes('scroll')
+			&& this.settings._debug.includes('debug')) {
+			trace('scroll#_scrolling', 'other side', oside, 'pos:', top_to - top_adjust);
 		}
-		// disable next scroll event because we trigger it
-		this._skipscroll[oside] = true;
-		const top = top_to - top_adjust;
 
-		// will scroll - note that CM scrolling is expensive and can take 70ms
-		// to scroll, which doesn't sound like much, but it can be jittery
-		this.editor[oside].scrollTo(left_to, top_to - top_adjust);
-		if (this._scrollTimeout) {
-			clearTimeout(this._scrollTimeout);
-			this._scrollTimeout = null;
+		// disable linked scroll events for the opposite editor because this
+		// triggers the next one explicitly, and we don't want to link the
+		// scroll in that case. the events can be unpredictable, sometimes
+		// coming in 2s, so this will "link" scrolling the other editor to
+		// this editor until this editor stops scrolling and times out.
+		this._skipscroll[oside] = true;
+		if (this._linkedScrollTimeout) {
+			clearTimeout(this._linkedScrollTimeout);
 		}
-	} else if (this.settings._debug.includes('scroll')) {
-		trace('scroll', Timer.stop(), '_scrolling', 'not scrolling other side');
+		this._linkedScrollTimeout = setTimeout(() => {
+			this._skipscroll[oside] = false;
+		}, 100);
+
+		const top = top_to - top_adjust;
+		// scroll the opposite editor
+		this.editor[oside].scrollTo(left_to, top);
+	} else if (this.settings._debug.includes('scroll')
+		&& this.settings._debug.includes('debug')) {
+		trace('scroll#_scrolling', 'not scrolling other side');
 	}
 	this._renderChanges();
 
 	if (this.settings._debug.includes('scroll')) {
-		traceTimeEnd(`_scrolling ${side}`);
+		traceTimeEnd(`scroll#_scrolling ${side}`);
 	}
 };
 
@@ -1310,7 +1320,8 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 	const ctx_lhs = mcanvas_lhs.getContext('2d');
 	const ctx_rhs = mcanvas_rhs.getContext('2d');
 
-	if (this.settings._debug.includes('debug')) {
+	if (this.settings._debug.includes('draw')
+		&& this.settings._debug.includes('debug')) {
 		trace('draw', Timer.stop(), '_renderDiff', 'visible page height', ex.visible_page_height);
 		trace('draw', Timer.stop(), '_renderDiff', 'scroller-top lhs', ex.lhs_scroller.scrollTop);
 		trace('draw', Timer.stop(), '_renderDiff', 'scroller-top rhs', ex.rhs_scroller.scrollTop);
@@ -1345,7 +1356,8 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 		}
 
 		// draw margin indicators
-		if (this.settings._debug.includes('debug')) {
+		if (this.settings._debug.includes('draw')
+			&& this.settings._debug.includes('debug')) {
 			trace('draw', Timer.stop(), '_renderDiff', 'draw1', 'marker',
 				lhs_y_start, lhs_y_end, rhs_y_start, rhs_y_end);
 		}

@@ -36,7 +36,8 @@ document.onreadystatechange = function () {
 				.replace(/love/g, 'hate')
 				.replace(/heart/g, 'head'));
 		},
-		_debug: 'draw,change,event'
+		_debug: 'scroll,debug,event'
+		// _debug: 'draw,change,event'
 	});
 
 	// On init, scroll to first diff
