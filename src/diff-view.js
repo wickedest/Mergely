@@ -45,11 +45,11 @@ Fixed performance issue with large sections of deleted/added text
 Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
 
 TODO:
+Fix issue with Macbeth changing serpent => pencil
 For some reason ignore-whitespace will mark the "red" differently
-Introduce an async render pipeline as it's currently blocking UI
 Fix issue where characters like `{}[].?` are not detected by LCS
 Fix the popup
-Fix full screen width with macbeth is too wide
+Introduce an async render pipeline as it's currently blocking UI
 */
 
 const NOTICES = [

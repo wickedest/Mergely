@@ -38,8 +38,11 @@ should be 100% for `html`, and `body`, and margin should be set to 0.
 					.then(response => response.text())
 					.then(macbeth => {
 						doc.lhs(macbeth);
-						doc.rhs(macbeth);
+						doc.rhs(macbeth.replace(/serpent/g, 'pencil'));
 					});
+				doc.once('updated', () => {
+					doc.scrollToDiff('next');
+				});
 			});
 		}
 	</script>
