@@ -45,7 +45,7 @@ Fixed performance issue with large sections of deleted/added text
 Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
 
 TODO:
-For some reason ignore-whitespace will mark the "red" differently
+For some reason ignore-whitespace will mark the "red" differently	
 Fix issue where characters like `{}[].?` are not detected by LCS
 Fix the popup
 Introduce an async render pipeline as it's currently blocking UI
@@ -292,9 +292,9 @@ CodeMirrorDiffView.prototype.options = function(opts) {
 	}
 	if (opts) {
 		this._setOptions(opts);
-		this.resize();
 		if (this.settings.autoupdate) {
-			this.update();
+			this._clear();
+			this._changed();
 		}
 	}
 	else {
@@ -1208,6 +1208,8 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 			&& (lhsInView || rhsInView)
 			&& change.op === 'c') {
 			vdoc.addInlineDiff(change, {
+				ignoreaccents: this.settings.ignoreaccents,
+				ignorews: this.settings.ignorews,
 				getText: (side, lineNum) => {
 					if (side === 'lhs') {
 						return led.getLine(lineNum);

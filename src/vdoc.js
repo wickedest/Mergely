@@ -90,7 +90,7 @@ class VDoc {
 		this._setRenderedChange(side, changeId);
 	}
 
-	addInlineDiff(change, { getText }) {
+	addInlineDiff(change, { getText, ignorews, ignoreaccents }) {
 		const { lf, lt, olf, olt } = getExtents('lhs', change);
 		const vdoc = this;
 
@@ -106,9 +106,8 @@ class VDoc {
 				// TODO: there is an LCS performance gain here if either side
 				// is empty.
 				const lcs = new LCS(lhsText, rhsText, {
-					// TODO
-					ignoreaccents: false,
-					ignorews: false
+					ignoreaccents,
+					ignorews
 				});
 
 				// TODO: there might be an LCS performance gain here to move
