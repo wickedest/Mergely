@@ -993,10 +993,27 @@ CodeMirrorDiffView.prototype._diff = function() {
 	}
 	const lhs = this.editor.lhs.getValue();
 	const rhs = this.editor.rhs.getValue();
-	const comparison = new diff(lhs, rhs, this.settings);
-	this.changes = DiffParser(comparison.normal_form());
-	if (this.settings._debug.includes('change')) {
-		traceTimeEnd(' change#_diff');
+	/*
+	if (window.Worker) {
+		if (!this._diffWorker) {
+			trace(' change#_diff creating diff worker');
+			// this._diffWorker = new Worker('./diff-worker.js');
+			this._diffWorker = new Worker(new URL('./diff-worker.js', import.meta.url));
+			this._diffWorker.onchange = (ev) => {
+				this.changes = ev.data;
+				this._clear();
+				this._changed();
+			}
+		}
+		trace(' change#_diff starting worker');
+		this._diffWorker.postMessage({ lhs, rhs });
+	} else 
+	*/{
+		const comparison = new diff(lhs, rhs, this.settings);
+		this.changes = DiffParser(comparison.normal_form());
+		if (this.settings._debug.includes('change')) {
+			traceTimeEnd(' change#_diff');
+		}
 	}
 };
 
