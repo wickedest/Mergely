@@ -49,6 +49,7 @@ For some reason ignore-whitespace will mark the "red" differently
 Fix issue where characters like `{}[].?` are not detected by LCS
 Fix the popup
 Introduce an async render pipeline as it's currently blocking UI
+Linting
 */
 
 const NOTICES = [
