@@ -1129,11 +1129,11 @@ CodeMirrorDiffView.prototype._calculateOffsets = function (changes) {
 				change['rhs-y-end'] = change['rhs-y-start'];
 			}
 		}
-		// the height and line borders don't aligne - fudge the offset
-		change['lhs-y-start'] += 1.5;
-		change['lhs-y-end'] += 1.5;
-		change['rhs-y-start'] += 1.5;
-		change['rhs-y-end'] += 1.5;
+		// the height and line borders don't align slightly - fudge the offset
+		change['lhs-y-start'] += 0.5;
+		change['lhs-y-end'] += 0.5;
+		change['rhs-y-start'] += 0.5;
+		change['rhs-y-end'] += 0.5;
 	}
 	if (this.settings._debug.includes('draw')) {
 		traceTimeEnd('_calculateOffsets');
