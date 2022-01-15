@@ -43,9 +43,10 @@ Fixed documentation issue where `merge` incorrectly stated: from the specified `
 Fixed performance issue scrolling (find #)
 Fixed performance issue with large sections of deleted/added text
 Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
+Fixed issue where line-diffs failed to diff non-alphanumeric characters
 
 TODO:
-For some reason ignore-whitespace will mark the "red" differently	
+For some reason ignore-whitespace will mark the "red" differently
 Fix issue where characters like `{}[].?` are not detected by LCS
 Fix the popup
 Introduce an async render pipeline as it's currently blocking UI
