@@ -148,7 +148,6 @@
 .mergely-editor .mergely.ch.d.lhs {
 	text-decoration: line-through;
 	color: #ff0000;
-	background-color: #ffe9e9;
 }
 .mergely-editor .mergely.current {
 	border-color: #000;
