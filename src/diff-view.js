@@ -452,8 +452,8 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	}
 	const { CodeMirror } = this;
 	el.style.display = 'flex';
-	// el.style.flexGrow = '1'; // FIXME: needed?
 	el.style.height = '100%';
+	el.style.position = 'relative';
 	this.id = el.id;
 	const found = document.getElementById(this.id);
 	if (!found) {
@@ -524,11 +524,13 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			if (!notice) {
 				notice = noticeTypes.lgpl;
 			}
-			const editor = this._queryElement('.mergely-editor');
+			const editor = this._queryElement(`#${this.id}`);
 			const splash = htmlToElement(getSplash({
 				notice,
-				left: (editor.offsetWidth - 300) / 2
+				left: (editor.offsetWidth - 300) / 2,
+				top: (editor.offsetHeight - 58) / 3
 			}));
+			console.log('width', editor.id, editor.offsetWidth);
 			editor.addEventListener('click', () => {
 				splash.style.visibility = 'hidden';
 				splash.style.opacity = '0';
@@ -1526,9 +1528,9 @@ function getCenterCanvasTemplate({ id }) {
 </div>`;
 }
 
-function getSplash({ icon, notice, left }) {
+function getSplash({ icon, notice, left, top }) {
 	return `\
-<div class="mergely-splash">
+<div class="mergely-splash" style="left: ${left}px; top: ${top}px">
 	<p>
 		<span class="mergely-icon"></span>
 		This software is a Combined Work using Mergely and is covered by the

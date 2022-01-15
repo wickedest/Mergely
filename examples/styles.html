@@ -275,13 +275,11 @@ and the postman
 				},
 				rhs: function(setValue) {
 					setValue(rhs);
-				},
-				_debug: 'draw,change,scroll'
+				}
 			});
 
 			// On init, scroll to first diff
 			doc.once('updated', () => {
-				console.log(`scroll to next diff ${i}`);
 				doc.scrollToDiff('next');
 			});
 		}

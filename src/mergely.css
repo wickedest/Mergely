@@ -84,10 +84,7 @@
 	padding: 10px;
 	font-family: arial;
 	font-size: 11px;
-	left: 50%;
-	margin-right: 50%;
-	transform: translate(-50%,-50%);
-	top: 25%;
+	transform: translate(0, 20%);
 }
 
 .mergely-icon {
