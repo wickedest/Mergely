@@ -33,8 +33,8 @@ document.onreadystatechange = function () {
 		},
 		rhs: function(setValue) {
 			setValue(macbeth.join('\n')
-				.replace(/love/g, 'hate')
-				.replace(/heart/g, 'head'));
+				.replace(/serpent/g, 'pencil'));
+				//.replace(/heart/g, 'head'));
 		},
 		_debug: 'scroll,debug,event'
 		// _debug: 'draw,change,event'

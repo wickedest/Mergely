@@ -116,10 +116,12 @@ class VDoc {
 				// too many lines here. it's no more than the viewport.
 				lcs.diff(
 					function _added(from, to) {
+						console.log('added', {from, to});
 						const line = vdoc._getLine('rhs', k);
 						line.markText(from, to, 'mergely ch a rhs');
 					},
 					function _removed(from, to) {
+						console.log('removed', {from, to});
 						const line = vdoc._getLine('lhs', j);
 						line.markText(from, to, 'mergely ch d lhs');
 					}
@@ -177,6 +179,7 @@ class VLine {
 		this.marker = null;
 		this.editor = null;
 		this.markup = [];
+		this._clearMarkup = [];
 		this.rendered = false;
 	}
 
@@ -189,7 +192,7 @@ class VLine {
 	}
 
 	markText(charFrom, charTo, className) {
-		this.markup = [ charFrom, charTo, className ];
+		this.markup.push([ charFrom, charTo, className ]);
 	}
 
 	update(editor) {
@@ -212,17 +215,20 @@ class VLine {
 			item.addEventListener('click', handler);
 			editor.setGutterMarker(this.id, name, item);
 		}
-		if (this.markup) {
-			const [ charFrom, charTo, className ] = this.markup;
-			const fromPos = { line: this.id };
-			const toPos = { line: this.id };
-			if (charFrom >= 0) {
-				fromPos.ch = charFrom;
+		if (this.markup.length) {
+			for (const markup of this.markup) {
+				const [ charFrom, charTo, className ] = markup;
+				const fromPos = { line: this.id };
+				const toPos = { line: this.id };
+				if (charFrom >= 0) {
+					fromPos.ch = charFrom;
+				}
+				if (charTo >= 0) {
+					toPos.ch = charTo;
+				}
+				this._clearMarkup.push(
+					editor.markText(fromPos, toPos, { className }));
 			}
-			if (charTo >= 0) {
-				toPos.ch = charTo;
-			}
-			this._clearMarkup = editor.markText(fromPos, toPos, { className });
 		}
 		this.rendered = true;
 	}
@@ -233,7 +239,6 @@ class VLine {
 			return;
 		}
 
-		console.warn('clear editor', this.id);
 		if (this.background) {
 			editor.removeLineClass(this.id, 'background');
 		}
@@ -247,8 +252,12 @@ class VLine {
 			item.removeEventListener('click', handler);
 			item.remove();
 		}
-		if (this._clearMarkup) {
-			this._clearMarkup.clear();
+		if (this._clearMarkup.length) {
+			for (const markup of this._clearMarkup) {
+				markup.clear();
+			}
+			this._clearMarkup = [];
+			this.markup = [];
 		}
 	}
 }
