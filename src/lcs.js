@@ -59,7 +59,6 @@ LCS.prototype.diff = function (added, removed) {
 		ignoreaccents: !!this.options.ignoreaccents
 	});
 	const changes = DiffParser(d.normal_form());
-	console.log(changes);
 	for (let i = 0; i < changes.length; ++i) {
 		const change = changes[i];
 		if (this.options.ignorews) {

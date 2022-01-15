@@ -33,10 +33,11 @@ document.onreadystatechange = function () {
 		},
 		rhs: function(setValue) {
 			setValue(macbeth.join('\n')
-				.replace(/serpent/g, 'pencil'));
+				.replace(/\brain\b/g, 'sleet')
+				.replace(/\bfog\b/g, 'smog'));
 				//.replace(/heart/g, 'head'));
 		},
-		_debug: 'scroll,debug,event'
+		_debug: ''
 		// _debug: 'draw,change,event'
 	});
 

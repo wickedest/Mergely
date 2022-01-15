@@ -668,11 +668,9 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 				if (this._current_diff >= 0) {
 					const current = this.changes[this._current_diff];
 					for (let i = current['lhs-line-from']; i <= current['lhs-line-to']; ++i) {
-						console.log('remove gutter lhs', i);
 						this.editor.lhs.removeLineClass(i, 'gutter');
 					}
 					for (let i = current['rhs-line-from']; i <= current['rhs-line-to']; ++i) {
-						console.log('remove gutter rhs', i);
 						this.editor.rhs.removeLineClass(i, 'gutter');
 					}
 				}
@@ -1204,7 +1202,9 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 			});
 		}
 
-		if (lineDiff && (lhsInView || rhsInView)) {
+		if (lineDiff
+			&& (lhsInView || rhsInView)
+			&& change.op === 'c') {
 			vdoc.addInlineDiff(change, {
 				getText: (side, lineNum) => {
 					if (side === 'lhs') {

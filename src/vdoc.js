@@ -54,7 +54,7 @@ class VDoc {
 			// FIXME: need lineDiff here?
 		} else {
 			// apply change for each line in-between the changed lines
-			for (let j = lf; j <= lt; ++j) {
+			for (let j = lf, k = olf; j <= lt; ++j, ++k) {
 				this._getLine(side, j).addLineClass('background', bgClass.join(' '));
 
 				if (!lineDiff) {
@@ -64,7 +64,7 @@ class VDoc {
 
 				if (side === 'lhs'
 					&& (change.op === 'd'
-						|| (change.op === 'c' && j > olt)
+						|| (change.op === 'c' && k > olt)
 					)) {
 					// mark entire line text with deleted (strikeout) if the
 					// change is a delete, or if it is changed text and the
@@ -72,7 +72,7 @@ class VDoc {
 					this._getLine(side, j).markText(0, undefined, 'mergely ch d lhs');
 				} else if (side == 'rhs'
 					&& (change.op === 'a'
-						|| (change.op === 'c' && j > olt)
+						|| (change.op === 'c' && k > olt)
 					)) {
 					// mark entire line text with added if the change is an
 					// add, or if it is changed text and the line goes past the
@@ -116,12 +116,10 @@ class VDoc {
 				// too many lines here. it's no more than the viewport.
 				lcs.diff(
 					function _added(from, to) {
-						console.log('added', {from, to});
 						const line = vdoc._getLine('rhs', k);
 						line.markText(from, to, 'mergely ch a rhs');
 					},
 					function _removed(from, to) {
-						console.log('removed', {from, to});
 						const line = vdoc._getLine('lhs', j);
 						line.markText(from, to, 'mergely ch d lhs');
 					}
