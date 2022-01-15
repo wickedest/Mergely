@@ -46,9 +46,6 @@ Fixed issue where initial render scrolled to first change, showing it at the bot
 Fixed issue where line-diffs failed to diff non-alphanumeric characters
 
 TODO:
-For some reason ignore-whitespace will mark the "red" differently
-Fix issue where characters like `{}[].?` are not detected by LCS
-Fix the popup
 Introduce an async render pipeline as it's currently blocking UI
 Linting
 */
