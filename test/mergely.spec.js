@@ -184,7 +184,7 @@ describe('mergely', function () {
 	});
 
 	describe('clear', () => {
-		it('should clear lhs and rhs sides', function (done) {
+		it.only('should clear lhs and rhs sides', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -203,10 +203,15 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
+			console.log('here-1');
 			editor.el.addEventListener('updated', test, { once: true });
+			console.log('here-2');
 			expect(editor.get('lhs')).to.equal('left-hand side text');
+			console.log('here-3');
 			expect(editor.get('rhs')).to.equal('right-hand side text');
+			console.log('here-4');
 			editor.clear('lhs');
+			console.log('here-5');
 			editor.clear('rhs');
 		});
 	});
