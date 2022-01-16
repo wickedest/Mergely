@@ -33,7 +33,6 @@ No longer necessary to separately require codemirror/addon/selection/mark-select
 
 FEATURE:
 Gutter click now scrolls to any line.
-File drop-target indicator.
 Mergely now emits `resize` event on resize.
 The UI is now non-blocking as diff now runs in background (where supported).
 
@@ -45,11 +44,10 @@ Fixed issue where init triggered an updated event when autoupdate is disabled.
 Fixed documentation issue where `merge` incorrectly stated: from the specified `side` to the opposite side
 Fixed performance issue scrolling (find #)
 Fixed performance issue with large sections of deleted/added text
-Fixed issue where initial render scrolled to first change, showing it at the bottom, as opposed to middle
+Fixed issue where initial render scrolled to first change, showing it at the bottom (as opposed to middle as expected)
 Fixed issue where line-diffs failed to diff non-alphanumeric characters
 
 TODO:
-Introduce an async render pipeline as it's currently blocking UI
 Linting
 */
 
