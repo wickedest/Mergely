@@ -34,7 +34,9 @@ class Mergely {
 		this.removeEventListener = element.removeEventListener.bind(element);
 		// Use `setImmediate` so that clients have opportunity to bind event
 		// handlers.
-		setImmediate(() => this._diffView.bind(element));
+		// FIXME: webpack 5 has issue with `setImmediate`
+		// setImmediate(() => this._diffView.bind(element));
+		this._diffView.bind(element)
 	}
 
 	unbind() {

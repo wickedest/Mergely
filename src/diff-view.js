@@ -7,6 +7,8 @@ const DiffParser = require('./diff-parser');
 const LCS = require('./lcs');
 const VDoc = require('./vdoc');
 
+const { default: DiffWorker } = require('./diff-worker.js');
+
 /**
 CHANGES:
 
@@ -25,7 +27,7 @@ Removed `options.autoresize`
 Removed `options.fadein`
 Removed `options.fgcolor`
 Remove styles `.mergely-resizer`, `.mergely-full-screen-0`, and `.mergely-full-screen-8`.
-Default for `options.change_timeout` changed to 1000.
+Default for `options.change_timeout` changed to 50.
 No longer necessary to separately require codemirror/addon/search/searchcursor
 No longer necessary to separately require codemirror/addon/selection/mark-selection
 
@@ -33,6 +35,7 @@ FEATURE:
 Gutter click now scrolls to any line.
 File drop-target indicator.
 Mergely now emits `resize` event on resize.
+The UI is now non-blocking as diff now runs in background (where supported).
 
 FIX:
 Fixed issue where canvas markup was not rendered when `viewport` enabled.
@@ -85,7 +88,7 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		ignorecase: false,
 		ignoreaccents: false,
 		resize_timeout: 500,
-		change_timeout: 1000,
+		change_timeout: 50,
 		bgcolor: '#eee',
 		vpcolor: 'rgba(0, 0, 200, 0.5)',
 		license: 'lgpl',
@@ -573,10 +576,14 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 
 	// If either editor gets a change, clear the view immediately
 	this.editor.lhs.on('beforeChange', () => {
-		this._clear();
+		if (!window.Worker) {
+			this._clear();
+		}
 	});
 	this.editor.rhs.on('beforeChange', () => {
-		this._clear();
+		if (!window.Worker) {
+			this._clear();
+		}
 	});
 
 	this.editor.lhs.on('change', (instance, ev) => {
@@ -993,22 +1000,20 @@ CodeMirrorDiffView.prototype._diff = function() {
 	}
 	const lhs = this.editor.lhs.getValue();
 	const rhs = this.editor.rhs.getValue();
-	/*
 	if (window.Worker) {
-		if (!this._diffWorker) {
-			trace(' change#_diff creating diff worker');
-			// this._diffWorker = new Worker('./diff-worker.js');
-			this._diffWorker = new Worker(new URL('./diff-worker.js', import.meta.url));
-			this._diffWorker.onchange = (ev) => {
-				this.changes = ev.data;
-				this._clear();
-				this._changed();
-			}
+		if (this._diffWorker) {
+			this._diffWorker.terminate();
+		}
+		trace(' change#_diff creating diff worker');
+		this._diffWorker = new DiffWorker();
+		this._diffWorker.onmessage = (ev) => {
+			this._clear();
+			this.changes = ev.data;
+			this._renderChanges();
 		}
 		trace(' change#_diff starting worker');
 		this._diffWorker.postMessage({ lhs, rhs });
-	} else 
-	*/{
+	} else {
 		const comparison = new diff(lhs, rhs, this.settings);
 		this.changes = DiffParser(comparison.normal_form());
 		if (this.settings._debug.includes('change')) {
@@ -1020,7 +1025,7 @@ CodeMirrorDiffView.prototype._diff = function() {
 CodeMirrorDiffView.prototype._renderChanges = function() {
 	if (this.settings._debug.includes('draw')) {
 		traceTimeStart('draw#_renderChanges');
-		trace('draw#_renderChanges [start]');
+		trace('draw#_renderChanges [start]', this.changes.length, 'changes');
 	}
 	this._clearCanvases();
 	this._calculateOffsets(this.changes);
@@ -1227,9 +1232,11 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 				ignorews: this.settings.ignorews,
 				getText: (side, lineNum) => {
 					if (side === 'lhs') {
-						return led.getLine(lineNum);
+						const text = led.getLine(lineNum);
+						return text || '';
 					} else {
-						return red.getLine(lineNum);
+						const text = red.getLine(lineNum);
+						return text || '';
 					}
 				}
 			});
@@ -1545,7 +1552,7 @@ function getCenterCanvasTemplate({ id }) {
 </div>`;
 }
 
-function getSplash({ icon, notice, left, top }) {
+function getSplash({ notice, left, top }) {
 	return `\
 <div class="mergely-splash" style="left: ${left}px; top: ${top}px">
 	<p>

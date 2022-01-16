@@ -4,10 +4,6 @@
 	width: 100%;
 }
 
-.mergely-editor .mergely-column {
-	flex-grow: 1;
-}
-
 .mergely-editor .mergely-margin canvas {
 	width: 8px;
 }
@@ -111,6 +107,9 @@
 .mergely-editor .CodeMirror-code {
 	color: #717171;
 }
+.mergely-editor .CodeMirror {
+	border: 1px solid #ccc;
+}
 .mergely-editor .mergely.CodeMirror-gutter-background.current {
 	background-color: #777;
 }
@@ -126,9 +125,6 @@
 }
 .mergely-editor .current .merge-button:hover {
 	color: #fff;
-}
-.mergely-editor .mergely-column {
-	border: 1px solid #ccc;
 }
 .mergely-editor .mergely.a {
 	border-color: #a3d1ff;

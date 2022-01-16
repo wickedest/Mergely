@@ -23,7 +23,7 @@ document.onreadystatechange = function () {
 		license: 'lgpl',
 		ignorews: true,
 		wrap_lines: false,
-		// change_timeout: 0,
+		change_timeout: 50,
 		viewport: true,
 		cmsettings: {
 			readOnly: false
@@ -37,7 +37,7 @@ document.onreadystatechange = function () {
 				.replace(/\bfog\b/g, 'smog'));
 				//.replace(/heart/g, 'head'));
 		},
-		_debug: ''
+		_debug: 'draw'
 		// _debug: 'draw,change,event'
 	});
 

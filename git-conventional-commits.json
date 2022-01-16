@@ -5,6 +5,8 @@
       "chore",
       "ci",
       "docs",
+      "feat",
+      "fix",
       "style",
       "refactor",
       "perf",
