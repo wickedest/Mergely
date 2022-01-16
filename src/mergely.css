@@ -108,7 +108,8 @@
 	color: #717171;
 }
 .mergely-editor .CodeMirror {
-	border: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
 }
 .mergely-editor .mergely.CodeMirror-gutter-background.current {
 	background-color: #777;
