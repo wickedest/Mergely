@@ -183,19 +183,36 @@ describe('mergely', function () {
 		});
 	});
 
+    // var worker;
+    // beforeEach(function() {
+    //     window.Worker = new Worker('/base/Mergely/src/diff-worker.js');
+    // });
+
 	describe('clear', () => {
-		it.only('should clear lhs and rhs sides', function (done) {
+		it.only('should clear lhs side', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
 				license: 'lgpl-separate-notice',
 				lhs: (setValue) => setValue('left-hand side text'),
-				rhs: (setValue) => setValue('right-hand side text')
+				rhs: (setValue) => setValue(''),
+				_debug: 'api,change,debug'
 			});
+			// const test = () => {
+			// 	try {
+			// 		expect(editor.get('lhs')).to.equal('');
+			// 		expect(editor.get('rhs')).to.equal('');
+			// 		const diff = editor.diff();
+			// 		expect(diff).to.equal('');
+			// 		done();
+			// 	} catch (ex) {
+			// 		done(ex);
+			// 	}
+			// };
 			const test = () => {
 				try {
+					console.log('here')
 					expect(editor.get('lhs')).to.equal('');
-					expect(editor.get('rhs')).to.equal('');
 					const diff = editor.diff();
 					expect(diff).to.equal('');
 					done();
@@ -203,16 +220,15 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			console.log('here-1');
-			editor.el.addEventListener('updated', test, { once: true });
-			console.log('here-2');
+			console.log('here-1')
 			expect(editor.get('lhs')).to.equal('left-hand side text');
-			console.log('here-3');
-			expect(editor.get('rhs')).to.equal('right-hand side text');
-			console.log('here-4');
+			console.log('here-2')
+			editor.el.addEventListener('updated', test, { once: true });
+			console.log('here-3')
+			// expect(editor.get('lhs')).to.equal('');
+			// expect(editor.get('rhs')).to.equal('');
 			editor.clear('lhs');
-			console.log('here-5');
-			editor.clear('rhs');
+			// editor.clear('rhs');
 		});
 	});
 

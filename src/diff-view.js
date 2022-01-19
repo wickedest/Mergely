@@ -48,6 +48,7 @@ Fixed issue where line-diffs failed to diff non-alphanumeric characters
 
 TODO:
 Linting
+Unbind loads of stuff
 */
 
 const NOTICES = [
@@ -991,6 +992,7 @@ CodeMirrorDiffView.prototype._changed = function() {
 CodeMirrorDiffView.prototype._diff = function() {
 	if (this.settings._debug.includes('change')) {
 		traceTimeStart(' change#_diff');
+		trace(' change#_diff [start] worker', !!window.Worker)
 	}
 	const lhs = this.editor.lhs.getValue();
 	const rhs = this.editor.rhs.getValue();
@@ -1002,7 +1004,16 @@ CodeMirrorDiffView.prototype._diff = function() {
 			trace(' change#_diff creating diff worker');
 		}
 		this._diffWorker = new DiffWorker();
+		this._diffWorker.onerror = (ev) => {
+			console.error(' change#_diff worker error', ev);
+			for (const key of Object.keys(ev)) {
+				console.log(key);
+			}
+		}
 		this._diffWorker.onmessage = (ev) => {
+			if (this.settings._debug.includes('debug')) {
+				trace(' change#_diff worker got message');
+			}
 			this._clear();
 			this.changes = ev.data;
 			this._renderChanges();
