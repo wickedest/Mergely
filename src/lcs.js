@@ -3,7 +3,7 @@ const DiffParser = require('./diff-parser');
 
 function LCS(x, y, options) {
 	function getPositionOfWords(text, options) {
-		var exp = new RegExp(/\w+/g);
+		var exp = new RegExp(/[^\s]+/g);
 		var map = {};
 		var match;
 		var item = 0;
