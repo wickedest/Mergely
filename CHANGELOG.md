@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 4.3.9 (2022-01-19)
+
+
+### Bug Fixes
+
+* **#161:** Fixed issue with `options.ignorews` ([#162](https://github.com/wickedest/Mergely/issues/162)) ([650daaf](https://github.com/wickedest/Mergely/commit/650daaff63503f6426f64b12d8b33cfca6ef7185))
+
 ### 4.3.8 (2021-11-21)
 
 
