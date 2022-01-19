@@ -4,6 +4,8 @@
       "build",
       "chore",
       "ci",
+      "feat",
+      "fix",
       "docs",
       "style",
       "refactor",
