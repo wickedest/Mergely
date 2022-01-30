@@ -37,7 +37,7 @@ document.onreadystatechange = function () {
 				.replace(/\bfog\b/g, 'smog'));
 				//.replace(/heart/g, 'head'));
 		},
-		_debug: 'draw'
+		_debug: true
 		// _debug: 'draw,change,event'
 	});
 
