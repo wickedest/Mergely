@@ -36,9 +36,7 @@ document.onreadystatechange = function () {
 				.replace(/\brain\b/g, 'sleet')
 				.replace(/\bfog\b/g, 'smog'));
 				//.replace(/heart/g, 'head'));
-		},
-		_debug: true
-		// _debug: 'draw,change,event'
+		}
 	});
 
 	// On init, scroll to first diff
