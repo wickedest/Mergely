@@ -1,10 +1,17 @@
+const os = require('os');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpackConfig = require('./webpack.dev.js');
 
+const ENTROPY_SIZE = 1000000;
+const outputPath = `${path.join(os.tmpdir(), "_karma_webpack_")}${Math.floor(Math.random() * ENTROPY_SIZE)}`;
+
 module.exports = function(config) {
 	config.set({
 		basePath: './',
+		// browserNoActivityTimeout: 3600000,
+		// pingTimeout: 60000,
+		restartOnFileChange: true,
 
 		browsers: [
 			'ChromeHeadless'
@@ -17,7 +24,12 @@ module.exports = function(config) {
 		files: [
 			'node_modules/codemirror/lib/codemirror.css',
 			'src/mergely.css',
-			'test/**/*.spec.js'
+			'test/**/*.spec.js',
+			{
+				pattern: `${outputPath}/**/*`,
+				watched: false,
+				included: false
+			}
 		],
 
 		preprocessors: {
@@ -35,9 +47,17 @@ module.exports = function(config) {
 		singleRun: true,
 		client: {
 			captureConsole: true,
-			mocha: {}
+			mocha: {
+				timeout: 50000
+			}
 		},
-		webpack: webpackConfig,
+		// https://github.com/scottohara/tvmanager/issues/99
+		webpack: {
+			...webpackConfig,
+			output: {
+				path: outputPath
+			}
+		},
 		webpackServer: {
 			noInfo: true
 		}

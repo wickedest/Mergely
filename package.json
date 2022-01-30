@@ -54,15 +54,14 @@
     "style-loader": "^3.3.1",
     "webpack": "^5.66.0",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.7.3",
-    "worker-loader": "^3.0.8"
+    "webpack-dev-server": "^4.7.3"
   },
   "scripts": {
     "build": "npm run test && npm run build:dist",
     "build:dist": "rm -rf lib && webpack --config ./webpack.prod.js",
     "start": "webpack serve --config webpack.dev.js",
     "examples": "http-server ./ -p 3000 -o examples/index.html",
-    "debug": "karma start --browsers=Chrome --single-run=false",
+    "debug": "karma start --timeout=28000 --browsers=Chrome --single-run=false",
     "test": "karma start",
     "release": "standard-version -a"
   }

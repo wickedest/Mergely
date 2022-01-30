@@ -15,7 +15,6 @@ class Mergely {
 			'merge',
 			'mergeCurrentChange',
 			'options',
-			'remove',
 			'resize',
 			'rhs',
 			'scrollTo',
@@ -23,8 +22,7 @@ class Mergely {
 			'search',
 			'summary',
 			'swap',
-			'unmarkup',
-			'update'
+			'unmarkup'
 		];
 		for (const method of methods) {
 			this[method] = this._diffView[method].bind(this._diffView);
@@ -32,11 +30,13 @@ class Mergely {
 		this._listeners = [];
 		this.addEventListener = element.addEventListener.bind(element);
 		this.removeEventListener = element.removeEventListener.bind(element);
-		// Use `setImmediate` so that clients have opportunity to bind event
+
+		// Uset `setTimeout` so that clients have opportunity to bind event
 		// handlers.
-		// FIXME: webpack 5 has issue with `setImmediate`
-		// setImmediate(() => this._diffView.bind(element));
-		this._diffView.bind(element)
+		setTimeout(() => {
+			// it is possible to call `unbind` before this even fires
+			this._diffView && this._diffView.bind(element);
+		}, 10);
 	}
 
 	unbind() {

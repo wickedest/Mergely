@@ -23,11 +23,6 @@ module.exports = {
 			}, {
 				loader: 'css-loader'
 			}]
-		}, {
-			test: /worker\.js$/,
-			use: {
-				loader: 'worker-loader'
-			}
 		}]
 	},
 
@@ -50,16 +45,18 @@ module.exports = {
 	entry: {
 		app: [
 			'./examples/app',
-			'./src/mergely',
+			'./src/mergely'
 		]
 	},
 
 	output: {
-		filename: 'mergely.js',
+		filename: 'mergely.js'
 	},
 
 	optimization: {
+		chunkIds: 'named'
 		// splitChunks: { chunks: 'all' }
+		/*
 		splitChunks: {
 			cacheGroups: {
 				vendors: {
@@ -71,5 +68,6 @@ module.exports = {
 			minChunks: 1,
 			minSize: 30000
 		}
+		*/
 	}
 }

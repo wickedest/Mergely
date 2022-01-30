@@ -4,8 +4,6 @@ const Mergely = require('../src/mergely');
 const macbeth = require('./data/macbeth').join('\n');
 
 const defaultOptions = {
-	autoupdate: true,
-	autoresize: true,
 	rhs_margin: 'right',
 	wrap_lines: false,
 	line_numbers: true,
@@ -15,22 +13,11 @@ const defaultOptions = {
 	ignorews: false,
 	ignorecase: false,
 	ignoreaccents: false,
-	fadein: 'fast',
 	resize_timeout: 500,
 	change_timeout: 150,
-	fgcolor: {
-		a: '#4ba3fa',
-		c: '#a3a3a3',
-		d: '#ff7f7f',
-		ca: '#4b73ff',
-		cc: '#434343',
-		cd: '#ff4f4f'
-	},
 	bgcolor: '#eee',
 	vpcolor: 'rgba(0, 0, 200, 0.5)',
-	license: '',
-	width: 'auto',
-	height: 'auto',
+	license: 'lgpl-separate-notice',
 	cmsettings: {
 		styleSelectedText: true
 	}
@@ -39,38 +26,54 @@ const defaultOptions = {
 describe('mergely', function () {
 	let editor;
 	function init(options) {
-		const div = document.createElement('div');
-		div.id = 'mergely';
-		div.style.margin = '0px';
-		document.querySelector('body').appendChild(div);
 		editor = new window.Mergely('#mergely', options);
 		return editor;
 	};
 
+	before(() => {
+		const container = document.createElement('div');
+		container.style.height = '275px';
+		const div = document.createElement('div');
+		div.id = 'mergely';
+		div.style.margin = '0px';
+		container.append(div);
+		document.querySelector('body').appendChild(container);
+	});
+
 	afterEach(() => {
-		editor.remove();
+		editor && editor.unbind();
 		simple.restore();
 	});
 
 	describe('initialization', () => {
-		it('initializes without arguments', () => {
+		it('initializes without arguments', (done) => {
 			const editor = init({
 				height: 100,
 				license: 'lgpl-separate-notice'
 			});
 			expect(editor).to.exist;
-			const { children } = editor.el;
-			expect(children.length).to.equal(5);
-			expect(children[0].className).to.equal('mergely-margin');
-			expect(children[1].className).to.equal('mergely-column');
-			expect(children[2].className).to.equal('mergely-canvas');
-			expect(children[3].className).to.equal('mergely-column');
-			expect(children[4].className).to.equal('mergely-margin');
-			expect(editor.get('lhs')).to.equal('');
-			expect(editor.get('rhs')).to.equal('');
+			editor.once('updated', () => {
+				const { children } = editor.el;
+				const items = Array.from(children).map(a => a.className);
+				// NOTE: if running karma debug, these tests can fail because
+				// the debugger grabs the focus and the CodeMirror instance
+				// loses `CodeMirror-focused`
+				expect(items).to.deep.equal([
+					'mergely-margin',
+					'mergely-column',
+					'CodeMirror cm-s-default CodeMirror-focused',
+					'mergely-canvas',
+					'mergely-column',
+					'CodeMirror cm-s-default',
+					'mergely-margin'
+				]);
+				expect(editor.get('lhs')).to.equal('');
+				expect(editor.get('rhs')).to.equal('');
+				done();
+			});
 		});
 
-		it('initializes with static arguments for lhs/rhs text', function () {
+		it('initializes with static arguments for lhs/rhs text', function (done) {
 			const editor = init({
 				height: 100,
 				license: 'lgpl-separate-notice',
@@ -78,82 +81,89 @@ describe('mergely', function () {
 				rhs: (setValue) => setValue('right-hand side text')
 			});
 			expect(editor).to.exist;
-			const { children } = editor.el;
-			expect(children.length).to.equal(5);
-			expect(children[0].className).to.equal('mergely-margin');
-			expect(children[1].className).to.equal('mergely-column');
-			expect(children[2].className).to.equal('mergely-canvas');
-			expect(children[3].className).to.equal('mergely-column');
-			expect(children[4].className).to.equal('mergely-margin');
-			expect(editor.get('lhs')).to.equal('left-hand side text');
-			expect(editor.get('rhs')).to.equal('right-hand side text');
+			editor.once('updated', () => {
+				const { children } = editor.el;
+				const items = Array.from(children).map(a => a.className);
+				// NOTE: if running karma debug, these tests can fail because
+				// the debugger grabs the focus and the CodeMirror instance
+				// loses `CodeMirror-focused`
+				expect(items).to.deep.equal([
+					'mergely-margin',
+					'mergely-column',
+					'CodeMirror cm-s-default CodeMirror-focused',
+					'mergely-canvas',
+					'mergely-column',
+					'CodeMirror cm-s-default',
+					'mergely-margin'
+				]);
+				expect(editor.get('lhs')).to.equal('left-hand side text');
+				expect(editor.get('rhs')).to.equal('right-hand side text');
+				done();
+			});
 		});
 
-		it('initializes with no sidebar', function () {
+		it('initializes with no sidebar', function (done) {
 			const editor = init({
 				height: 100,
 				license: 'lgpl-separate-notice',
 				sidebar: false
 			});
 			expect(editor).to.exist;
-			const { children } = editor.el;
-			expect(children.length).to.equal(5);
-			expect(children[0].className).to.equal('mergely-margin');
-			expect(children[0].style.visibility).to.equal('hidden');
-			expect(children[1].className).to.equal('mergely-column');
-			expect(children[2].className).to.equal('mergely-canvas');
-			expect(children[3].className).to.equal('mergely-column');
-			expect(children[4].className).to.equal('mergely-margin');
-			expect(children[4].style.visibility).to.equal('hidden');
+			editor.once('updated', () => {
+				const { children } = editor.el;
+				const items = Array.from(children).map(a => a.className);
+				// NOTE: if running karma debug, these tests can fail because
+				// the debugger grabs the focus and the CodeMirror instance
+				// loses `CodeMirror-focused`
+				expect(items).to.deep.equal([
+					'mergely-margin',
+					'mergely-column',
+					'CodeMirror cm-s-default CodeMirror-focused',
+					'mergely-canvas',
+					'mergely-column',
+					'CodeMirror cm-s-default',
+					'mergely-margin'
+				]);
+				expect(children[0].style.visibility).to.equal('hidden');
+				expect(children[6].style.visibility).to.equal('hidden');
+				done();
+			});
 		});
 
-		it('initializes with default options', function () {
+		it('initializes with default options', function (done) {
 			const editor = init();
-			const options = editor.options();
-			expect(options).to.deep.include({
-				autoupdate: true,
-				autoresize: true,
-				rhs_margin: 'right',
-				wrap_lines: false,
-				line_numbers: true,
-				lcs: true,
-				sidebar: true,
-				viewport: false,
-				ignorews: false,
-				ignorecase: false,
-				ignoreaccents: false,
-				fadein: 'fast',
-				resize_timeout: 500,
-				change_timeout: 150,
-				fgcolor: {
-					a: '#4ba3fa',
-					c: '#a3a3a3',
-					d: '#ff7f7f',
-					ca: '#4b73ff',
-					cc: '#434343',
-					cd: '#ff4f4f'
-				},
-				bgcolor: '#eee',
-				vpcolor: 'rgba(0, 0, 200, 0.5)',
-				license: 'lgpl',
-				width: 'auto',
-				height: 'auto',
-				cmsettings: {
-					styleSelectedText: true
-				},
-				lhs_cmsettings: {},
-				rhs_cmsettings: {}
+			editor.once('updated', () => {
+				const options = editor.options();
+				expect(options).to.deep.include({
+					rhs_margin: 'right',
+					wrap_lines: false,
+					line_numbers: true,
+					lcs: true,
+					sidebar: true,
+					viewport: false,
+					ignorews: false,
+					ignorecase: false,
+					ignoreaccents: false,
+					resize_timeout: 500,
+					change_timeout: 50,
+					bgcolor: '#eee',
+					vpcolor: 'rgba(0, 0, 200, 0.5)',
+					license: 'lgpl',
+					cmsettings: {
+						styleSelectedText: true
+					},
+					lhs_cmsettings: {},
+					rhs_cmsettings: {}
+				});
+				expect(options.lhs).to.be.a('function');
+				expect(options.rhs).to.be.a('function');
+				expect(options.loaded).to.be.a('function');
+				done();
 			});
-			expect(options.lhs).to.be.a('function');
-			expect(options.rhs).to.be.a('function');
-			expect(options.loaded).to.be.a('function');
-			expect(options.resize).to.be.a('function');
-			expect(options.resized).to.be.a('function');
 		});
 
 		it('initializes with options', function () {
 			const initOptions = {
-				autoupdate: false,
 				fgcolor: {
 					a: 'red',
 					c: 'green',
@@ -183,57 +193,32 @@ describe('mergely', function () {
 		});
 	});
 
-    // var worker;
-    // beforeEach(function() {
-    //     window.Worker = new Worker('/base/Mergely/src/diff-worker.js');
-    // });
-
 	describe('clear', () => {
-		it.only('should clear lhs side', function (done) {
+		it('should clear lhs side', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
 				license: 'lgpl-separate-notice',
 				lhs: (setValue) => setValue('left-hand side text'),
-				rhs: (setValue) => setValue(''),
-				_debug: 'api,change,debug'
+				rhs: (setValue) => setValue('right-hand side text'),
+				debug: 'api,draw,event'
 			});
-			// const test = () => {
-			// 	try {
-			// 		expect(editor.get('lhs')).to.equal('');
-			// 		expect(editor.get('rhs')).to.equal('');
-			// 		const diff = editor.diff();
-			// 		expect(diff).to.equal('');
-			// 		done();
-			// 	} catch (ex) {
-			// 		done(ex);
-			// 	}
-			// };
 			const test = () => {
 				try {
-					console.log('here')
 					expect(editor.get('lhs')).to.equal('');
-					const diff = editor.diff();
-					expect(diff).to.equal('');
+					expect(editor.get('rhs')).to.equal('right-hand side text');
 					done();
 				} catch (ex) {
 					done(ex);
 				}
 			};
-			console.log('here-1')
-			expect(editor.get('lhs')).to.equal('left-hand side text');
-			console.log('here-2')
-			editor.el.addEventListener('updated', test, { once: true });
-			console.log('here-3')
-			// expect(editor.get('lhs')).to.equal('');
-			// expect(editor.get('rhs')).to.equal('');
-			editor.clear('lhs');
-			// editor.clear('rhs');
+			editor.once('updated', () => {
+				editor.clear('lhs');
+				test();
+			});
 		});
-	});
 
-	describe('cm', () => {
-		it('should get CodeMirror from lhs and rhs sides', function () {
+		it('should clear rhs side', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -241,11 +226,40 @@ describe('mergely', function () {
 				lhs: (setValue) => setValue('left-hand side text'),
 				rhs: (setValue) => setValue('right-hand side text')
 			});
-			const lcm = editor.cm('lhs');
-			const rcm = editor.cm('rhs');
-			expect(lcm).to.not.equal(rcm);
-			expect(lcm.getValue()).to.equal('left-hand side text');
-			expect(rcm.getValue()).to.equal('right-hand side text');
+			const test = () => {
+				try {
+					expect(editor.get('lhs')).to.equal('left-hand side text');
+					expect(editor.get('rhs')).to.equal('');
+					done();
+				} catch (ex) {
+					done(ex);
+				}
+			};
+			editor.once('updated', () => {
+				editor.clear('rhs');
+				test();
+			});
+		});
+
+	});
+
+	describe('cm', () => {
+		it('should get CodeMirror from lhs and rhs sides', function (done) {
+			const editor = init({
+				height: 100,
+				change_timeout: 0,
+				license: 'lgpl-separate-notice',
+				lhs: (setValue) => setValue('left-hand 2 side text'),
+				rhs: (setValue) => setValue('right-hand 2 side text')
+			});
+			editor.once('updated', () => {
+				const lcm = editor.cm('lhs');
+				const rcm = editor.cm('rhs');
+				expect(lcm).to.not.equal(rcm);
+				expect(lcm.getValue()).to.equal('left-hand 2 side text');
+				expect(rcm.getValue()).to.equal('right-hand 2 side text');
+				done();
+			});
 		});
 	});
 
@@ -258,8 +272,10 @@ describe('mergely', function () {
 				lhs: (setValue) => setValue('left-hand side text'),
 				rhs: (setValue) => setValue('right-hand side text')
 			});
-			expect(editor.get('lhs')).to.equal('left-hand side text');
-			expect(editor.get('rhs')).to.equal('right-hand side text');
+			editor.once('updated', () => {
+				expect(editor.get('lhs')).to.equal('left-hand side text');
+				expect(editor.get('rhs')).to.equal('right-hand side text');
+			});
 		});
 	});
 
@@ -279,9 +295,11 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
-			expect(editor.get('lhs')).to.equal('left-hand side text');
-			editor.lhs('banana');
+			editor.once('updated', () => {
+				expect(editor.get('lhs')).to.equal('left-hand side text');
+				editor.lhs('banana');
+				test();
+			});
 		});
 	});
 
@@ -295,15 +313,17 @@ describe('mergely', function () {
 			});
 			const test = () => {
 				try {
-					expect(editor.get('lhs')).to.equal('banana');
+					expect(editor.get('rhs')).to.equal('banana');
 					done();
 				} catch (ex) {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
-			expect(editor.get('rhs')).to.equal('right-hand side text');
-			editor.lhs('banana');
+			editor.once('updated', () => {
+				expect(editor.get('rhs')).to.equal('right-hand side text');
+				editor.rhs('banana');
+				test();
+			});
 		});
 	});
 
@@ -327,10 +347,12 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
-			expect(editor.get('lhs')).to.equal('left-hand side text');
-			expect(editor.get('rhs')).to.equal('right-hand side text');
-			editor.merge('rhs');
+			editor.once('updated', () => {
+				expect(editor.get('lhs')).to.equal('left-hand side text');
+				expect(editor.get('rhs')).to.equal('right-hand side text');
+				editor.merge('rhs');
+				test();
+			});
 		});
 
 		it('should merge rhs to lhs', function (done) {
@@ -352,10 +374,12 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
-			expect(editor.get('lhs')).to.equal('left-hand side text');
-			expect(editor.get('rhs')).to.equal('right-hand side text');
-			editor.merge('lhs');
+			editor.once('updated', () => {
+				expect(editor.get('lhs')).to.equal('left-hand side text');
+				expect(editor.get('rhs')).to.equal('right-hand side text');
+				editor.merge('lhs');
+				test();
+			});
 		});
 	});
 
@@ -697,7 +721,7 @@ describe('mergely', function () {
 					license: 'lgpl-separate-notice',
 					change_timeout: 0,
 					lhs: (setValue) => setValue(opt.lhs),
-					rhs: (setValue) => setValue(opt.rhs),
+					rhs: (setValue) => setValue(opt.rhs)
 				});
 				const test = () => {
 					try {
@@ -710,15 +734,15 @@ describe('mergely', function () {
 						done(ex);
 					}
 				};
-				editor.el.addEventListener('updated', test, { once: true });
+				editor.once('updated', test);
 			});
 		});
 	});
 
 	describe('options', () => {
 		it('should not change any options if object empty', function (done) {
+			let currentOptions;
 			const editor = init({
-				height: 100,
 				change_timeout: 0,
 				license: 'lgpl-separate-notice',
 				lhs: (setValue) => setValue('left-hand side text'),
@@ -727,20 +751,23 @@ describe('mergely', function () {
 			const test = () => {
 				try {
 					const newOptions = editor.options();
-					expect(defaultOptions).to.deep.equal(newOptions);
+					expect(currentOptions).to.deep.equal(newOptions);
 					done();
 				} catch (ex) {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
-			const defaultOptions = editor.options();
-			editor.options({});
+			editor.once('updated', () => {
+				currentOptions = editor.options();
+				editor.once('updated', test);
+				editor.options({});
+				test();
+			});
 		});
 
 		it('should change options', function (done) {
+			let currentOptions;
 			const editor = init({
-				height: 100,
 				change_timeout: 0,
 				license: 'lgpl-separate-notice',
 				lhs: (setValue) => setValue('left-hand side text'),
@@ -761,7 +788,7 @@ describe('mergely', function () {
 				try {
 					const newOptions = editor.options();
 					expect(newOptions).to.deep.equal({
-						...defaultOptions,
+						...currentOptions,
 						...changes
 					});
 					done();
@@ -769,12 +796,15 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
-			const defaultOptions = editor.options();
-			editor.options(changes);
+			editor.once('updated', () => {
+				currentOptions = editor.options();
+				editor.once('updated', test);
+				editor.options(changes);
+				test();
+			});
 		});
 
-		it('should ignore white-space', function () {
+		it('should ignore white-space', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -783,10 +813,15 @@ describe('mergely', function () {
 				lhs: (setValue) => setValue('\tthis is  text'),
 				rhs: (setValue) => setValue('this\tis\ttext\t\t')
 			});
-			expect(editor.diff()).to.equal('');
+			editor.once('updated', () => {
+				expect(editor.diff()).to.equal('');
+				expect(editor.el.querySelectorAll('.mergely.ch.d')).to.have.length(0);
+				expect(editor.el.querySelectorAll('.mergely.ch.a')).to.have.length(0);
+				done();
+			});
 		});
 
-		it('should ignore case', function () {
+		it('should ignore case', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -795,10 +830,13 @@ describe('mergely', function () {
 				lhs: (setValue) => setValue('thIS IS text'),
 				rhs: (setValue) => setValue('this is text')
 			});
-			expect(editor.diff()).to.equal('');
+			editor.once('updated', () => {
+				expect(editor.diff()).to.equal('');
+				done();
+			});
 		});
 
-		it('should ignore accented characters', function () {
+		it('should ignore accented characters', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -807,10 +845,13 @@ describe('mergely', function () {
 				lhs: (setValue) => setValue('comunicação'),
 				rhs: (setValue) => setValue('comunicacao')
 			});
-			expect(editor.diff()).to.equal('');
+			editor.once('updated', () => {
+				expect(editor.diff()).to.equal('');
+				done();
+			});
 		});
 
-		it('should ignore white-space, case, and accented characters', function () {
+		it('should ignore white-space, case, and accented characters', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -821,32 +862,28 @@ describe('mergely', function () {
 				lhs: (setValue) => setValue('This is Comunicação'),
 				rhs: (setValue) => setValue('\t\tthis\tis\tcomunicacao')
 			});
-			expect(editor.diff()).to.equal('');
+			editor.once('updated', () => {
+				expect(editor.diff()).to.equal('');
+				done();
+			});
 		});
 	});
 
 	describe('resize', () => {
-		it('should trigger resize', function (done) {
+		it('should trigger update on resize', function (done) {
 			const loaded = simple.stub();
-			const resized = simple.stub();
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
 				license: 'lgpl-separate-notice',
-				loaded,
-				resized
+				loaded
 			});
-			const test = () => {
-				try {
-					expect(loaded.calls).to.have.length(1);
-					expect(resized.calls).to.have.length(3);
+			editor.once('updated', () => {
+				editor.once('updated', () => {
 					done();
-				} catch (ex) {
-					done(ex);
-				}
-			};
-			editor.el.addEventListener('updated', test, { once: true });
-			editor.resize();
+				});
+				editor.resize();
+			});
 		});
 	});
 
@@ -862,8 +899,8 @@ describe('mergely', function () {
 			const test = () => {
 				try {
 					const {
-						_is_change_in_view: isVisible,
-						_get_viewport_side: getViewport,
+						_isChangeInView: isVisible,
+						_getViewportSide: getViewport,
 						changes
 					} = editor._diffView;
 					let vp = getViewport.call(editor._diffView, 'lhs');
@@ -871,29 +908,31 @@ describe('mergely', function () {
 					const change = changes[4];
 					expect(isVisible('lhs', vp, change)).to.be.false;
 					expect(isVisible('rhs', vp, change)).to.be.false;
-					editor.el.addEventListener('updated', () => {
+					editor.once('updated', () => {
 						try {
 							vp = getViewport.call(editor._diffView, 'lhs');
-							expect(vp).to.deep.equal({ from: 680, to: 708 });
+							expect(vp).to.deep.equal({ from: 687, to: 703 });
 							expect(isVisible('lhs', vp, change)).to.be.true;
 							expect(isVisible('rhs', vp, change)).to.be.true;
 							done();
 						} catch (ex) {
 							done(ex);
 						}
-					}, { once: true });
+					});
 					editor.scrollTo('lhs', 696);
 				} catch (ex) {
 					done(ex);
 				}
 			};
-			expect(editor.diff()).to.include('696c696');
-			editor.el.addEventListener('updated', test, { once: true });
+			editor.once('updated', () => {
+				expect(editor.diff()).to.include('696c696');
+				test();
+			});
 		});
 	});
 
 	describe('scrollToDiff', () => {
-		it('should scroll next to specific diff and scroll into view', function (done) {
+		it('should scroll next 4 times and scroll into view', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -903,37 +942,37 @@ describe('mergely', function () {
 			});
 			let count = 0;
 			const test = () => {
-				if (count < 4) {
-					count += 1;
+				count += 1;
+				if (count <= 4) {
 					editor.scrollToDiff('next');
 					return;
 				}
 				try {
 					const {
-						_is_change_in_view: isVisible,
-						_get_viewport_side: getViewport,
+						_isChangeInView: isVisible,
+						_getViewportSide: getViewport,
 						changes
 					} = editor._diffView;
-					const change = changes[4];
-
+					const change = changes[3];
 					vp = getViewport.call(editor._diffView, 'lhs');
-					expect(vp).to.deep.equal({ from: 666, to: 706 });
+					expect(vp).to.deep.equal({ from: 673, to: 689 });
 					expect(isVisible('lhs', vp, change)).to.be.true;
 					expect(isVisible('rhs', vp, change)).to.be.true;
 					done();
 				} catch (ex) {
 					done(ex);
-				} finally {
-					editor.el.removeEventListener(test);
 				}
 			};
-			expect(editor.diff()).to.include('696c696');
-			editor.el.addEventListener('updated', test);
+			// intentional `editor.on`
+			editor.on('updated', () => {
+				expect(editor.diff()).to.include('696c696');
+				test();
+			});
 		});
 	});
 
 	describe('search', () => {
-		it('should search', function (done) {
+		it('should search and scroll to match', function (done) {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -943,33 +982,25 @@ describe('mergely', function () {
 			});
 			let count = 0;
 			const test = () => {
-				if (count < 2) {
-					// init, scroll, search
-					count += 1;
-					if (count === 2) {
-						editor.search('lhs', 'knock');
-					}
-					return;
-				}
 				try {
 					const {
-						_is_change_in_view: isVisible,
-						_get_viewport_side: getViewport,
+						_isChangeInView: isVisible,
+						_getViewportSide: getViewport,
 						changes
 					} = editor._diffView;
 					const change = changes[4];
 
 					const vp = getViewport.call(editor._diffView, 'lhs');
-					expect(vp).to.deep.equal({ from: 323, to: 349 });
+					expect(vp).to.deep.equal({ from: 325, to: 340 });
 					done();
 				} catch (ex) {
 					done(ex);
-				} finally {
-					editor.el.removeEventListener(test);
 				}
 			};
-			expect(editor.diff()).to.include('696c696');
-			editor.el.addEventListener('updated', test);
+			editor.once('updated', () => {
+				editor.search('lhs', 'knock');
+				test();
+			});
 		});
 	});
 
@@ -991,10 +1022,10 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', () => {
+			editor.once('updated', () => {
+				editor.once('updated', test);
 				editor.swap();
-				editor.el.addEventListener('updated', test, { once: true });
-			}, { once: true });
+			});
 		});
 	});
 
@@ -1016,21 +1047,21 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', () => {
+			editor.once('updated', () => {
 				try {
 					const found = document.querySelector('.mergely.ch.d.lhs');
 					expect(found).to.not.be.null;
 				} catch (ex) {
 					return done(ex);
 				}
-				editor.el.addEventListener('updated', test, { once: true });
+				editor.once('updated', test);
 				editor.unmarkup();
-			}, { once: true });
+			});
 		});
 	});
 
 	describe('update', () => {
-		it('should not trigger update on init when autoupdate is false', (done) => {
+		it('should trigger update on options', (done) => {
 			const editor = init({
 				height: 100,
 				change_timeout: 0,
@@ -1039,120 +1070,40 @@ describe('mergely', function () {
 				lhs: (setValue) => setValue('left-hand side text'),
 				rhs: (setValue) => setValue('right-hand side text')
 			});
-			const updated = simple.stub();
-			editor.el.addEventListener('updated', updated, { once: true });
-			setTimeout(() => {
-				const found = document.querySelector('.mergely.ch.d.lhs');
-				try {
-					expect(found).to.be.null;
-					expect(updated.calls).to.have.length(0);
-					done();
-				} catch (ex) {
-					done(ex);
-				}
-			}, 150);
+			const test = () => done();
+			editor.once('updated', () => {
+				editor.once('updated', test);
+				editor.options({ wrap_lines: false });
+			});
 		});
 
-		it('should not trigger update on options when autoupdate is false', (done) => {
+		it('should trigger update on lhs/rhs change', (done) => {
 			const editor = init({
-				height: 100,
-				change_timeout: 0,
-				autoupdate: false,
-				license: 'lgpl-separate-notice',
 				lhs: (setValue) => setValue('left-hand side text'),
 				rhs: (setValue) => setValue('right-hand side text')
 			});
-			const updated = simple.stub();
-			editor.el.addEventListener('updated', updated, { once: true });
-			setTimeout(() => {
-				const found = document.querySelector('.mergely.ch.d.lhs');
-				try {
-					expect(found).to.be.null;
-					expect(updated.calls).to.have.length(0);
-					done();
-				} catch (ex) {
-					done(ex);
-				}
-			}, 150);
-			editor.options({ wrap_lines: false });
-		});
-
-		it('should not trigger update on lhs/rhs change when autoupdate is false', (done) => {
-			const editor = init({
-				height: 100,
-				change_timeout: 0,
-				autoupdate: false,
-				license: 'lgpl-separate-notice',
-				lhs: (setValue) => setValue('left-hand side text'),
-				rhs: (setValue) => setValue('right-hand side text')
+			const test = () => done();
+			editor.once('updated', () => {
+				editor.once('updated', test);
+				editor.lhs('lhs text');
+				editor.rhs('rhs text');
 			});
-			const updated = simple.stub();
-			editor.el.addEventListener('updated', updated, { once: true });
-			setTimeout(() => {
-				const found = document.querySelector('.mergely.ch.d.lhs');
-				try {
-					expect(found).to.be.null;
-					expect(updated.calls).to.have.length(0);
-					done();
-				} catch (ex) {
-					done(ex);
-				}
-			}, 150);
-			editor.lhs('lhs text');
-			editor.rhs('rhs text');
 		});
 
-		it('should not trigger update on scroll when autoupdate is false', (done) => {
+		it('should trigger update on scroll', (done) => {
 			const editor = init({
-				height: 100,
-				change_timeout: 0,
-				autoupdate: false,
-				license: 'lgpl-separate-notice',
 				lhs: (setValue) => setValue(macbeth),
 				rhs: (setValue) => setValue(macbeth.replace(/place/g, 'space'))
 			});
-			const updated = simple.stub();
-			editor.el.addEventListener('updated', updated, { once: true });
-			setTimeout(() => {
-				const found = document.querySelector('.mergely.ch.d.lhs');
-				try {
-					expect(found).to.be.null;
-					expect(updated.calls).to.have.length(0);
-					done();
-				} catch (ex) {
-					done(ex);
-				}
-			}, 150);
-			editor.scrollTo('lhs', 696);
-		});
-
-		it('should manually update when autoupdate is false', (done) => {
-			const editor = init({
-				height: 100,
-				change_timeout: 0,
-				autoupdate: false,
-				license: 'lgpl-separate-notice',
-				lhs: (setValue) => setValue(macbeth),
-				rhs: (setValue) => setValue(macbeth.replace(/place/g, 'space'))
-			});
-			const test = () => {
-				try {
-					const found = document.querySelector('.mergely.ch.d.lhs');
-					expect(found).not.to.be.null;
-					done();
-				} catch (ex) {
-					done(ex);
-				}
-			};
-			editor.el.addEventListener('updated', test, { once: true });
-			setTimeout(() => {
+			const test = () => done();
+			editor.once('updated', () => {
+				editor.once('updated', test);
 				editor.scrollTo('lhs', 696);
-				editor.update();
-			}, 80);
+			});
 		});
 	});
 
-	describe('_is_change_in_view', () => {
+	describe('_isChangeInView', () => {
 		it('should be false when change less-than viewport', function (done) {
 			const editor = init({
 				height: 100,
@@ -1164,7 +1115,7 @@ describe('mergely', function () {
 			});
 			const test = () => {
 				try {
-					const { _is_change_in_view: isVisible } = editor._diffView;
+					const { _isChangeInView: isVisible } = editor._diffView;
 					expect(isVisible('lhs', {from: 10, to: 20}, {
 						'lhs-line-from': 0,
 						'lhs-line-to': 9
@@ -1174,7 +1125,7 @@ describe('mergely', function () {
 					done(ex);
 				}
 			}
-			editor.el.addEventListener('updated', test, { once: true });
+			editor.once('updated', test);
 		});
 
 		it('should be true when change less-than-equal viewport', function (done) {
@@ -1188,7 +1139,7 @@ describe('mergely', function () {
 			});
 			const test = () => {
 				try {
-					const { _is_change_in_view: isVisible } = editor._diffView;
+					const { _isChangeInView: isVisible } = editor._diffView;
 					expect(isVisible('lhs', {from: 10, to: 20}, {
 						'lhs-line-from': 0,
 						'lhs-line-to': 10
@@ -1198,7 +1149,7 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
+			editor.once('updated', test);
 		});
 
 		it('should be false when change greater-than viewport', function (done) {
@@ -1212,7 +1163,7 @@ describe('mergely', function () {
 			});
 			const test = () => {
 				try {
-					const { _is_change_in_view: isVisible } = editor._diffView;
+					const { _isChangeInView: isVisible } = editor._diffView;
 					expect(isVisible('lhs', {from: 10, to: 20}, {
 						'lhs-line-from': 21,
 						'lhs-line-to': 22
@@ -1222,7 +1173,7 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
+			editor.once('updated', test);
 		});
 
 		it('should be true when change straddles viewport from', function (done) {
@@ -1236,7 +1187,7 @@ describe('mergely', function () {
 			});
 			const test = () => {
 				try {
-					const { _is_change_in_view: isVisible } = editor._diffView;
+					const { _isChangeInView: isVisible } = editor._diffView;
 					expect(isVisible('lhs', {from: 10, to: 20}, {
 						'lhs-line-from': 5,
 						'lhs-line-to': 11
@@ -1246,7 +1197,7 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
+			editor.once('updated', test);
 		});
 
 		it('should be true when change straddles viewport to', function (done) {
@@ -1260,7 +1211,7 @@ describe('mergely', function () {
 			});
 			const test = () => {
 				try {
-					const { _is_change_in_view: isVisible } = editor._diffView;
+					const { _isChangeInView: isVisible } = editor._diffView;
 					expect(isVisible('lhs', {from: 10, to: 20}, {
 						'lhs-line-from': 15,
 						'lhs-line-to': 21
@@ -1270,7 +1221,7 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
+			editor.once('updated', test);
 		});
 
 		it('should be true when change encompasses viewport', function (done) {
@@ -1284,7 +1235,7 @@ describe('mergely', function () {
 			});
 			const test = () => {
 				try {
-					const { _is_change_in_view: isVisible } = editor._diffView;
+					const { _isChangeInView: isVisible } = editor._diffView;
 					expect(isVisible('lhs', {from: 10, to: 20}, {
 						'lhs-line-from': 0,
 						'lhs-line-to': 25
@@ -1294,7 +1245,7 @@ describe('mergely', function () {
 					done(ex);
 				}
 			};
-			editor.el.addEventListener('updated', test, { once: true });
+			editor.once('updated', test);
 		});
 	});
 
@@ -1308,11 +1259,13 @@ describe('mergely', function () {
 				lhs: (setValue) => setValue(xss),
 				rhs: (setValue) => setValue('')
 			});
-			// the value is as expected
-			expect(editor.get('lhs')).to.equal(xss);
-			// yet, shouldn't find injected script in DOM
-			const found = document.querySelector('#injected');
-			done(found !== null);
+			editor.once('updated', () => {
+				// the value is as expected
+				expect(editor.get('lhs')).to.equal(xss);
+				// yet, shouldn't find injected script in DOM
+				const found = document.querySelector('#injected');
+				done(found !== null);
+			});
 		});
 	});
 });
