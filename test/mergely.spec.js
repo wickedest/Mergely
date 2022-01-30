@@ -14,13 +14,16 @@ const defaultOptions = {
 	ignorecase: false,
 	ignoreaccents: false,
 	resize_timeout: 500,
-	change_timeout: 150,
+	change_timeout: 50,
+	lhs_cmsettings: {},
+	rhs_cmsettings: {},
 	bgcolor: '#eee',
 	vpcolor: 'rgba(0, 0, 200, 0.5)',
-	license: 'lgpl-separate-notice',
+	license: 'lgpl',
 	cmsettings: {
 		styleSelectedText: true
-	}
+	},
+	_debug: false
 };
 
 describe('mergely', function () {
@@ -47,10 +50,7 @@ describe('mergely', function () {
 
 	describe('initialization', () => {
 		it('initializes without arguments', (done) => {
-			const editor = init({
-				height: 100,
-				license: 'lgpl-separate-notice'
-			});
+			const editor = init();
 			expect(editor).to.exist;
 			editor.once('updated', () => {
 				const { children } = editor.el;
@@ -126,38 +126,6 @@ describe('mergely', function () {
 				]);
 				expect(children[0].style.visibility).to.equal('hidden');
 				expect(children[6].style.visibility).to.equal('hidden');
-				done();
-			});
-		});
-
-		it('initializes with default options', function (done) {
-			const editor = init();
-			editor.once('updated', () => {
-				const options = editor.options();
-				expect(options).to.deep.include({
-					rhs_margin: 'right',
-					wrap_lines: false,
-					line_numbers: true,
-					lcs: true,
-					sidebar: true,
-					viewport: false,
-					ignorews: false,
-					ignorecase: false,
-					ignoreaccents: false,
-					resize_timeout: 500,
-					change_timeout: 50,
-					bgcolor: '#eee',
-					vpcolor: 'rgba(0, 0, 200, 0.5)',
-					license: 'lgpl',
-					cmsettings: {
-						styleSelectedText: true
-					},
-					lhs_cmsettings: {},
-					rhs_cmsettings: {}
-				});
-				expect(options.lhs).to.be.a('function');
-				expect(options.rhs).to.be.a('function');
-				expect(options.loaded).to.be.a('function');
 				done();
 			});
 		});
@@ -740,6 +708,29 @@ describe('mergely', function () {
 	});
 
 	describe('options', () => {
+		it('should have default options', function (done) {
+			const editor = init();
+			const test = () => {
+				try {
+					const currentOptions = editor.options();
+					expect(currentOptions).to.deep.equal({
+						...defaultOptions,
+						lhs: currentOptions.lhs,
+						rhs: currentOptions.rhs
+					});
+					done();
+				} catch (ex) {
+					done(ex);
+				}
+			};
+			editor.once('updated', () => {
+				currentOptions = editor.options();
+				editor.once('updated', test);
+				editor.options({});
+				test();
+			});
+		});
+
 		it('should not change any options if object empty', function (done) {
 			let currentOptions;
 			const editor = init({

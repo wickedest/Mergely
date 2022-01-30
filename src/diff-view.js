@@ -96,7 +96,6 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		rhs_cmsettings: {},
 		lhs: function(setValue) { },
 		rhs: function(setValue) { },
-		loaded: function() { },
 		_debug: false,
 		// user supplied options
 		...options
