@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" /><title>Mergely - Example scroll to first change</title>
+	<meta charset="utf-8" />
+	<title>Mergely - Example fixed height editor</title>
 	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 	<meta name="description" content="" />
-	<meta name="keywords" content="" />
+	<meta name="keywords" content="mergely,diff,merge,compare" />
 	<meta name="author" content="Jamie Peabody" />
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
@@ -15,34 +16,28 @@
 	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css" />
 
 	<!-- Mergely -->
-	<script type="text/javascript" src="/lib/mergely.js"></script>
 	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
+	<script type="text/javascript" src="/lib/mergely.js"></script>
 
 	<style type="text/css">
 		html, body {
-			height: 100%;
 			margin: 0;
 		}
 		#compare {
-			height: 100%;
+			height: 300px;
 		}
 	</style>
 </head>
 <body>
 	<div id="compare"></div>
 
-	<script type="text/javascript">
-		const doc = new Mergely('#compare');
+	<script>
+		const doc = new Mergely('#compare', {
+			license: 'lgpl'
+		});
 		doc.once('updated', () => {
-			fetch('/examples/macbeth.txt')
-				.then(response => response.text())
-				.then(macbeth => {
-					doc.lhs(macbeth.replace(/filthy/g, 'dirty'));
-					doc.rhs(macbeth);
-				});
-			doc.once('updated', () => {
-				doc.scrollToDiff('next');
-			});
+			doc.lhs('the quick red fox\njumped over the hairy dog');
+			doc.rhs('the quick brown fox\njumped over the lazy dog');
 		});
 	</script>
 </body>

@@ -19,24 +19,18 @@ document.onreadystatechange = function () {
 		return;
 	}
 
-	const doc = new Mergely('#mergely', {
+	const doc = new Mergely('#compare', {
 		license: 'lgpl',
-		ignorews: true,
-		wrap_lines: false,
-		change_timeout: 50,
-		viewport: true,
-		cmsettings: {
-			readOnly: false
-		},
-		lhs: function(setValue) {
-			setValue(macbeth.join('\n'));
-		},
-		rhs: function(setValue) {
-			setValue(macbeth.join('\n')
-				.replace(/\brain\b/g, 'sleet')
-				.replace(/\bfog\b/g, 'smog'));
-				//.replace(/heart/g, 'head'));
-		}
+		// ignorews: true,
+		// wrap_lines: false,
+		// change_timeout: 50,
+		// viewport: true,
+		// cmsettings: {
+		// 	readOnly: true
+		// },
+		line_numbers: false,
+		lhs: (setValue) => setValue(lhs),
+		rhs: (setValue) => setValue(rhs)
 	});
 
 	// On init, scroll to first diff

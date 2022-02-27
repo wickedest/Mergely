@@ -90,7 +90,7 @@ class VDoc {
 		this._setRenderedChange(side, changeId);
 	}
 
-	addInlineDiff(change, { getText, ignorews, ignoreaccents }) {
+	addInlineDiff(change, { getText, ignorews, ignoreaccents, ignorecase }) {
 		const { lf, lt, olf, olt } = getExtents('lhs', change);
 		const vdoc = this;
 
@@ -107,7 +107,8 @@ class VDoc {
 				// is empty.
 				const lcs = new LCS(lhsText, rhsText, {
 					ignoreaccents,
-					ignorews
+					ignorews,
+					ignorecase
 				});
 
 				// TODO: there might be an LCS performance gain here to move
@@ -149,7 +150,7 @@ class VDoc {
 			if (id < viewport.from || id > viewport.to) {
 				continue;
 			}
-			
+
 			const vline = this._getLine(side, id);
 			if (vline.rendered) {
 				continue;
@@ -199,34 +200,36 @@ class VLine {
 			return;
 		}
 		this.editor = editor;
-		if (this.background.size) {
-			const clazz = Array.from(this.background).join(' ');
-			editor.addLineClass(this.id, 'background', clazz);
-		}
-		if (this.gutter.size) {
-			const clazz = Array.from(this.gutter).join(' ');
-			editor.addLineClass(this.id, 'gutter', clazz);
-		}
-		if (this.marker) {
-			const [ name, item, handler ] = this.marker;
-			item.addEventListener('click', handler);
-			editor.setGutterMarker(this.id, name, item);
-		}
-		if (this.markup.length) {
-			for (const markup of this.markup) {
-				const [ charFrom, charTo, className ] = markup;
-				const fromPos = { line: this.id };
-				const toPos = { line: this.id };
-				if (charFrom >= 0) {
-					fromPos.ch = charFrom;
-				}
-				if (charTo >= 0) {
-					toPos.ch = charTo;
-				}
-				this._clearMarkup.push(
-					editor.markText(fromPos, toPos, { className }));
+		editor.operation(() => {
+			if (this.background.size) {
+				const clazz = Array.from(this.background).join(' ');
+				editor.addLineClass(this.id, 'background', clazz);
 			}
-		}
+			if (this.gutter.size) {
+				const clazz = Array.from(this.gutter).join(' ');
+				editor.addLineClass(this.id, 'gutter', clazz);
+			}
+			if (this.marker) {
+				const [ name, item, handler ] = this.marker;
+				item.addEventListener('click', handler);
+				editor.setGutterMarker(this.id, name, item);
+			}
+			if (this.markup.length) {
+				for (const markup of this.markup) {
+					const [ charFrom, charTo, className ] = markup;
+					const fromPos = { line: this.id };
+					const toPos = { line: this.id };
+					if (charFrom >= 0) {
+						fromPos.ch = charFrom;
+					}
+					if (charTo >= 0) {
+						toPos.ch = charTo;
+					}
+					this._clearMarkup.push(
+						editor.markText(fromPos, toPos, { className }));
+				}
+			}
+		});
 		this.rendered = true;
 	}
 
@@ -236,26 +239,28 @@ class VLine {
 			return;
 		}
 
-		if (this.background) {
-			editor.removeLineClass(this.id, 'background');
-		}
-		if (this.gutter) {
-			editor.removeLineClass(this.id, 'gutter');
-		}
-		if (this.marker) {
-			const [ , item, handler ] = this.marker;
-			// set with `null` to clear marker
-			editor.setGutterMarker(this.id, name, null);
-			item.removeEventListener('click', handler);
-			item.remove();
-		}
-		if (this._clearMarkup.length) {
-			for (const markup of this._clearMarkup) {
-				markup.clear();
+		editor.operation(() => {
+			if (this.background) {
+				editor.removeLineClass(this.id, 'background');
 			}
-			this._clearMarkup = [];
-			this.markup = [];
-		}
+			if (this.gutter) {
+				editor.removeLineClass(this.id, 'gutter');
+			}
+			if (this.marker) {
+				const [ name, item, handler ] = this.marker;
+				// set with `null` to clear marker
+				editor.setGutterMarker(this.id, name, null);
+				item.removeEventListener('click', handler);
+				item.remove();
+			}
+			if (this._clearMarkup.length) {
+				for (const markup of this._clearMarkup) {
+					markup.clear();
+				}
+				this._clearMarkup = [];
+				this.markup = [];
+			}
+		});
 	}
 }
 

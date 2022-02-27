@@ -159,6 +159,19 @@ describe('mergely', function () {
 				...initOptions
 			});
 		});
+
+		it.only('initializes with and set lhs/rhs on update', function (done) {
+			const editor = init({ _debug: true });
+			expect(editor).to.exist;
+			const test = () => {
+				done();
+			};
+			editor.once('updated', () => {
+				editor.on('updated', test);
+				editor.lhs('left-hand side text');
+				editor.rhs('right-hand side text');
+			});
+		});
 	});
 
 	describe('clear', () => {

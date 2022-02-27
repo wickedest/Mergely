@@ -2,11 +2,14 @@ const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-module.exports = {
+// const dev = require('./webpack.dev');
+
+const dev = {
 	mode: 'development',
 	entry: {
 		mergely: './src/mergely.js',
 	},
+	devtool: 'inline-source-map',
 	output: {
 		path: path.join(__dirname, 'lib'),
 		filename: './[name].js',
@@ -19,11 +22,6 @@ module.exports = {
 			test: /\.(js)$/,
 			exclude: /node_modules/,
 			use: ['babel-loader']
-		}, {
-			test: /worker\.js$/,
-			use: {
-				loader: 'worker-loader'
-			}
 		}]
 	},
 	resolve: {
@@ -31,6 +29,15 @@ module.exports = {
 	},
 	externals: {
 		CodeMirror: 'CodeMirror'
+	}
+};
+
+const prod = {
+	...dev,
+	mode: 'production',
+	output: {
+		...dev.output,
+		filename: './[name].min.js',
 	},
 	plugins: [
 		new CopyWebpackPlugin({
@@ -42,3 +49,7 @@ module.exports = {
 		})
 	]
 };
+
+module.exports = (mode) => {
+	return [ dev, prod ];
+}

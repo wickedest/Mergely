@@ -2,18 +2,20 @@
 
 https://mergely.com
 
-Mergely is a JavaScript component for differencing and merging files interactively in a browser (diff/merge), providing rich API that enables you to easily integrate Mergely into your existing web application. It is suitable for comparing text files online, for example, .txt, .html, .xml, .c, .cpp, .java, etc.  
+Mergely is a JavaScript component for differencing and merging files interactively in a browser (diff/merge), providing rich API that enables you to easily integrate Mergely into your existing web application. It is suitable for comparing text files online, for example, .txt, .html, .xml, .c, .cpp, .java, etc.
 
-Mergely has a JavaScript implementation of the Longest Common Subsequence (LCS) diff algorithm, and a customizable markup engine.
+Mergely has a JavaScript implementation of the Longest Common Subsequence (LCS) diff algorithm, and a customizable markup engine. It computs the diff within the browser.
 
 ## Installation
 
 ### Installation via webpack
+
 The recommended way to install mergely and its dependencies is to use a Node package manager (`npm` or `yarn`) and [webpack](https://webpack.js.org/).
 
 It is highly recommended that you start by cloning [mergely-webpack](https://github.com/wickedest/mergely-webpack). The webpack has everything that you need to get started.
 
 ### Angular 6.1.1
+
 You can also use mergely within angular. You can start by cloning [mergely-angular](https://github.com/wickedest/mergely-angular).
 
 ### Installation via .tgz
@@ -29,7 +31,7 @@ Unpack mergely.tgz into a folder, for example, `./lib`, and add the following to
 <link rel="stylesheet" media="all" href="package/lib/mergely.css" />
 ```
 
-Create a div for the editor in `<body>`.  
+Create a div for the editor in `<body>`.
 
 This example uses a style that provides 8px padding (`mergely-full-screen-8`):
 
@@ -71,21 +73,20 @@ $(document).ready(function () {
 
 If the editor contents are retrieved asynchronously (recommended), then retrieve the editor contents and set them:
 
-```js
-$(document).ready(function () {
+```html
+<script>
     // initialize mergely
-    $('#mergely').mergely();
-    
+    const doc = new Mergely('#compare');
+
     // get async lhsResponse, then set lhs value
-    $('#mergely').mergely('lhs', lhsResponse);
-    
+    doc.lhs(lhsResponse);
+
     // get async rhsResponse, then set rhs value
-    $('#mergely').mergely('rhs', rhsResponse);
-});
+    doc.rhs(rhsResponse);
+</script>
 ```
 
 ## Options
-
 
 |Option|Type|Default value|Description|
 |------|----|-------------|-----------|
@@ -135,7 +136,7 @@ Clears the editor contents for the specified `side`.
 
 #### Example
 ```js
-$('#mergely').mergely('clear', 'lhs');
+doc.clear('lhs');
 ```
 
 ### <a name="cm"></a>cm
@@ -149,7 +150,7 @@ Gets the CodeMirror editor for the specified `side`.
 
 #### Example
 ```js
-$('#mergely').mergely('cm', 'lhs');
+doc.cm('lhs');
 ```
 
 ### diff
@@ -162,7 +163,7 @@ None.
 #### Example
 
 ```js
-$('#mergely').mergely('diff');
+doc.diff();
 ```
 
 ### get
@@ -176,7 +177,7 @@ Gets the text editor contents for the specified `side`.
 
 #### Example
 ```js
-$('#mergely').mergely('get', 'lhs');
+doc.get('lhs');
 ```
 
 ### lhs
@@ -190,7 +191,7 @@ Sets the value of the left-hand editor.
 
 #### Example
 ```js
-$('#mergely').mergely('lhs', 'This is text');
+doc.lhs('This is text');
 ```
 
 ### merge
@@ -204,7 +205,7 @@ Merges whole file from the specified `side` to the opposite side.
 
 #### Example
 ```js
-$('#mergely').mergely('merge', 'lhs');
+doc.merge('lhs');
 ```
 
 ### mergeCurrentChange
@@ -218,7 +219,7 @@ Merges the current change from the specified `side` to the opposite side.
 
 #### Example
 ```js
-$('#mergely').mergely('mergeCurrentChange', 'lhs');
+doc.mergeCurrentChange('lhs');
 ```
 
 
@@ -233,7 +234,7 @@ Sets the editor options.  Will automatically update with the new settings unless
 
 #### Example
 ```js
-$('#mergely').mergely('options', { line_numbers: true });
+doc.options({ line_numbers: true });
 ```
 
 ### options
@@ -245,7 +246,7 @@ None.
 
 #### Example
 ```js
-$('#mergely').mergely('options');
+doc.options();
 ```
 
 ### resize
@@ -257,7 +258,7 @@ None.
 
 #### Example
 ```js
-$('#mergely').mergely('resize');
+doc.resize();
 ```
 
 ### rhs
@@ -271,7 +272,7 @@ Sets the value of the right-hand editor.
 
 #### Example
 ```js
-$('#mergely').mergely('rhs', 'This is text');
+doc.rhs('This is text');
 ```
 
 ### scrollTo
@@ -286,7 +287,7 @@ Scrolls the `side` to line number specified by `num`.
 
 #### Example
 ```js
-$('#mergely').mergely('scrollTo', 'lhs', 100);
+doc.scrollTo('lhs', 100);
 ```
 
 ### scrollToDiff
@@ -300,7 +301,7 @@ Scrolls to the next change specified by `direction`.
 
 #### Example
 ```js
-$('#mergely').mergely('scrollToDiff', 'next');
+doc.scrollToDiff('next');
 ```
 
 ### search
@@ -315,7 +316,7 @@ Search the editor for `text`, scrolling to the next available match. Repeating t
 
 #### Example
 ```js
-$('#mergely').mergely('search', 'lhs', 'needle');
+doc.search('lhs', 'needle');
 ```
 
 ### summary
@@ -336,8 +337,8 @@ None.
 
 #### Example
 ```js
-console.log($('#mergely').mergely('summary'));
-// { a: 0, c: 1, d: 0, lhsLength: 44, numChanges: 1, rhsLength: 45 }
+console.log(doc.summary());
+// { a: 0, c: 1, d: 0, lhsLength: 44, rhsLength: 45, numChanges: 1 }
 ```
 
 ### swap
@@ -349,7 +350,7 @@ None.
 
 #### Example
 ```js
-$('#mergely').mergely('swap');
+doc.swap();
 ```
 
 ### unmarkup
@@ -361,19 +362,7 @@ None.
 
 #### Example
 ```js
-$('#mergely').mergely('unmarkup');
-```
-
-### update
-
-Manually updates the editor by recalculating the diff and applying new settings.
-
-#### Parameters
-None.
-
-#### Example
-```js
-$('#mergely').mergely('update');
+doc.unmarkup();
 ```
 
 ## Events

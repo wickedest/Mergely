@@ -54,11 +54,12 @@ LCS.prototype.clear = function () {
 };
 
 LCS.prototype.diff = function (added, removed) {
-	const d = new diff(this.x, this.y, {
+	const result = new diff(this.x, this.y, {
 		ignorews: !!this.options.ignorews,
-		ignoreaccents: !!this.options.ignoreaccents
+		ignoreaccents: !!this.options.ignoreaccents,
+		ignorecase: !!this.options.ignorecase
 	});
-	const changes = DiffParser(d.normal_form());
+	const changes = DiffParser(result.normal_form());
 	for (let i = 0; i < changes.length; ++i) {
 		const change = changes[i];
 		if (this.options.ignorews) {

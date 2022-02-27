@@ -1,50 +1,47 @@
-<!--
-This example demonstrates how to make a full page editor. Note that the height
-should be 100% for `html`, and `body`, and margin should be set to 0.
--->
 <!DOCTYPE html>
-<html lang="en" style="height:100%;">
+<html lang="en">
 <head>
-	<title>Mergely - Full page example</title>
 	<meta charset="utf-8" />
+	<title>Mergely - Example full page editor</title>
 	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 	<meta name="description" content="" />
 	<meta name="keywords" content="mergely,diff,merge,compare" />
 	<meta name="author" content="Jamie Peabody" />
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
 	<!-- CodeMirror peer dependency -->
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.50.2/codemirror.min.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.50.2/addon/search/searchcursor.min.js"></script>
-	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.50.2/codemirror.min.css" />
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/addon/search/searchcursor.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css" />
 
 	<!-- Mergely -->
-	<script type="text/javascript" src="/lib/mergely.js"></script>
 	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
-</head>
-<body style="height:100%; margin: 0;">
-	<div id="mergely"></div>
+	<script type="text/javascript" src="/lib/mergely.js"></script>
 
-	<script type="text/javascript">
-		document.onreadystatechange = function () {
-			if (document.readyState !== 'complete') {
-				return;
-			}
-			const doc = new Mergely('#mergely', {
-				_debug: 'event'
-			});
-			doc.once('updated', () => {
-				fetch('/examples/macbeth.txt')
-					.then(response => response.text())
-					.then(macbeth => {
-						doc.lhs(macbeth);
-						doc.rhs(macbeth.replace(/serpent/g, 'pencil'));
-					});
-				doc.once('updated', () => {
-					doc.scrollToDiff('next');
-				});
-			});
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			margin: 0;
 		}
+		#compare {
+			height: inherit;
+		}
+	</style>
+</head>
+<body>
+	<div id="compare"></div>
+
+	<script>
+		const doc = new Mergely('#compare');
+		doc.once('updated', () => {
+			fetch('/examples/macbeth.txt')
+				.then(response => response.text())
+				.then(macbeth => {
+					doc.lhs(macbeth.replace(/filthy/g, 'dirty'));
+					doc.rhs(macbeth);
+				});
+		});
 	</script>
 </body>
 </html>

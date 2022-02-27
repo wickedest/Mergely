@@ -30,6 +30,7 @@ Default for `options.change_timeout` changed to 50.
 No longer necessary to separately require codemirror/addon/search/searchcursor
 No longer necessary to separately require codemirror/addon/selection/mark-selection
 No longer automatically scrolls to first change.
+`mergely.js` is now unminimized, and added new minimized version `mergely.min.js`
 
 FEATURE:
 Gutter click now scrolls to any line.
@@ -49,6 +50,8 @@ Fixed issue where line-diffs failed to diff non-alphanumeric characters
 TODO:
 Linting
 Unbind loads of stuff
+Test: search
+Check: read-only modes
 */
 
 const NOTICES = [
@@ -284,6 +287,7 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 			// [0:margin] [1:lhs] [2:mid] [3:rhs] [4:margin], swaps 4 with 3
 			divs[4].parentNode.insertBefore(divs[4], divs[3]);
 		}
+		this._get_colors();
 		this._changing();
 	}
 };
@@ -392,15 +396,16 @@ CodeMirrorDiffView.prototype.search = function(side, query, direction) {
 	const searchDirection = (direction === 'prev')
 		? 'findPrevious' : 'findNext';
 	const start = { line: 0, ch: 0 };
-	if ((editor.getSelection().length == 0) || (this.prev_query[side] != query)) {
+	if ((editor.getSelection().length === 0) || (this.prev_query[side] !== query)) {
 		this.cursor[this.id] = editor.getSearchCursor(query, start, false);
 		this.prev_query[side] = query;
 	}
-	const cursor = this.cursor[this.id];
+	let cursor = this.cursor[this.id];
 	if (cursor[searchDirection]()) {
 		editor.setSelection(cursor.from(), cursor.to());
 	}
 	else {
+		// FIXME: issue with CM search cursor not wrapping
 		cursor = editor.getSearchCursor(query, start, false);
 	}
 };
@@ -409,7 +414,7 @@ CodeMirrorDiffView.prototype.resize = function() {
 	if (this.settings._debug) {
 		trace('api#resize');
 	}
-	const parent = this.el.parentNode;
+	const parent = this.el;
 	const { settings } = this;
 	let height;
 	const contentHeight = parent.offsetHeight - 2;
@@ -417,7 +422,7 @@ CodeMirrorDiffView.prototype.resize = function() {
 	const lhsMargin = this._queryElement(`#${this.id}-lhs-margin`);
 	lhsMargin.style.height = `${contentHeight}px`;
 	lhsMargin.height = `${contentHeight}`;
-	const midCanvas = this._queryElement(`#${this.id}-lhs-${this.id}-rhs-canvas`);
+	const midCanvas = this._queryElement(`#${this.id}-lhs-rhs-canvas`);
 	midCanvas.style.height = `${contentHeight}px`;
 	midCanvas.height = `${contentHeight}`;
 	const rhsMargin = this._queryElement(`#${this.id}-rhs-margin`);
@@ -444,26 +449,29 @@ CodeMirrorDiffView.prototype.diff = function() {
 	return comparison.normal_form();
 };
 
-CodeMirrorDiffView.prototype.bind = function(el) {
+CodeMirrorDiffView.prototype.bind = function(container) {
 	if (this.settings._debug) {
-		trace('api#bind', el);
+		trace('api#bind', container);
 	}
 	const { CodeMirror } = this;
 	this._origEl = {
-		style: el.style,
-		className: el.className
+		style: container.style,
+		className: container.className
 	};
-	el.style.display = 'flex';
-	el.style.height = '100%';
-	el.style.position = 'relative';
-	this.id = el.id;
-	const found = document.getElementById(this.id);
+	const el = getMergelyContainer({ clazz: container.className });
+	const found = document.getElementById(container.id);
 	if (!found) {
-		console.error(`Failed to find mergely: #${this.id}`);
+		console.error(`Failed to find mergely: #${container.id}`);
 		return;
 	}
-	this.lhsId = `${this.id}-lhs`;
-	this.rhsId = `${this.id}-rhs`;
+	const computedStyle = window.getComputedStyle(container);
+	if (!computedStyle.height || computedStyle.height === '0px') {
+		throw new Error(
+			`The element "${container.id}" requires an explicit height`);
+	}
+	this.id = `${container.id}`;
+	this.lhsId = `${container.id}-lhs`;
+	this.rhsId = `${container.id}-rhs`;
 	this.chfns = { lhs: [], rhs: [] };
 	this.prev_query = [];
 	this.cursor = [];
@@ -476,26 +484,12 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 	this.merge_rhs_button = htmlToElement(rhsTemplate);
 
 	// create the textarea and canvas elements
-	el.className += ' mergely-editor';
-	const canvasLhs = htmlToElement(getMarginTemplate({
-		id: this.id,
-		side: 'lhs'
-	}));
-	const canvasRhs = htmlToElement(getMarginTemplate({
-		id: this.id,
-		side: 'rhs'
-	}));
-	const editorLhs = htmlToElement(getEditorTemplate({
-		id: this.id,
-		side: 'lhs'
-	}));
-	const editorRhs = htmlToElement(getEditorTemplate({
-		id: this.id,
-		side: 'rhs'
-	}));
-	const canvasMid = htmlToElement(getCenterCanvasTemplate({
-		id: this.id
-	}));
+	// el.className += ' mergely-editor';
+	const canvasLhs = getMarginTemplate({ id: this.lhsId });
+	const canvasRhs = getMarginTemplate({ id: this.rhsId });
+	const editorLhs = getEditorTemplate({ id: this.lhsId });
+	const editorRhs = getEditorTemplate({ id: this.rhsId });
+	const canvasMid = getCenterCanvasTemplate({ id: this.id });
 
 	el.append(canvasLhs);
 	el.append(editorLhs);
@@ -514,24 +508,25 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 			div.style.visibility = 'hidden';
 		}
 	}
+	container.append(el);
 
 	if (NOTICES.indexOf(this.settings.license) < 0) {
-		el.addEventListener('updated', () => {
+		container.addEventListener('updated', () => {
 			const noticeTypes = {
 				'lgpl': 'GNU LGPL v3.0',
 				'gpl': 'GNU GPL v3.0',
 				'mpl': 'MPL 1.1'
 			};
-			const notice = noticeTypes[this.settings.license];
+			let notice = noticeTypes[this.settings.license];
 			if (!notice) {
 				notice = noticeTypes.lgpl;
 			}
 			const editor = this._queryElement(`#${this.id}`);
-			const splash = htmlToElement(getSplash({
+			const splash = getSplash({
 				notice,
 				left: (editor.offsetWidth - 300) / 2,
 				top: (editor.offsetHeight - 58) / 3
-			}));
+			});
 			editor.addEventListener('click', () => {
 				splash.style.visibility = 'hidden';
 				splash.style.opacity = '0';
@@ -574,14 +569,23 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 		});
 	}
 
-	// If either editor gets a change, clear the view immediately
-	this.editor.lhs.on('beforeChange', () => {
-		if (!window.Worker) {
+	// If either editor gets a change, clear the view immediately if the ev.text
+	// array has multiple lines, or if there are multiple lines being deleted,
+	// or not using Worker
+	this.editor.lhs.on('beforeChange', (cm, ev) => {
+		if (ev.text.length > 1
+			|| ((ev.from.line - ev.to.line) && ev.origin === '+delete')
+			|| !window.Worker) {
 			this._clear();
 		}
 	});
-	this.editor.rhs.on('beforeChange', () => {
-		if (!window.Worker) {
+	this.editor.rhs.on('beforeChange', (cm, ev) => {
+		if (this.settings._debug) {
+			trace('event#rhs-beforeChange', ev);
+		}
+		if (ev.text.length > 1
+			|| ((ev.from.line - ev.to.line) && ev.origin === '+delete')
+			|| !window.Worker) {
 			this._clear();
 		}
 	});
@@ -606,11 +610,11 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 				trace('event#lhs-scroll');
 			}
 		}
-		this._scrolling({ side: 'lhs', id: this.lhsId });
+		this._scrolling({ side: 'lhs' });
 	});
 	this.editor.rhs.on('change', (instance, ev) => {
 		if (this.settings._debug) {
-			trace('event#rhs-change');
+			trace('event#rhs-change', ev);
 		}
 		this._changing();
 	});
@@ -625,7 +629,7 @@ CodeMirrorDiffView.prototype.bind = function(el) {
 				trace('event#rhs-scroll');
 			}
 		}
-		this._scrolling({ side: 'rhs', id: this.rhsId });
+		this._scrolling({ side: 'rhs' });
 	});
 
 	// resize event handeler
@@ -768,7 +772,7 @@ CodeMirrorDiffView.prototype._get_colors = function() {
 	this._colors = {};
 	const currentColor
 		= htmlToElement('<div style="display:none" class="mergely current start"></div>')
-	this.el.append(currentColor);
+	this.el.children[0].append(currentColor);
 	const currentStyle = window.getComputedStyle(currentColor);
 	this._colors.current = {
 		border: currentStyle.borderTopColor
@@ -777,7 +781,7 @@ CodeMirrorDiffView.prototype._get_colors = function() {
 
 	const aColor
 		= htmlToElement('<div style="display:none" class="mergely start end mergely rhs a"></div>')
-	this.el.append(aColor);
+	this.el.children[0].append(aColor);
 	const aStyle = window.getComputedStyle(aColor);
 	this._colors.a = {
 		border: aStyle.borderTopColor,
@@ -787,7 +791,7 @@ CodeMirrorDiffView.prototype._get_colors = function() {
 
 	const dColor
 		= htmlToElement('<div style="display:none" class="mergely start end lhs d"></div>')
-	this.el.append(dColor);
+	this.el.children[0].append(dColor);
 	const dStyle = window.getComputedStyle(dColor);
 	this._colors.d = {
 		border: dStyle.borderTopColor,
@@ -797,7 +801,7 @@ CodeMirrorDiffView.prototype._get_colors = function() {
 
 	const cColor
 		= htmlToElement('<div style="display:none" class="mergely start end mergely lhs c"></div>')
-	this.el.append(cColor);
+	this.el.children[0].append(cColor);
 	const cStyle = window.getComputedStyle(cColor);
 	this._colors.c = {
 		border: cStyle.borderTopColor,
@@ -830,7 +834,7 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	led.focus();
 };
 
-CodeMirrorDiffView.prototype._scrolling = function({ side, id }) {
+CodeMirrorDiffView.prototype._scrolling = function({ side }) {
 	if (this.settings._debug) {
 		traceTimeStart(`scroll#_scrolling ${side}`);
 	}
@@ -998,7 +1002,10 @@ CodeMirrorDiffView.prototype._diff = function() {
 			this.el.dispatchEvent(new Event('updated'));
 		}
 		if (this.settings._debug) {
-			trace('change#_diff starting worker');
+			trace('change#_diff worker postMessage', {
+				lhs: lhs.length,
+				rhs: rhs.length
+			});
 		}
 		this._diffWorker.postMessage({ lhs, rhs });
 	} else {
@@ -1073,7 +1080,7 @@ CodeMirrorDiffView.prototype._calculateOffsets = function (changes) {
 	// calculate extents of diff canvas
 	this.draw_lhs_min = 0.5;
 	this.draw_mid_width
-		= this._queryElement(`#${this.lhsId}-${this.rhsId}-canvas`).offsetWidth;
+		= this._queryElement(`#${this.id}-lhs-rhs-canvas`).offsetWidth;
 	this.draw_rhs_max = this.draw_mid_width - 0.5; //24.5;
 	this.draw_lhs_width = 5;
 	this.draw_rhs_width = 5;
@@ -1187,7 +1194,9 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 
 		// lhs changes
 		if (lhsInView) {
-			// the change is inside the viewport
+			const osideEditable = this.settings.line_numbers
+				&& !red.getOption('readOnly');
+
 			vdoc.addRender('lhs', change, i, {
 				isCurrent,
 				lineDiff,
@@ -1195,13 +1204,16 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 				getMergeHandler: (change, side, oside) => {
 					return () => this._merge_change(change, side, oside);
 				},
-				mergeButton: red.getOption('readOnly')
-					? null : this.merge_rhs_button.cloneNode(true) 
+				mergeButton: osideEditable
+					? this.merge_rhs_button.cloneNode(true) : null
 			});
 		}
 
 		// rhs changes
 		if (rhsInView) {
+			const osideEditable = this.settings.line_numbers
+				&& !led.getOption('readOnly');
+
 			vdoc.addRender('rhs', change, i, {
 				isCurrent,
 				lineDiff,
@@ -1209,8 +1221,8 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 				getMergeHandler: (change, side, oside) => {
 					return () => this._merge_change(change, side, oside);
 				},
-				mergeButton: led.getOption('readOnly')
-					? null : this.merge_lhs_button.cloneNode(true) 
+				mergeButton: osideEditable
+					? this.merge_lhs_button.cloneNode(true) : null
 			});
 		}
 
@@ -1220,6 +1232,7 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 			vdoc.addInlineDiff(change, {
 				ignoreaccents: this.settings.ignoreaccents,
 				ignorews: this.settings.ignorews,
+				ignorecase: this.settings.ignorecase,
 				getText: (side, lineNum) => {
 					if (side === 'lhs') {
 						const text = led.getLine(lineNum);
@@ -1298,9 +1311,9 @@ CodeMirrorDiffView.prototype._draw_info = function() {
 	const lhsScroll = this.editor.lhs.getScrollerElement();
 	const rhsScroll = this.editor.rhs.getScrollerElement();
 	const visible_page_height = lhsScroll.offsetHeight; // fudged
-	const dcanvas = document.getElementById(`${this.lhsId}-${this.rhsId}-canvas`);
+	const dcanvas = document.getElementById(`${this.id}-lhs-rhs-canvas`);
 	if (dcanvas == undefined) {
-		throw new Error('Failed to find: ' + this.lhsId + '-' + this.rhsId + '-canvas');
+		throw new Error(`Failed to find: ${this.id}-lhs-rhs-canvas`);
 	}
 	const lhs_margin = document.getElementById(`${this.id}-lhs-margin`);
 	const rhs_margin = document.getElementById(`${this.id}-rhs-margin`);
@@ -1496,13 +1509,6 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 	}
 };
 
-// CodeMirrorDiffView.prototype.trace = function(name) {
-// 	if(this.settings._debug.indexOf(name) >= 0) {
-// 		arguments[0] = `${name}:`;
-// 		console.log([].slice.apply(arguments));
-// 	}
-// }
-
 CodeMirrorDiffView.prototype._queryElement = function(selector) {
 	const cacheName = `_element:${selector}`;
 	const element = this[cacheName] || document.querySelector(selector);
@@ -1523,27 +1529,33 @@ function htmlToElement(html) {
     return template.content.firstChild;
 }
 
-function getMarginTemplate({ id, side }) {
-	return `\
-<div class="mergely-margin">
-	<canvas id="${id}-${side}-margin" width="8px"></canvas>
-</div>;`;
+function getMergelyContainer({ clazz = '' }) {
+	const classes = [ 'mergely-editor', clazz ]
+	return htmlToElement(`\
+<div class="${classes.join(' ')}" style="display:flex;height:100%;position:relative;"></div>`);
 }
 
-function getEditorTemplate({ id, side }) {
-	return `\
-<textarea id="${id}-${side}" class="mergely-column"></textarea>`;
+function getMarginTemplate({ id }) {
+	return htmlToElement(`\
+<div class="mergely-margin">
+	<canvas id="${id}-margin" width="8px"></canvas>
+</div>`);
+}
+
+function getEditorTemplate({ id }) {
+	return htmlToElement(`\
+<textarea id="${id}" class="mergely-column"></textarea>`);
 }
 
 function getCenterCanvasTemplate({ id }) {
-	return `\
+	return htmlToElement(`\
 <div class="mergely-canvas">
-	<canvas id="${id}-lhs-${id}-rhs-canvas" width="28px"></canvas>
-</div>`;
+	<canvas id="${id}-lhs-rhs-canvas" width="28px"></canvas>
+</div>`);
 }
 
 function getSplash({ notice, left, top }) {
-	return `\
+	return htmlToElement(`\
 <div class="mergely-splash" style="left: ${left}px; top: ${top}px">
 	<p>
 		<span class="mergely-icon"></span>
@@ -1551,7 +1563,7 @@ function getSplash({ notice, left, top }) {
 		${notice} license. For the full license, see
 		<a target="_blank" href="http://www.mergely.com">http://www.mergely.com/license</a>.
 	</p>
-</div>`;
+</div>`);
 }
 
 module.exports = CodeMirrorDiffView;

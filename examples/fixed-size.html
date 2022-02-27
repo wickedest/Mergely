@@ -1,15 +1,14 @@
-<!--
-This example demonstrates the minimum amount of code required to use Mergely.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" /><title>Mergely - Simple Example</title>
+	<meta charset="utf-8" />
+	<title>Mergely - Example fixed size editor</title>
 	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 	<meta name="description" content="" />
 	<meta name="keywords" content="mergely,diff,merge,compare" />
 	<meta name="author" content="Jamie Peabody" />
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
 	<!-- CodeMirror peer dependency -->
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.js"></script>
@@ -17,53 +16,28 @@ This example demonstrates the minimum amount of code required to use Mergely.
 	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css" />
 
 	<!-- Mergely -->
-	<script type="text/javascript" src="/lib/mergely.js"></script>
 	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
+	<script type="text/javascript" src="/lib/mergely.js"></script>
 
 	<style type="text/css">
 		html, body {
-			height: 100%;
 			margin: 0;
 		}
-		.column-layout {
-			display: flex;
-			height: 90px;
-		}
-		.column-layout > * {
-			flex: 1;
+		#compare {
+			height: 300px;
+			width: 50%;
 		}
 	</style>
 </head>
 <body>
-	<div>
-		<caption>Inserted and removed at start but not end</caption>
-		<div class="column-layout">
-			<div id="mergely0"></div>
-			<div id="mergely1"></div>
-		</div>
-	</div>
+	<div id="compare"></div>
 
-	<script type="text/javascript">
-		document.onreadystatechange = function () {
-			if (document.readyState !== 'complete') {
-				return;
-			}
-			new Mergely('#mergely', {
-				license: 'lgpl',
-				ignorews: true,
-				wrap_lines: true,
-				change_timeout: 0,
-				cmsettings: {
-					readOnly: false
-				},
-				lhs: function(setValue) {
-					setValue(lhs);
-				},
-				rhs: function(setValue) {
-					setValue(rhs);
-				},
-				_debug: ''
-			});
+	<script>
+		const doc = new Mergely('#compare');
+		doc.once('updated', () => {
+			doc.lhs('the quick red fox\njumped over the hairy dog');
+			doc.rhs('the quick brown fox\njumped over the lazy dog');
+		});
 	</script>
 </body>
 </html>

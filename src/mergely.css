@@ -1,6 +1,6 @@
 .mergely-editor .CodeMirror {
 	line-height: 18px;
-	height: 100%;
+	height: auto;
 	width: 100%;
 }
 
@@ -76,11 +76,15 @@
 	z-index: 100;
 	background-color: #fff;
 	border: 1px solid black;
-	width: 300px;
+	width: 325px;
 	padding: 10px;
 	font-family: arial;
 	font-size: 11px;
 	transform: translate(0, 20%);
+}
+
+.mergely-splash p {
+	margin: 11px 0 11px;
 }
 
 .mergely-icon {
@@ -93,7 +97,7 @@
 
 .mergely-splash span.mergely-icon {
 	float: left;
-	padding-right: 10px;
+	margin-right: 10px;
 }
 
 .mergely-editor .merge-button {
@@ -108,8 +112,7 @@
 	color: #717171;
 }
 .mergely-editor .CodeMirror {
-	border-left: 1px solid #ccc;
-	border-right: 1px solid #ccc;
+	border: 1px solid #ccc;
 }
 .mergely-editor .mergely.CodeMirror-gutter-background.current {
 	background-color: #777;
@@ -131,7 +134,9 @@
 	border-color: #a3d1ff;
 }
 .mergely-editor .mergely.a.rhs {
-	background-color: #ddeeff;
+	background-color: #eff7ff;
+	color: #0000ff;
+	opacity: 0.75;
 }
 .mergely-editor .mergely.d {
 	border-color: #ff7f7f;
@@ -145,8 +150,66 @@
 .mergely-editor .mergely.ch.d.lhs {
 	text-decoration: line-through;
 	color: #ff0000;
+	background-color: transparent;
 }
 .mergely-editor .mergely.current {
 	border-color: #000;
+}
+/* ---------------------------------------------------------------------- */
+.mergely-editor.dark-mode {
+	background-color: #0b0e10;
+}
+.mergely-editor.dark-mode .CodeMirror {
+	background-color: #12171b;
+}
+.mergely-editor.dark-mode .CodeMirror-code {
+	color: #bababa;
+}
+.mergely-editor.dark-mode .mergely.a.rhs {
+	color: #00beff;
+	background-color: transparent;
+}
+.mergely-editor .mergely.a {
+	border-color: #00beff;
+}
+.mergely-editor.dark-mode .mergely.current {
+	border-color: #616161;
+}
+.mergely-editor.dark-mode .mergely.c {
+	border-color: #313131;
+}
+.mergely-editor.dark-mode .mergely.d {
+	border-color: #9f3fff;
+}
+.mergely-editor .mergely.d.lhs {
+	background-color: transparent;
+}
+.mergely-editor.dark-mode .mergely.ch.d.lhs {
+	color: #bc4fff;
+}
+.mergely-editor.dark-mode .CodeMirror-gutters {
+	background-color: transparent;
+	border-right: 1px dotted #2e343a;
+}
+.mergely-editor.dark-mode .mergely.current .CodeMirror-linenumber {
+	background-color: #6a89f7;
+}
+.mergely-editor.dark-mode .CodeMirror-linenumber {
+	color: #999;
+}
+.mergely-editor.dark-mode .mergely-column {
+	border: 1px solid transparent;
+}
+.mergely-editor.dark-mode .mergely.current {
+	border-color: #6a89f7;
+}
+.mergely-editor.dark-mode .CodeMirror-cursor {
+	border-left: 2px solid #B19F73;
+}
+.mergely-editor.dark-mode .CodeMirror-selected {
+	background-color: #424242;
+}
+.mergely-editor.dark-mode .CodeMirror-focused .CodeMirror-selected {
+	background-color: #07468b;
 }
 /* ---------------------------------------------------------------------- */
