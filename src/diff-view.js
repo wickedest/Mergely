@@ -3,7 +3,6 @@ require('codemirror/addon/selection/mark-selection.js');
 
 const diff = require('./diff');
 const DiffParser = require('./diff-parser');
-const LCS = require('./lcs');
 const VDoc = require('./vdoc');
 
 /**
@@ -25,7 +24,7 @@ Removed `options.width`
 Removed `options.height`
 Removed `options.resized`
 Removed function `mergely.update`
-Remove styles `.mergely-resizer`, `.mergely-full-screen-0`, and `.mergely-full-screen-8`.
+Remove styles `.mergely-resizer`, `.mergely-full-screen-0`, and `.mergely-full-screen-8`. The mergely container now requires an explicit height. Child elements are added to it.
 Default for `options.change_timeout` changed to 50.
 No longer necessary to separately require codemirror/addon/search/searchcursor
 No longer necessary to separately require codemirror/addon/selection/mark-selection
@@ -254,23 +253,20 @@ CodeMirrorDiffView.prototype._setOptions = function(opts) {
 		...this.settings,
 		...opts
 	};
-	if (this.settings.hasOwnProperty('sidebar')) {
-		// dynamically enable sidebars
-		if (this.settings.sidebar) {
-			const divs = document.querySelectorAll(`#${this.id} .mergely-margin`);
-			for (const div of divs) {
-				div.style.visibility = 'visible';
-			}
-		}
-		else {
-			const divs = document.querySelectorAll(`#${this.id} .mergely-margin`);
-			for (const div of divs) {
-				div.style.visibility = 'hidden';
-			}
-		}
+	if (this.settings._debug) {
+		trace('api#_setOptions', opts);
 	}
+
 	// if options set after init
 	if (this.editor) {
+		if (opts.hasOwnProperty('sidebar')) {
+			const divs = document.querySelectorAll(`#${this.id} .mergely-margin`);
+			const visible = !!opts.sidebar;
+			for (const div of divs) {
+				div.style.visibility = visible ? 'visible' : 'hidden';
+			}
+		}
+
 		const le = this.editor.lhs;
 		const re = this.editor.rhs;
 		if (opts.hasOwnProperty('wrap_lines')) {
@@ -502,11 +498,8 @@ CodeMirrorDiffView.prototype.bind = function(container) {
 		el.append(canvasRhs);
 	}
 	if (!this.settings.sidebar) {
-		// it would be better if this just used this.options()
-		const divs = document.querySelectorAll(`#${this.id} .mergely-margin`);
-		for (const div of divs) {
-			div.style.visibility = 'hidden';
-		}
+		canvasLhs.style.visibility = 'hidden';
+		canvasRhs.style.visibility = 'hidden';
 	}
 	container.append(el);
 

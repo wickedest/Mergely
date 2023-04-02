@@ -63,7 +63,7 @@
     "build:dist": "rm -rf lib && webpack --config ./webpack.prod.js",
     "start": "webpack serve --config webpack.dev.js",
     "examples": "http-server ./ -p 3000 -o examples/index.html",
-    "debug": "karma start --timeout=28000 --browsers=Chrome --single-run=false",
+    "debug": "karma start --timeout=28000 --no-browsers --single-run=false",
     "test": "karma start",
     "release": "standard-version -a"
   }

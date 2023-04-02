@@ -1,8 +1,5 @@
-const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-
-// const dev = require('./webpack.dev');
 
 const dev = {
 	mode: 'development',

@@ -1,4 +1,3 @@
-const CodeMirror = require('CodeMirror');
 const simple = require('simple-mock');
 const Mergely = require('../src/mergely');
 const macbeth = require('./data/macbeth').join('\n');
@@ -28,24 +27,24 @@ const defaultOptions = {
 
 describe('mergely', function () {
 	let editor;
+	let editorId = 0;
 	function init(options) {
-		editor = new window.Mergely('#mergely', options);
+		editor = new window.Mergely(`#mergely-${editorId - 1}`, options);
 		return editor;
 	};
 
-	before(() => {
-		const container = document.createElement('div');
-		container.style.height = '275px';
+	beforeEach(() => {
 		const div = document.createElement('div');
-		div.id = 'mergely';
+		div.id = `mergely-${editorId++}`;
 		div.style.margin = '0px';
-		container.append(div);
-		document.querySelector('body').appendChild(container);
+		div.style.height = '275px';
+		document.querySelector('body').appendChild(div);
 	});
 
 	afterEach(() => {
 		editor && editor.unbind();
 		simple.restore();
+		editor.el.parentNode.removeChild(editor.el);
 	});
 
 	describe('initialization', () => {
@@ -53,7 +52,7 @@ describe('mergely', function () {
 			const editor = init();
 			expect(editor).to.exist;
 			editor.once('updated', () => {
-				const { children } = editor.el;
+				const { children } = editor.el.children[0];
 				const items = Array.from(children).map(a => a.className);
 				// NOTE: if running karma debug, these tests can fail because
 				// the debugger grabs the focus and the CodeMirror instance
@@ -82,7 +81,7 @@ describe('mergely', function () {
 			});
 			expect(editor).to.exist;
 			editor.once('updated', () => {
-				const { children } = editor.el;
+				const { children } = editor.el.children[0];
 				const items = Array.from(children).map(a => a.className);
 				// NOTE: if running karma debug, these tests can fail because
 				// the debugger grabs the focus and the CodeMirror instance
@@ -110,7 +109,7 @@ describe('mergely', function () {
 			});
 			expect(editor).to.exist;
 			editor.once('updated', () => {
-				const { children } = editor.el;
+				const { children } = editor.el.children[0];
 				const items = Array.from(children).map(a => a.className);
 				// NOTE: if running karma debug, these tests can fail because
 				// the debugger grabs the focus and the CodeMirror instance
@@ -160,8 +159,8 @@ describe('mergely', function () {
 			});
 		});
 
-		it.only('initializes with and set lhs/rhs on update', function (done) {
-			const editor = init({ _debug: true });
+		it('initializes with and set lhs/rhs on update', function (done) {
+			const editor = init();
 			expect(editor).to.exist;
 			const test = () => {
 				done();
