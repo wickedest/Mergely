@@ -56,7 +56,8 @@
     "style-loader": "^3.3.1",
     "webpack": "^5.66.0",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.7.3"
+    "webpack-dev-server": "^4.7.3",
+    "worker-loader": "^3.0.8"
   },
   "scripts": {
     "build": "npm run test && npm run build:dist",

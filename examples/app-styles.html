@@ -1,0 +1,102 @@
+<!--
+This example demonstrates the minimum amount of code required to use Mergely.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Mergely - Application example</title>
+	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<meta name="author" content="Jamie Peabody" />
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.column-layout {
+			display: flex;
+		}
+		.column-layout > * {
+			flex: 1;
+			height: 90px;
+		}
+		.full-width-layout > * {
+			height: 120px;
+		}
+        em {
+            font-style: italic;
+            color: #888;
+        }
+	</style>
+</head>
+<body>
+	<div>
+		<em>Added and removed from the start and end.</em>
+		<div class="column-layout">
+			<div id="mergely0"></div>
+			<div id="mergely1"></div>
+		</div>
+	</div>
+
+    <div>
+		<em>Added and removed from the middle.</em>
+		<div class="column-layout">
+			<div id="mergely2"></div>
+			<div id="mergely3"></div>
+		</div>
+	</div>
+
+    <div>
+		<em>One line with the other empty.</em>
+		<div class="column-layout">
+			<div id="mergely4"></div>
+			<div id="mergely5"></div>
+		</div>
+	</div>
+
+    <div>
+		<em>Multiple lines with the other empty.</em>
+		<div class="column-layout">
+			<div id="mergely6"></div>
+			<div id="mergely7"></div>
+		</div>
+	</div>
+
+    <div>
+		<em>Added and removed from the end.</em>
+		<div class="column-layout">
+			<div id="mergely8"></div>
+			<div id="mergely9"></div>
+		</div>
+	</div>
+
+    <div>
+		<em>No changes.</em>
+		<div class="column-layout">
+			<div id="mergely10"></div>
+			<div id="mergely11"></div>
+		</div>
+	</div>
+
+	<div>
+		<em>Changed lines</em>
+		<div class="column-layout">
+			<div id="mergely12"></div>
+			<div id="mergely13"></div>
+		</div>
+	</div>
+
+	<div>
+		<em>Options</em>
+		<div class="full-width-layout">
+			<div id="mergely14"></div>
+		</div>
+	</div>
+
+</body>
+</html>

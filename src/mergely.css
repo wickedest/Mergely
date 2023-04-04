@@ -12,61 +12,6 @@
 	width: 28px;
 }
 
-.mergely-editor .mergely.a.rhs.start {
-	border-top-width: 1px;
-	border-top-style: solid;
-}
-
-.mergely-editor .mergely.a.lhs.start.end {
-	border-top-width: 0px;
-}
-
-.mergely-editor .mergely.a.lhs.start.end,
-.mergely-editor .mergely.a.rhs.end {
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-}
-
-.mergely-editor .mergely.d.lhs.end,
-.mergely-editor .mergely.d.rhs.start.end {
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-	border-top-width: 0;
-}
-
-.mergely-editor .mergely.d.rhs.start.end.first {
-	border-bottom-width: 0;
-	border-top-width: 1px;
-	border-top-style: solid;
-}
-
-.mergely-editor .mergely.d.lhs.start {
-	border-top-width: 1px;
-	border-top-style: solid;
-}
-
-.mergely-editor .mergely.c.lhs.start,
-.mergely-editor .mergely.c.rhs.start {
-	border-top-width: 1px;
-	border-top-style: solid;
-}
-
-.mergely-editor .mergely.c.lhs.end,
-.mergely-editor .mergely.c.rhs.end {
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-}
-
-.mergely-editor .mergely.current.start {
-	border-top-width: 1px;
-	border-top-style: solid;
-}
-
-.mergely-editor .mergely.current.end {
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-}
-
 .mergely-editor .CodeMirror-linenumber {
 	cursor: pointer;
 }
@@ -107,7 +52,24 @@
 	padding-left: 3px;
 }
 
-/* ---------------------------------------------------------------------- */
+/* common stles */
+.mergely-editor .mergely.CodeMirror-linebackground {
+	border-style: solid;
+	border-width: 0px;
+}
+.mergely-editor .mergely.start.CodeMirror-linebackground {
+	border-top-width: 1px;
+}
+.mergely-editor .mergely.end.CodeMirror-linebackground {
+	border-bottom-width: 1px;
+}
+.mergely-editor .mergely.no-end.CodeMirror-linebackground {
+	border-bottom-width: 0px;
+	background-color: initial;
+}
+
+/* ------------------------------------------------------- */
+
 .mergely-editor .CodeMirror-code {
 	color: #717171;
 }
@@ -130,86 +92,49 @@
 .mergely-editor .current .merge-button:hover {
 	color: #fff;
 }
-.mergely-editor .mergely.a {
-	border-color: #a3d1ff;
+
+/* changed styles */
+.mergely-editor .mergely.c.CodeMirror-linebackground {
+	border-color: #a3a3a3;
+	background-color: #fafafa;
 }
-.mergely-editor .mergely.a.rhs {
-	background-color: #eff7ff;
-	color: #0000ff;
-	opacity: 0.75;
-}
-.mergely-editor .mergely.d {
+
+/* deleted from lhs styles */
+.mergely-editor .mergely.lhs.no-start.CodeMirror-linebackground,
+.mergely-editor .mergely.lhs.no-end.CodeMirror-linebackground,
+.mergely-editor .mergely.lhs.d.CodeMirror-linebackground {
 	border-color: #ff7f7f;
 }
-.mergely-editor .mergely.d.lhs {
+.mergely-editor .mergely.lhs.d.CodeMirror-linebackground {
 	background-color: #ffe9e9;
 }
-.mergely-editor .mergely.c {
-	border-color: #a3a3a3;
-}
+.mergely-editor .mergely.ch.ind.lhs,
 .mergely-editor .mergely.ch.d.lhs {
 	text-decoration: line-through;
-	color: #ff0000;
-	background-color: transparent;
+	color: #ff3e3e;
 }
-.mergely-editor .mergely.current {
-	border-color: #000;
+.mergely-editor .mergely.ch.ind.lhs {
+	background-color: #ffdbdb;
+	color: #ff3e3e;
 }
-/* ---------------------------------------------------------------------- */
-.mergely-editor.dark-mode {
-	background-color: #0b0e10;
+
+/* added to rhs styles */
+.mergely-editor .mergely.rhs.no-end.CodeMirror-linebackground,
+.mergely-editor .mergely.rhs.no-start.CodeMirror-linebackground,
+.mergely-editor .mergely.rhs.a.CodeMirror-linebackground {
+	border-color: #a3d1ff;
 }
-.mergely-editor.dark-mode .CodeMirror {
-	background-color: #12171b;
+.mergely-editor .mergely.rhs.a.CodeMirror-linebackground {
+	background-color: #eff7ff;
 }
-.mergely-editor.dark-mode .CodeMirror-code {
-	color: #bababa;
+.mergely-editor .mergely.ch.ina.rhs {
+	background-color: #d3e9ff;
 }
-.mergely-editor.dark-mode .mergely.a.rhs {
-	color: #00beff;
-	background-color: transparent;
+.mergely-editor .mergely.ch.a.rhs {
+	color: inherit;
 }
-.mergely-editor .mergely.a {
-	border-color: #00beff;
+
+.mergely-editor .mergely.current.lhs.CodeMirror-linebackground,
+.mergely-editor .mergely.current.rhs.CodeMirror-linebackground {
+	border-color: black;
 }
-.mergely-editor.dark-mode .mergely.current {
-	border-color: #616161;
-}
-.mergely-editor.dark-mode .mergely.c {
-	border-color: #313131;
-}
-.mergely-editor.dark-mode .mergely.d {
-	border-color: #9f3fff;
-}
-.mergely-editor .mergely.d.lhs {
-	background-color: transparent;
-}
-.mergely-editor.dark-mode .mergely.ch.d.lhs {
-	color: #bc4fff;
-}
-.mergely-editor.dark-mode .CodeMirror-gutters {
-	background-color: transparent;
-	border-right: 1px dotted #2e343a;
-}
-.mergely-editor.dark-mode .mergely.current .CodeMirror-linenumber {
-	background-color: #6a89f7;
-}
-.mergely-editor.dark-mode .CodeMirror-linenumber {
-	color: #999;
-}
-.mergely-editor.dark-mode .mergely-column {
-	border: 1px solid transparent;
-}
-.mergely-editor.dark-mode .mergely.current {
-	border-color: #6a89f7;
-}
-.mergely-editor.dark-mode .CodeMirror-cursor {
-	border-left: 2px solid #B19F73;
-}
-.mergely-editor.dark-mode .CodeMirror-selected {
-	background-color: #424242;
-}
-.mergely-editor.dark-mode .CodeMirror-focused .CodeMirror-selected {
-	background-color: #07468b;
-}
-/* ---------------------------------------------------------------------- */

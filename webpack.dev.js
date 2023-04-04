@@ -7,15 +7,15 @@ module.exports = {
 
 	module: {
 		rules: [{
+			test: /worker/,
+			loader: 'worker-loader',
+			options: { inline: 'no-fallback' }
+		}, {
 			include: [
 				path.resolve(__dirname, 'src'),
 				path.resolve(__dirname, 'examples')
 			],
 			test: /\.js$/
-		}, {
-			test: /\.(js)$/,
-			exclude: /node_modules/,
-			use: ['babel-loader']
 		}, {
 			test: /\.css$/,
 			use: [{
@@ -35,39 +35,49 @@ module.exports = {
 
 	plugins: [
 		new HtmlWebpackPlugin({
-			template: path.join(__dirname, 'examples', 'app.html')
+			template: path.join(__dirname, 'examples', 'app.html'),
+			filename: 'app.html',
+			inject: true,
+			chunks: [ 'app' ],
+		}),
+		new HtmlWebpackPlugin({
+			template: path.join(__dirname, 'examples', 'app-styles.html'),
+			filename: 'app-styles.html',
+			inject: true,
+			chunks: [ 'styles' ],
 		}),
 		new webpack.ProvidePlugin({
 			CodeMirror: 'codemirror'
-		})
+		}),
+		{
+			apply: (compiler) => {
+				compiler.hooks.entryOption.tap('MyPlugin', (context, entry) => {
+					console.log('-'.repeat(78));
+					console.log('Applications:');
+					console.log('http://localhost:8080/app.html');
+					console.log('http://localhost:8080/app-styles.html');
+					console.log('-'.repeat(78));
+				});
+			}
+		}
 	],
 
 	entry: {
 		app: [
-			'./examples/app',
+			'./examples/app.js',
+			'./src/mergely'
+		],
+		styles: [
+			'./examples/app-styles.js',
 			'./src/mergely'
 		]
 	},
 
 	output: {
-		filename: 'mergely.js'
+		filename: '[name].mergely.js'
 	},
 
 	optimization: {
 		chunkIds: 'named'
-		// splitChunks: { chunks: 'all' }
-		/*
-		splitChunks: {
-			cacheGroups: {
-				vendors: {
-					priority: -10,
-					test: /[\\/]node_modules[\\/]/
-				}
-			},
-			chunks: 'async',
-			minChunks: 1,
-			minSize: 30000
-		}
-		*/
 	}
 }

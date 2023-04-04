@@ -16,9 +16,9 @@ const dev = {
 	},
 	module: {
 		rules: [{
-			test: /\.(js)$/,
-			exclude: /node_modules/,
-			use: ['babel-loader']
+			test: /worker/,
+			loader: 'worker-loader',
+			options: { inline: 'no-fallback' }
 		}]
 	},
 	resolve: {

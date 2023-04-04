@@ -719,6 +719,94 @@ describe('mergely', function () {
 		});
 	});
 
+	describe.only('markup', () => {
+		const RHS_EMPTY = '.mergely.first.start.end.rhs.d.CodeMirror-linebackground';
+		const LHS_EMPTY = '.mergely.first.start.end.lhs.a.CodeMirror-linebackground';
+		const RHS_EMPTY_NOT_FIRST = '.mergely.start.end.rhs.d.CodeMirror-linebackground';
+		const RHS_DELETED_AFTER = '.mergely.start.end.rhs.d.CodeMirror-linebackground';
+		const LHS_DELETED_TEXT = '.mergely.ch.d.lhs';
+		const RHS_ADDED_TEXT = '.mergely.ch.a.rhs';
+		const LHS_ONE_EMPTY_LINE_DELETED = '.mergely.lhs.d.start.end.CodeMirror-linebackground';
+		// start end mergely lhs d cid-0 CodeMirror-linebackground
+		const opts = [{
+			lhs: 'asdf\nasdf\n',
+			rhs: '',
+			name: 'lhs with 2 deleted lines',
+			check: (mergely, editor) => {
+				const lhs_spans = editor.querySelectorAll(LHS_DELETED_TEXT);
+				expect(lhs_spans).to.have.length(2);
+				const rhs_markup = editor.querySelectorAll(RHS_EMPTY);
+				expect(rhs_markup).to.have.length(1);
+			}
+		}, {
+			only: true,
+			lhs: '',
+			rhs: 'asdf\nasdf\n',
+			name: 'rhs with 2 added lines',
+			check: (mergely, editor) => {
+				const lhs_spans = editor.querySelectorAll(LHS_EMPTY);
+				expect(lhs_spans).to.have.length(2);
+				const rhs_markup = editor.querySelectorAll(RHS_ADDED_TEXT);
+				expect(rhs_markup).to.have.length(1);
+			}
+		}, {
+			lhs: 'asdf\n\nasdf\n',
+			rhs: '',
+			name: 'lhs with 3 deleted lines',
+			check: (mergely, editor) => {
+				const lhs_spans = editor.querySelectorAll(LHS_DELETED_TEXT);
+				expect(lhs_spans).to.have.length(2);
+				const rhs_markup = editor.querySelectorAll(RHS_EMPTY_NOT_FIRST);
+				expect(rhs_markup).to.have.length(1);
+			}
+		}, {
+			lhs: 'asdf\n\nasdf\n',
+			rhs: '\n',
+			name: 'lhs with 2 separately deleted lines',
+			check: (mergely, editor) => {
+				const lhs_spans = editor.querySelectorAll(LHS_DELETED_TEXT);
+				expect(lhs_spans).to.have.length(2);
+				const rhs_markup = editor.querySelectorAll(RHS_EMPTY_NOT_FIRST);
+				expect(rhs_markup).to.have.length(1);
+			}
+		}, {
+			lhs: 'asdf\n',
+			rhs: 'asdf',
+			name: 'lhs with the last line deleted',
+			check: (mergely, editor) => {
+				const lhs_spans = editor.querySelectorAll(LHS_ONE_EMPTY_LINE_DELETED);
+				expect(lhs_spans).to.have.length(1);
+				const rhs_markup = editor.querySelectorAll(RHS_DELETED_AFTER);
+				expect(rhs_markup).to.have.length(1);
+			}
+		}];
+		opts.forEach((opt, i) => {
+			// add `only: true` to a condition to run only it
+			const itfn = opt.only ? it.only : it;
+			itfn(`markup-case-${i} should markup ${opt.name}`, function (done) {
+				const editor = init({
+					height: 100,
+					license: 'lgpl-separate-notice',
+					change_timeout: 0,
+					lhs: (setValue) => setValue(opt.lhs),
+					rhs: (setValue) => setValue(opt.rhs)
+				});
+				const test = () => {
+					try {
+						opt.check(editor, editor.el);
+						//!opt.only && done();
+						done();
+					} catch (ex) {
+						//!opt.only && done(ex);
+						done(ex);
+					}
+				};
+				editor.once('updated', test);
+			});
+		});
+
+	});
+
 	describe('options', () => {
 		it('should have default options', function (done) {
 			const editor = init();

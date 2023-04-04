@@ -4,14 +4,23 @@ require('codemirror/addon/selection/mark-selection.js');
 const diff = require('./diff');
 const DiffParser = require('./diff-parser');
 const VDoc = require('./vdoc');
+const { default: DiffWorker } = require('./diff.worker.js');
+
 
 /**
+TODO:
+Update the README.md for new syntax.
+Linting
+Unbind loads of stuff
+Test: search
+Check: read-only modes
+
 CHANGES:
 
 BREAKING:
 Removed dependency on `jQuery`.
 Added `.mergely-editor` to the DOM to scope all the CSS changes.
-CSS now prefixes `.mergely-editor`.
+CSS now prefixes `.mergely-editor` and styles have changed significantly.
 Current active change gutter line number style changed from `.CodeMirror-linenumber` to `.CodeMirror-gutter-background`.
 Removed support for jquery-ui merge buttons.
 API switched from jQuery-style to object methods.
@@ -46,11 +55,6 @@ Fixed performance issue with large sections of deleted/added text
 Fixed issue where initial render scrolled to first change, showing it at the bottom (as opposed to middle as expected)
 Fixed issue where line-diffs failed to diff non-alphanumeric characters
 
-TODO:
-Linting
-Unbind loads of stuff
-Test: search
-Check: read-only modes
 */
 
 const NOTICES = [
@@ -976,8 +980,8 @@ CodeMirrorDiffView.prototype._diff = function() {
 		if (this.settings._debug) {
 			trace('change#_diff creating diff worker');
 		}
-		this._diffWorker
-			= new Worker(new URL('./diff-worker.js', import.meta.url));
+		this._diffWorker = new DiffWorker();
+
 		this._diffWorker.onerror = (ev) => {
 			console.error('Unexpected error with web worker', ev);
 		}
@@ -1038,6 +1042,11 @@ CodeMirrorDiffView.prototype._getViewportSide = function(side) {
 };
 
 CodeMirrorDiffView.prototype._isChangeInView = function(side, vp, change) {
+	if (change[`${side}-line-from`] < 0 || change[`${side}-line-to`]) {
+		// handle case where the diff is "empty" - always in view
+		return true;
+	}
+
 	return (change[`${side}-line-from`] >= vp.from && change[`${side}-line-from`] <= vp.to) ||
 		(change[`${side}-line-to`] >= vp.from && change[`${side}-line-to`] <= vp.to) ||
 		(vp.from >= change[`${side}-line-from`] && vp.to <= change[`${side}-line-to`]);

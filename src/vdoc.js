@@ -12,10 +12,6 @@ class VDoc {
 		};
 	}
 
-	hasRenderedChange(side, changeId) {
-		return !!this._rendered[side][changeId];
-	}
-
 	addRender(side, change, changeId, options) {
 		const {
 			isCurrent,
@@ -24,21 +20,18 @@ class VDoc {
 			getMergeHandler
 		} = options;
 
-		if (this.hasRenderedChange(side, change)) {
+		const alreadyRendered = !!this._rendered[side][changeId];
+
+		if (alreadyRendered) {
 			return;
 		}
+
 		const oside = (side === 'lhs') ? 'rhs' : 'lhs';
-		const bgClass = [ 'mergely', side, change.op, `cid-${changeId}` ];
+		const bgClass = [ 'mergely', side, `cid-${changeId}` ];
 		const { lf, lt, olf, olt } = getExtents(side, change);
 
-		if (change[lf] < 0) {
-			bgClass.push('empty');
-		}
-		this._getLine(side, lf).addLineClass('background', 'start');
-		this._getLine(side, lt).addLineClass('background', 'end');
-
 		if (isCurrent) {
-			if (lf != lt) {
+			if (lf !== lt) {
 				this._getLine(side, lf).addLineClass('background', 'current');
 			}
 			this._getLine(side, lt).addLineClass('background', 'current');
@@ -47,38 +40,66 @@ class VDoc {
 			}
 		}
 
-		if (lf == 0 && lt == 0 && olf == 0) {
-			// test if this change is the first line of the side
+		if (lf < 0) {
+			// If this is the first, line it has start but no end
+			bgClass.push('start');
+			bgClass.push('no-end');
+			this._getLine(side, 0).addLineClass('background', bgClass.join(' '));
+			this._setRenderedChange(side, changeId);
+			return;
+		}
+		if (side === 'lhs' && change['lhs-y-start'] === change['lhs-y-end']) {
+			// if lhs, and start/end are the same, it has end but no-start
+			bgClass.push('no-start');
+			bgClass.push('end');
 			this._getLine(side, lf).addLineClass('background', bgClass.join(' '));
-			this._getLine(side, lf).addLineClass('background', 'first');
-			// FIXME: need lineDiff here?
-		} else {
-			// apply change for each line in-between the changed lines
-			for (let j = lf, k = olf; j <= lt; ++j, ++k) {
-				this._getLine(side, j).addLineClass('background', bgClass.join(' '));
+			this._setRenderedChange(side, changeId);
+			return;
+		}
+		if (side === 'rhs' && change['rhs-y-start'] === change['rhs-y-end']) {
+			// if rhs, and start/end are the same, it has end but no-start
+			bgClass.push('no-start');
+			bgClass.push('end');
+			this._getLine(side, lf).addLineClass('background', bgClass.join(' '));
+			this._setRenderedChange(side, changeId);
+			return;
+		}
 
-				if (!lineDiff) {
-					// inner line diffs are disabled, skip the rest
-					continue;
-				}
+		this._getLine(side, lf).addLineClass('background', 'start');
+		this._getLine(side, lt).addLineClass('background', 'end');
 
-				if (side === 'lhs'
-					&& (change.op === 'd'
-						|| (change.op === 'c' && k > olt)
-					)) {
-					// mark entire line text with deleted (strikeout) if the
-					// change is a delete, or if it is changed text and the
-					// line goes past the end of the other side.
-					this._getLine(side, j).markText(0, undefined, 'mergely ch d lhs');
-				} else if (side == 'rhs'
-					&& (change.op === 'a'
-						|| (change.op === 'c' && k > olt)
-					)) {
-					// mark entire line text with added if the change is an
-					// add, or if it is changed text and the line goes past the
-					// end of the other side.
-					this._getLine(side, j).markText(0, undefined, 'mergely ch a rhs');
-				}
+		const bgChangeOp = {
+			lhs: {
+				d: 'd',
+				a: 'd',
+				c: 'c'
+			},
+			rhs: {
+				d: 'a',
+				a: 'a',
+				c: 'c'
+			}
+		}[ side ][ change.op ];
+
+		for (let j = lf, k = olf; lf !== -1 && lt !== -1 && j <= lt; ++j, ++k) {
+			this._getLine(side, j).addLineClass('background', bgChangeOp);
+			this._getLine(side, j).addLineClass('background', bgClass.join(' '));
+
+			if (!lineDiff) {
+				// inner line diffs are disabled, skip the rest
+				continue;
+			}
+
+			if (side === 'lhs' && (change.op === 'd')) {
+				// mark entire line text with deleted (strikeout) if the
+				// change is a delete, or if it is changed text and the
+				// line goes past the end of the other side.
+				this._getLine(side, j).markText(0, undefined, 'mergely ch d lhs');
+			} else if (side === 'rhs' && (change.op === 'a')) {
+				// mark entire line text with added if the change is an
+				// add, or if it is changed text and the line goes past the
+				// end of the other side.
+				this._getLine(side, j).markText(0, undefined, 'mergely ch a rhs');
 			}
 		}
 
@@ -97,18 +118,27 @@ class VDoc {
 		for (let j = lf, k = olf;
 			((j >= 0) && (j <= lt)) || ((k >= 0) && (k <= olt));
 			++j, ++k) {
+
+
 			// if both lhs line and rhs are within the change range with
 			// respect to each other, do inline diff.
 			if (j <= lt && k <= olt) {
 				const lhsText = getText('lhs', j);
 				const rhsText = getText('rhs', k);
 
+				const alreadyRendered
+					= !!this._lines.lhs[j].markup.length
+					|| !!this._lines.rhs[k].markup.length
+				if (alreadyRendered) {
+					continue;
+				}
+
 				// TODO: there is an LCS performance gain here if either side
 				// is empty.
 				const lcs = new LCS(lhsText, rhsText, {
 					ignoreaccents,
 					ignorews,
-					ignorecase
+					ignorecase,
 				});
 
 				// TODO: there might be an LCS performance gain here to move
@@ -117,11 +147,11 @@ class VDoc {
 				lcs.diff(
 					function _added(from, to) {
 						const line = vdoc._getLine('rhs', k);
-						line.markText(from, to, 'mergely ch a rhs');
+						line.markText(from, to, 'mergely ch ina rhs');
 					},
 					function _removed(from, to) {
 						const line = vdoc._getLine('lhs', j);
-						line.markText(from, to, 'mergely ch d lhs');
+						line.markText(from, to, 'mergely ch ind lhs');
 					}
 				);
 			}
@@ -267,10 +297,10 @@ class VLine {
 function getExtents(side, change) {
 	const oside = (side === 'lhs') ? 'rhs' : 'lhs';
 	return {
-		lf: change[`${side}-line-from`] >= 0 ? change[`${side}-line-from`] : 0,
-		lt: change[`${side}-line-to`] >= 0 ? change[`${side}-line-to`] : 0,
-		olf: change[`${oside}-line-from`] >= 0 ? change[`${oside}-line-from`] : 0,
-		olt: change[`${oside}-line-to`] >= 0 ? change[`${oside}-line-to`] : 0
+		lf: change[`${side}-line-from`],
+		lt: change[`${side}-line-to`],
+		olf: change[`${oside}-line-from`],
+		olt: change[`${oside}-line-to`]
 	};
 }
 
