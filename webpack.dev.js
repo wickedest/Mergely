@@ -73,16 +73,6 @@ module.exports = {
 		filename: '[name].mergely.js'
 	},
 
-	externals: [
-		function external({ _, request }, cb) {
-			if (request.indexOf('codemirror') >= 0) {
-				// exclude, but expect global `CodeMirror`
-				return cb(null, 'CodeMirror');
-			}
-			return cb();
-		}
-	],
-
 	optimization: {
 		chunkIds: 'named'
 	}
