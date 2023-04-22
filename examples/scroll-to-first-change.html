@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" /><title>Mergely - Example scroll to first change</title>
+	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<meta name="author" content="Jamie Peabody" />
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+	<!-- CodeMirror peer dependency -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/addon/search/searchcursor.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css" />
+
+	<!-- Mergely -->
+	<script type="text/javascript" src="/lib/mergely.js"></script>
+	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
+
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		#compare {
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div id="compare"></div>
+
+	<script type="text/javascript">
+		const mergely = new Mergely('#compare');
+		mergely.once('updated', () => {
+			fetch('/examples/macbeth.txt')
+				.then(response => response.text())
+				.then(macbeth => {
+					mergely.lhs(macbeth.replace(/filthy/g, 'dirty'));
+					mergely.rhs(macbeth);
+				});
+			mergely.once('updated', () => {
+				mergely.scrollToDiff('next');
+			});
+		});
+	</script>
+</body>
+</html>

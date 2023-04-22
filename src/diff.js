@@ -1,14 +1,18 @@
+const SMS_TIMEOUT_SECONDS = 1.0;
+
 function diff(lhs, rhs, options = {}) {
 	const {
 		ignorews = false,
 		ignoreaccents = false,
-		ignorecase = false
+		ignorecase = false,
+		split = 'lines'
 	} = options;
 
 	this.codeify = new CodeifyText(lhs, rhs, {
 		ignorews,
 		ignoreaccents,
-		ignorecase
+		ignorecase,
+		split
 	});
 	const lhs_ctx = {
 		codes: this.codeify.getCodes('lhs'),
@@ -41,15 +45,15 @@ diff.prototype.normal_form = function() {
 		let lhs_str = '';
 		let rhs_str = '';
 		let change = 'c';
-		if (item.lhs_deleted_count == 0 && item.rhs_inserted_count > 0) change = 'a';
-		else if (item.lhs_deleted_count > 0 && item.rhs_inserted_count == 0) change = 'd';
+		if (item.lhs_deleted_count === 0 && item.rhs_inserted_count > 0) change = 'a';
+		else if (item.lhs_deleted_count > 0 && item.rhs_inserted_count === 0) change = 'd';
 
-		if (item.lhs_deleted_count == 1) lhs_str = item.lhs_start + 1;
-		else if (item.lhs_deleted_count == 0) lhs_str = item.lhs_start;
+		if (item.lhs_deleted_count === 1) lhs_str = item.lhs_start + 1;
+		else if (item.lhs_deleted_count === 0) lhs_str = item.lhs_start;
 		else lhs_str = (item.lhs_start + 1) + ',' + (item.lhs_start + item.lhs_deleted_count);
 
-		if (item.rhs_inserted_count == 1) rhs_str = item.rhs_start + 1;
-		else if (item.rhs_inserted_count == 0) rhs_str = item.rhs_start;
+		if (item.rhs_inserted_count === 1) rhs_str = item.rhs_start + 1;
+		else if (item.rhs_inserted_count === 0) rhs_str = item.rhs_start;
 		else rhs_str = (item.rhs_start + 1) + ',' + (item.rhs_start + item.rhs_inserted_count);
 		nf += lhs_str + change + rhs_str + '\n';
 
@@ -71,20 +75,20 @@ diff.prototype.normal_form = function() {
 };
 
 diff.prototype._lcs = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower, rhs_upper, vector_u, vector_d) {
-	while ( (lhs_lower < lhs_upper) && (rhs_lower < rhs_upper) && (lhs_ctx.codes[lhs_lower] == rhs_ctx.codes[rhs_lower]) ) {
+	while ( (lhs_lower < lhs_upper) && (rhs_lower < rhs_upper) && (lhs_ctx.codes[lhs_lower] === rhs_ctx.codes[rhs_lower]) ) {
 		++lhs_lower;
 		++rhs_lower;
 	}
-	while ( (lhs_lower < lhs_upper) && (rhs_lower < rhs_upper) && (lhs_ctx.codes[lhs_upper - 1] == rhs_ctx.codes[rhs_upper - 1]) ) {
+	while ( (lhs_lower < lhs_upper) && (rhs_lower < rhs_upper) && (lhs_ctx.codes[lhs_upper - 1] === rhs_ctx.codes[rhs_upper - 1]) ) {
 		--lhs_upper;
 		--rhs_upper;
 	}
-	if (lhs_lower == lhs_upper) {
+	if (lhs_lower === lhs_upper) {
 		while (rhs_lower < rhs_upper) {
 			rhs_ctx.modified[ rhs_lower++ ] = true;
 		}
 	}
-	else if (rhs_lower == rhs_upper) {
+	else if (rhs_lower === rhs_upper) {
 		while (lhs_lower < lhs_upper) {
 			lhs_ctx.modified[ lhs_lower++ ] = true;
 		}
@@ -97,6 +101,7 @@ diff.prototype._lcs = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 };
 
 diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower, rhs_upper, vector_u, vector_d) {
+	const timeout = Date.now() + SMS_TIMEOUT_SECONDS * 1000;
 	const max = lhs_ctx.codes.length + rhs_ctx.codes.length + 1;
 	const kdown = lhs_lower - rhs_lower;
 	const kup = lhs_upper - rhs_upper;
@@ -111,8 +116,12 @@ diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 	let x;
 	let y;
 	for (let d = 0; d <= maxd; ++d) {
+		if (SMS_TIMEOUT_SECONDS && Date.now() > timeout) {
+			// bail if taking too long
+			return { x: lhs_lower, y: rhs_upper };
+		}
 		for (let k = kdown - d; k <= kdown + d; k += 2) {
-			if (k == kdown - d) {
+			if (k === kdown - d) {
 				x = vector_d[ offset_down + k + 1 ];//down
 			}
 			else {
@@ -123,7 +132,7 @@ diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 			}
 			y = x - k;
 			// find the end of the furthest reaching forward D-path in diagonal k.
-			while ((x < lhs_upper) && (y < rhs_upper) && (lhs_ctx.codes[x] == rhs_ctx.codes[y])) {
+			while ((x < lhs_upper) && (y < rhs_upper) && (lhs_ctx.codes[x] === rhs_ctx.codes[y])) {
 				x++; y++;
 			}
 			vector_d[ offset_down + k ] = x;
@@ -139,7 +148,7 @@ diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 		// Extend the reverse path.
 		for (k = kup - d; k <= kup + d; k += 2) {
 			// find the only or better starting point
-			if (k == kup + d) {
+			if (k === kup + d) {
 				x = vector_u[offset_up + k - 1]; // up
 			} else {
 				x = vector_u[offset_up + k + 1] - 1; // left
@@ -147,7 +156,7 @@ diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 					x = vector_u[offset_up + k - 1]; // up
 			}
 			y = x - k;
-			while ((x > lhs_lower) && (y > rhs_lower) && (lhs_ctx.codes[x - 1] == rhs_ctx.codes[y - 1])) {
+			while ((x > lhs_lower) && (y > rhs_lower) && (lhs_ctx.codes[x - 1] === rhs_ctx.codes[y - 1])) {
 				// diagonal
 				x--;
 				y--;
@@ -170,14 +179,14 @@ diff.prototype._optimize = function(ctx) {
 	let start = 0;
 	let end = 0;
 	while (start < ctx.codes.length) {
-		while ((start < ctx.codes.length) && (ctx.modified[start] == undefined || ctx.modified[start] == false)) {
+		while ((start < ctx.codes.length) && (ctx.modified[start] === undefined || ctx.modified[start] === false)) {
 			start++;
 		}
 		end = start;
-		while ((end < ctx.codes.length) && (ctx.modified[end] == true)) {
+		while ((end < ctx.codes.length) && (ctx.modified[end] === true)) {
 			end++;
 		}
-		if ((end < ctx.codes.length) && (ctx.codes[start] == ctx.codes[end])) {
+		if ((end < ctx.codes.length) && (ctx.codes[start] === ctx.codes[end])) {
 			ctx.modified[start] = false;
 			ctx.modified[end] = true;
 		}
@@ -231,14 +240,27 @@ function CodeifyText(lhs, rhs, options) {
     this._diff_codes = {};
 	this.ctxs = {};
 	this.options = options;
+	this.options.split = this.options.split || 'lines';
 
 	if (typeof lhs === 'string') {
-		this.lhs = lhs.split('\n');
+		if (this.options.split === 'chars') {
+			this.lhs = lhs.split('');
+		} else if (this.options.split === 'words') {
+			this.lhs = lhs.split(/\s/);
+		} else if (this.options.split === 'lines') {
+			this.lhs = lhs.split('\n');
+		}
 	} else {
 		this.lhs = lhs;
 	}
 	if (typeof rhs === 'string') {
-		this.rhs = rhs.split('\n');
+		if (this.options.split === 'chars') {
+			this.rhs = rhs.split('');
+		} else if (this.options.split === 'words') {
+			this.rhs = rhs.split(/\s/);
+		} else if (this.options.split === 'lines') {
+			this.rhs = rhs.split('\n');
+		}
 	} else {
 		this.rhs = rhs;
 	}
@@ -264,9 +286,8 @@ CodeifyText.prototype._diff_ctx = function(lines) {
 }
 
 CodeifyText.prototype._codeify = function(lines, ctx) {
-	var code = this._max_code;
-	for (var i = 0; i < lines.length; ++i) {
-		var line = lines[i];
+	for (let i = 0; i < lines.length; ++i) {
+		let line = lines[i];
 		if (this.options.ignorews) {
 			line = line.replace(/\s+/g, '');
 		}
@@ -276,12 +297,11 @@ CodeifyText.prototype._codeify = function(lines, ctx) {
 		if (this.options.ignoreaccents) {
 			line = line.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 		}
-		var aCode = this._diff_codes[line];
-		if (aCode != undefined) {
+		const aCode = this._diff_codes[line];
+		if (aCode !== undefined) {
 			ctx.codes[i] = aCode;
-		}
-		else {
-			this._max_code++;
+		} else {
+			++this._max_code;
 			this._diff_codes[line] = this._max_code;
 			ctx.codes[i] = this._max_code;
 		}

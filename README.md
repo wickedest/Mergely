@@ -1,111 +1,105 @@
 # Mergely
 
+![mergely logo](https://www.mergely.com/images/mergely.png)
+
 https://mergely.com
 
-Mergely is a JavaScript component for differencing and merging files interactively in a browser (diff/merge), providing rich API that enables you to easily integrate Mergely into your existing web application. It is suitable for comparing text files online, for example, .txt, .html, .xml, .c, .cpp, .java, etc.  
+Mergely is a JavaScript component for differencing and merging files interactively in a browser (diff/merge). It provides a rich API that enables you to easily integrate Mergely into your existing web application. It is suitable for comparing text files online, for example, .txt, .html, .xml, .c, .cpp, .java, etc.
 
-Mergely has a JavaScript implementation of the Longest Common Subsequence (LCS) diff algorithm, and a customizable markup engine.
+Mergely has a JavaScript implementation of the Longest Common Subsequence (LCS) diff algorithm, and a customizable markup engine. It computes the diff within the browser.
 
-## Installation
+This is the latest version 5. The previous version 4 can be found [here](https://github.com/wickedest/Mergely/tree/v4.3.9#mergely).
 
-### Installation via webpack
-The recommended way to install mergely and its dependencies is to use a Node package manager (`npm` or `yarn`) and [webpack](https://webpack.js.org/).
+## Usage
 
-It is highly recommended that you start by cloning [mergely-webpack](https://github.com/wickedest/mergely-webpack). The webpack has everything that you need to get started.
+### Usage via React
 
-### Angular 6.1.1
-You can also use mergely within angular. You can start by cloning [mergely-angular](https://github.com/wickedest/mergely-angular).
+The easiest and recommended way to use Mergely is with the [mergely-react](https://npmjs.com/package/mergely-react) component.
 
-### Installation via .tgz
+```bash
+npm install mergely-react
+```
+
+### Usage via Angular
+
+There is an Angular component for Mergely [mergely-angular](https://github.com/wickedest/mergely-angular), but it is out of date. I will accept MR for anyone willing to do the work.
+
+### Usage via webpack
+
+The source repository [mergely-webpack](https://github.com/wickedest/mergely-webpack) contains an example of how to get started with a new project that uses mergely and webpack.
+
+```
+git clone --depth 1 https://github.com/wickedest/mergely-webpack.git my-project
+cd my-project
+rm -rf .git
+```
+
+### Usage via CDN
 
 Unpack mergely.tgz into a folder, for example, `./lib`, and add the following to the `<head>` of your target HTML source file.
 
 ```html
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
-<link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/addon/search/searchcursor.min.js"></script>
-<script src="package/lib/mergely.js" type="text/javascript"></script>
-<link rel="stylesheet" media="all" href="package/lib/mergely.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mergely/5.0.0/mergely.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mergely/5.0.0/mergely.css"></script>
 ```
 
-Create a div for the editor in `<body>`.  
+### Synchronous initialization
 
-This example uses a style that provides 8px padding (`mergely-full-screen-8`):
+If the editor contents are retrieved asynchronously (recommended), then retrieve the editor contents and set them:
 
 ```html
-<div class="mergely-full-screen-8">
-  <div class="mergely-resizer">
-    <div id="mergely"></div>
-  </div>
-</div>
-```
+<body>
+  <div id="compare"></div>
 
-Then initialize mergely, setting [options](#options) as required.
-
-```js
-$(document).ready(function () {
-    $('#mergely').mergely();
-});
-```
-
-### Synchronous content initialization
-
-The following example can be used to set the `lhs` and `rhs` editors synchronously (that is, when their contents are already known):
-
-```js
-$(document).ready(function () {
-    // set editor content
-    $('#mergely').mergely({
-        lhs: function(setValue) {
-            setValue('the quick red fox\njumped over the hairy dog');
-        },
-        rhs: function(setValue) {
-            setValue('the quick brown fox\njumped over the lazy dog');
-        }
+  <script>
+    const doc = new Mergely('#compare', {
+      lhs: 'the quick red fox\njumped over the hairy dog',
+      rhs: 'the quick brown fox\njumped over the lazy dog'
     });
-});
+  </script>
+</body>
 ```
 
 ### Asynchronous initialization
 
-If the editor contents are retrieved asynchronously (recommended), then retrieve the editor contents and set them:
+Mergely will emit an `updated` event when the editor is first initialized, and each time one of the editors changes. You can listen for one event to perform one-time initialization.
 
-```js
-$(document).ready(function () {
-    // initialize mergely
-    $('#mergely').mergely();
-    
-    // get async lhsResponse, then set lhs value
-    $('#mergely').mergely('lhs', lhsResponse);
-    
-    // get async rhsResponse, then set rhs value
-    $('#mergely').mergely('rhs', rhsResponse);
-});
+```html
+<body>
+  <div id="compare"></div>
+
+  <script>
+    const doc = new Mergely('#compare');
+    doc.once('updated', () => {
+      doc.lhs('the quick red fox\njumped over the hairy dog');
+      doc.rhs('the quick brown fox\njumped over the lazy dog');
+      // Scroll to first change on next update
+      doc.once('updated', () => {
+        doc.scrollToDiff('next');
+      });
+    });
+  </script>
+</body>
 ```
 
 ## Options
 
-
 |Option|Type|Default value|Description|
 |------|----|-------------|-----------|
-|<a name="autoresize"></a>autoresize|boolean|`true`|Enables/disables the auto-resizing of the editor.|
-|<a name="autoupdate"></a>autoupdate|boolean|`true`|Enables/disables the auto-updating of the editor when changes are made.|
-|<a name="bgcolor"></a>bgcolor|string|`#eeeeee`|The background color that mergely fills the margin canvas with.|
-|<a name="change_timeout"></a>change_timeout|number|`500`|The timeout, after a text change, before Mergely calculates a diff. Only used when `readonly` is enabled.|
+|<a name="autoupdate"></a>autoupdate|boolean|true|Controls whether or not the [`changed`](#changed) event will trigger a diff.|
+|<a name="bgcolor"></a>bgcolor|string|`#eeeeee`|The background color for the left-hand and right-hand margins.|
+|<a name="change_timeout"></a>change_timeout|number|`150`|The timeout, after a text change, before Mergely calculates a diff. Only used when `readonly` is enabled.|
 |<a name="cmsettings"></a>cmsettings|object|`{mode: 'text/plain', readOnly: false}`|CodeMirror settings (see [CodeMirror](https://codemirror.net)) that are combined with `lhs_cmsettings` and `rhs_cmsettings`.|
-|<a name="editor_width"></a>editor_width|string|`400px`|Starting width.|
-|<a name="editor_height"></a>editor_height|string|`400px`|Starting height.|
-|<a name="fadein"></a>fadein|string|`fast`|A jQuery [fadein](http://api.jquery.com/fadein) value to enable the editor to fade in. Set to empty string to disable.|
-|<a name="fgcolor"></a>fgcolor|string\|number\|object|`{a:'#4ba3fa', c:'#a3a3a3', d:'#ff7f7f', ca:'#4b73ff', cc:'#434343', cd:'#ff4f4f'}`|The foreground color that mergely marks changes with on the canvas.  The value **a** is additions, **c** changes, **d** deletions, and the prefix *c* indicates current/active change (e.g. **cd** current delection).|
 |<a name="ignorews"></a>ignorews|boolean|`false`|Ignores white-space.|
-|<a name="ignorecase"></a>ignorecase|boolean|`false`|Ignores case when differientiating.|
+|<a name="ignorecase"></a>ignorecase|boolean|`false`|Ignores case.|
 |<a name="ignoreaccents"></a>ignoreaccents|boolean|`false`|Ignores accented characters.|
-|<a name="lcs"></a>lcs|boolean|`true`|Enables/disables LCS computation for paragraphs (word-by-word changes). Disabling can give a performance gain for large documents.|
+|<a name="lcs"></a>lcs|boolean|`true`|Enables/disables LCS computation for paragraphs (char-by-char changes). Disabling can give a performance gain for large documents.|
+|<a name="lhs"></a>lhs|boolean,`function handler(setValue)`|`null`|Sets the value of the editor on the left-hand side.|
 |<a name="license"></a>license|string|`lgpl`|The choice of license to use with Mergely.  Valid values are: `lgpl`, `gpl`, `mpl` or `lgpl-separate-notice`, `gpl-separate-notice`, `mpl-separate-notice` (the license requirements are met in a separate notice file).|
 |<a name="line_numbers"></a>line_numbers|boolean|`true`|Enables/disables line numbers. Enabling line numbers will toggle the visibility of the line number margins.|
 |<a name="lhs_cmsettings"></a>lhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](https://codemirror.net)) for the left-hand side editor.|
 |<a name="resize_timeout"></a>resize_timeout|number|`500`|The timeout, after a resize, before Mergely auto-resizes. Only used when autoresize enabled.|
+|<a name="rhs"></a>rhs|boolean,`function handler(setValue)`|`null`|Sets the value of the editor on the right-hand side.|
 |<a name="rhs_cmsettings"></a>rhs_cmsettings|object|`{}`|The CodeMirror settings (see [CodeMirror](https://codemirror.net)) for the right-hand side editor.|
 |<a name="rhs_margin"></a>rhs_margin|string|`right`|Location for the rhs markup margin. Possible values: right, left.|
 |<a name="sidebar"></a>sidebar|boolean|`true`|Enables/disables sidebar markers. Disabling can give a performance gain for large documents.|
@@ -113,214 +107,262 @@ $(document).ready(function () {
 |<a name="viewport"></a>viewport|boolean|`false`|Enables/disables the viewport. Enabling the viewport can give a performance gain for large documents.|
 |<a name="wrap_lines"></a>wrap_lines|boolean|`false`|Enables/disables line wrapping. Enabling wrapping will wrap text to fit the editors.|
 
-## Options - Callbacks
+## Constructor
 
-|Option|Parameters|Description|
-|------|----|-----------|
-|<a name="lhs"></a>lhs|`function setValue(string)`|A callback that allows the value of the left-hand editor to be set on initialization synchronously. A handle to a `setValue` function is passed as an argument to be used to initialize the editor.|
-|<a name="loaded"></a>loaded| |A callback to indicate that Mergely has finished initializing and is loaded.|
-|<a name="resized"></a>resized| |A callback to indicate that the container window has been resized.|
-|<a name="rhs"></a>rhs|`function setValue(string)`|A callback that allows the value of the right-hand editor to be set on initialization synchronously. A handle to a `setValue` function is passed as an argument to be used to initialize the editor.|
+### <a name="constructor"></a>constructor(selector: string, options?: <a href="#options">object</a>)
+
+#### Parameters
+
+|Name|Type|Description|
+|----|----|-----------|
+|selector|string|A CSS selector used to uniquely identify the DOM element that should be used to bind the instance of Mergely.|
+|options|object|Configuration options for the instance.|
+
+#### Example
+
+```js
+new Mergely('#editor', { ignorews: true });
+```
 
 ## Methods
 
-### <a name="clear"></a>clear
+### <a name="clear"></a>clear(side: string)
 
 Clears the editor contents for the specified `side`.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |side|string|The editor side, either `lhs` or `rhs`.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('clear', 'lhs');
+doc.clear('lhs');
 ```
 
-### <a name="cm"></a>cm
+### <a name="cm"></a>cm(side: string)
 
 Gets the CodeMirror editor for the specified `side`.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |side|string|The editor side, either `lhs` or `rhs`.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('cm', 'lhs');
+doc.cm('lhs');
 ```
 
-### diff
+### <a name="diff"></a>diff()
 
 Calculates and returns the current .diff file.
 
 #### Parameters
+
 None.
 
 #### Example
 
 ```js
-$('#mergely').mergely('diff');
+doc.diff();
 ```
 
-### get
+### <a name="get"></a>get(side: string)
 
 Gets the text editor contents for the specified `side`.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |side|string|The editor side, either `lhs` or `rhs`.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('get', 'lhs');
+doc.get('lhs');
 ```
 
-### lhs
+### <a name="lhs"></a>lhs(value: string)
 
 Sets the value of the left-hand editor.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |value|string|The editor text.|
 
 #### Example
 ```js
-$('#mergely').mergely('lhs', 'This is text');
+doc.lhs('This is text');
 ```
 
-### merge
+### <a name="merge"></a>merge(side: string)
 
 Merges whole file from the specified `side` to the opposite side.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |side|string|The editor side, either `lhs` or `rhs`.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('merge', 'lhs');
+doc.merge('lhs');
 ```
 
-### mergeCurrentChange
+### <a name="mergeCurrentChange"></a>mergeCurrentChange(side: string)
 
 Merges the current change from the specified `side` to the opposite side.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |side|string|The editor side, either `lhs` or `rhs`.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('mergeCurrentChange', 'lhs');
+doc.mergeCurrentChange('lhs');
 ```
 
+### <a name="on"></a>on(event: string, handler: function)
 
-### options
-
-Sets the editor options.  Will automatically update with the new settings unless `autoupdate` is disabled, in which case, you will need to explicitly call `update`.
+Sets up a `function` to be called when the specified `event` is emitted. The event handler will be automatically deregistered on <a href="#unbind">unbind</a>.
 
 #### Parameters
+
+None.
+
+#### Example
+
+```js
+doc.on('updated', () => console.log('updated!'));
+```
+
+### <a name="once"></a>once(event: string, handler: function)
+
+Sets up a `function` to be called when the specified `event` is emitted. The event handler will be automatically deregistered after the `handler` is called.
+
+#### Parameters
+
+None.
+
+#### Example
+
+```js
+doc.unbind();
+```
+
+### <a name="options"></a>options(options?: <a href="#options">object</a>)
+
+Gets or sets the editor <a href="#options">Options</a>. With no arguments, the function will return the currenty configured options. When supplied options to change, the editor will automatically update with the new settings.
+
+#### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |options|object|The options to set.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('options', { line_numbers: true });
+const currentOptions = doc.options();
+doc.options({ line_numbers: true });
 ```
 
-### options
-
-Gets the editor options.
-
-#### Parameters
-None.
-
-#### Example
-```js
-$('#mergely').mergely('options');
-```
-
-### resize
+### <a name="resize"></a>resize()
 
 Resizes the editor. It must be called explicitly if `autoresize` is disabled.
 
 #### Parameters
+
 None.
 
 #### Example
+
 ```js
-$('#mergely').mergely('resize');
+doc.resize();
 ```
 
-### rhs
+### <a name="rhs"></a>rhs(value: string)
 
 Sets the value of the right-hand editor.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |value|string|The editor text.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('rhs', 'This is text');
+doc.rhs('This is text');
 ```
 
-### scrollTo
+### <a name="scrollTo"></a>scrollTo(side: string, lineNum: integer)
 
-Scrolls the `side` to line number specified by `num`.
+Scrolls the editor `side` to line number specified by `lineNum`.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |side|string|The editor side, either `lhs` or `rhs`.|
-|num|number|The line number.|
+|lineNum|number|The line number.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('scrollTo', 'lhs', 100);
+doc.scrollTo('lhs', 100);
 ```
 
-### scrollToDiff
+### <a name="scrollToDiff"></a>scrollToDiff(direction: string)
 
 Scrolls to the next change specified by `direction`.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |direction|string|The direction to scroll, either `prev` or `next`.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('scrollToDiff', 'next');
+doc.scrollToDiff('next');
 ```
 
-### search
+### <a name="search"></a>search(side: string, needle: string)
 
-Search the editor for `text`, scrolling to the next available match. Repeating the call will find the next available token.
+Search the editor for `needle`, scrolling to the next available match. Repeating the call will find the next available token.
 
 #### Parameters
+
 |Name|Type|Description|
 |----|----|-----------|
 |side|string|The editor side, either `lhs` or `rhs`.|
-|text|string|The text to search.|
+|needle|string|The text for which to search.|
 
 #### Example
+
 ```js
-$('#mergely').mergely('search', 'lhs', 'needle');
+doc.search('lhs', 'banana');
 ```
 
-### summary
+### <a name="summary"></a>summary()
 
-Gets a summary of the editors.  Returns an object with summarized properties:
+Gets a summary of the editors. Returns an object with summarized properties:
 
 |Name|Description|
 |----|-----------|
@@ -332,59 +374,94 @@ Gets a summary of the editors.  Returns an object with summarized properties:
 |numChanges|The total number of changed lines.|
 
 #### Parameters
+
 None.
 
 #### Example
+
 ```js
-console.log($('#mergely').mergely('summary'));
-// { a: 0, c: 1, d: 0, lhsLength: 44, numChanges: 1, rhsLength: 45 }
+console.log(doc.summary());
+// { a: 0, c: 1, d: 0, lhsLength: 44, rhsLength: 45, numChanges: 1 }
 ```
 
-### swap
+### <a name="swap"></a>swap()
 
-Swaps the content of the left and right editors.
+Swaps the content of the left and right editors. The content cannot be swapped if either editor is read-only.
 
 #### Parameters
+
 None.
 
 #### Example
+
 ```js
-$('#mergely').mergely('swap');
+doc.swap();
 ```
 
-### unmarkup
+### <a name="unmarkup"></a>unmarkup()
 
 Clears the editor markup.
 
 #### Parameters
+
 None.
 
 #### Example
+
 ```js
-$('#mergely').mergely('unmarkup');
+doc.unmarkup();
 ```
 
-### update
+### <a name="unbind"></a>unbind()
 
-Manually updates the editor by recalculating the diff and applying new settings.
+Unbinds and destroys the editor DOM.
 
 #### Parameters
+
 None.
 
 #### Example
+
 ```js
-$('#mergely').mergely('update');
+doc.unbind();
 ```
 
 ## Events
 
-### updated
+Event handlers are automatically unregistered when [unbind](#unbind) is called.
 
-Triggered after the editor is updated.
+### changed
+
+Triggered when one of the editors change, e.g. text was altered. The [change_timeout](#/change_timeout) controls how much time should pass after the `changed` event (e.g. keypress) before the [`updated`](#updated) event is triggered.
 
 #### Example
+
 ```js
-$('#mergely').on('updated', () => {
-    // updated
-});
+mergely.once('changed', () => { console.log('changed!'); }
+
+mergely.on('changed', () => { console.log('changed!'); }
+```
+
+### resized
+
+Triggered after the editor is resized.
+
+#### Example
+
+```js
+mergely.once('resized', () => { console.log('resized!'); }
+
+mergely.on('resized', () => { console.log('resized!'); }
+```
+
+### updated
+
+Triggered after the editor finishes rendering. For example, text updates, options, or scroll events may trigger renders. This event is useful for handling a once-off initialization that should occur after the editor's first render.
+
+#### Example
+
+```js
+mergely.once('updated', () => { console.log('updated!'); }
+
+mergely.on('updated', () => { console.log('updated!'); }
 ```
