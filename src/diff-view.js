@@ -1164,7 +1164,6 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 
 		const borderColor = (this._current_diff === i) ?
 			this.settings._colors.current.border : this.settings._colors[change.op].border;
-		console.log('change',i,borderColor);
 
 		// draw left box
 		ctx.beginPath();

@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - master
+      - alpha
+      - beta
+      - next
 
 permissions:
   contents: read
