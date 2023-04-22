@@ -21,7 +21,6 @@ document.onreadystatechange = function () {
 	}
 
 	const mergely = new Mergely('#compare', {
-		factory: CodeMirror,
 		license: 'lgpl',
 		lhs,
 		rhs
