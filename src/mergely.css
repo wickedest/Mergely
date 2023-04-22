@@ -104,7 +104,8 @@
 }
 
 /* lhs styles (deleted-from) */
-.mergely-editor .mergely.lhs.no-start.CodeMirror-linebackground,
+.mergely-editor .mergely.rhs.a.no-end.CodeMirror-linebackground,
+.mergely-editor .mergely.rhs.a.no-start.CodeMirror-linebackground,
 .mergely-editor .mergely.lhs.no-end.CodeMirror-linebackground,
 .mergely-editor .mergely.lhs.d.CodeMirror-linebackground {
 	border-color: #ff7f7f;
@@ -123,8 +124,8 @@
 }
 
 /* rhs styles (added-to) */
-.mergely-editor .mergely.rhs.no-end.CodeMirror-linebackground,
-.mergely-editor .mergely.rhs.no-start.CodeMirror-linebackground,
+.mergely-editor .mergely.lhs.no-end.CodeMirror-linebackground,
+.mergely-editor .mergely.lhs.no-start.CodeMirror-linebackground,
 .mergely-editor .mergely.rhs.a.CodeMirror-linebackground {
 	border-color: #a3d1ff;
 }
