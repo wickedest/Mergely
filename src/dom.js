@@ -12,8 +12,9 @@ function htmlToElement(html) {
 
 function getColors(el) {
 	// get current diff border color from user-defined css
+	const classes = ['mergely-editor', ...el.classList];
 	const text = `
-<div style="display:none" class="mergely-editor">
+<div style="display:none" class="${classes.join(' ')}">
 	<div class="mergely current start"></div>
 	<div class="mergely start end rhs a CodeMirror-linebackground"></div>
 	<div class="mergely start end lhs d CodeMirror-linebackground"></div>
