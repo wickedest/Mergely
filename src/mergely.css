@@ -17,7 +17,7 @@
 }
 
 .mergely-editor .CodeMirror-selected {
-    background: #ffcb0f;
+	background: #0f73ff47;
 }
 
 .mergely-splash {
@@ -52,8 +52,6 @@
 .mergely-editor .merge-button {
 	height: 18px;
 	cursor: pointer;
-	width: 26px;
-	padding-left: 3px;
 }
 
 /* common stles */
