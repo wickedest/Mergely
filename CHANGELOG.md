@@ -9,6 +9,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.0.0](https://github.com/wickedest/Mergely/compare/v4.3.9...v5.0.0) (2023-04-23)
+
+
+### BREAKING CHANGES
+
+- Mergely is no longer a jQuery plugin.
+- Removed options.autoresize
+- Removed options.editor_width
+- Removed options.editor_height
+- Removed options.fadein
+- Removed options.fgcolor
+- Removed options.resize
+- Removed options.width
+- Removed options.height
+- Removed options.loaded callback
+- Removed options.resized callback
+- Removed styles .mergely-resizer, .mergely-full-screen-0, and .mergely-full-screen-8
+- Changed default for options.change_timeout changed from 150 to 50.
+- No longer automatically scrolls to first change.
+
 ### 4.3.9 (2022-01-19)
 
 
