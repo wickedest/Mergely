@@ -1,7 +1,10 @@
 const diff = require('./diff');
 
+const trace = console.log;
+
 class VDoc {
-	constructor() {
+	constructor(options) {
+		this.options = options;
 		this._lines = {
 			lhs: {},
 			rhs: {}
@@ -13,6 +16,9 @@ class VDoc {
 	}
 
 	addRender(side, change, changeId, options) {
+		if (this.options._debug) {
+			trace('vdoc#addRender', side, changeId, change);
+		}
 		const {
 			isCurrent,
 			lineDiff,
@@ -23,6 +29,9 @@ class VDoc {
 		const alreadyRendered = !!this._rendered[side][changeId];
 
 		if (alreadyRendered) {
+			if (this.options._debug) {
+				trace('vdoc#addRender (already rendered)', side, changeId, change);
+			}
 			return;
 		}
 
@@ -116,6 +125,9 @@ class VDoc {
 	}
 
 	addInlineDiff(change, changeId, { getText, ignorews, ignoreaccents, ignorecase }) {
+		if (this.options._debug) {
+			trace('vdoc#addInlineDiff', changeId, change);
+		}
 		const { lf, lt, olf, olt } = getExtents('lhs', change);
 		const vdoc = this;
 
@@ -169,6 +181,9 @@ class VDoc {
 	}
 
 	_setRenderedChange(side, changeId) {
+		if (this.options._debug) {
+			trace('vdoc#_setRenderedChange', side, changeId);
+		}
 		return this._rendered[side][changeId] = true;
 	}
 
@@ -182,8 +197,10 @@ class VDoc {
 		return line;
 	}
 
-	update(side, changeId, editor, viewport) {
-		this._setRenderedChange(side, changeId);
+	update(side, editor, viewport) {
+		if (this.options._debug) {
+			trace('vdoc#update', side, editor, viewport);
+		}
 		const lines = Object.keys(this._lines[side]);
 		for (let i = 0; i < lines.length; ++i) {
 			const id = lines[i];
@@ -200,6 +217,9 @@ class VDoc {
 	}
 
 	clear() {
+		if (this.options._debug) {
+			trace('vdoc#clear');
+		}
 		for (const lineId in this._lines.lhs) {
 			this._lines.lhs[lineId].clear();
 		}

@@ -114,7 +114,7 @@ class Mergely {
 
 	_setOptions(options) {
 		if (this._options && this._options._debug) {
-			trace('api#options', opts);
+			trace('api#options');
 		}
 		const colors = dom.getColors(this.el);
 		this._options = {

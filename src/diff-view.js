@@ -44,7 +44,7 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		lineNumbers: this.settings.line_numbers,
 		gutters: (this.settings.line_numbers && [ 'merge', 'CodeMirror-linenumbers' ]) || [],
 	};
-	this._vdoc = new VDoc();
+	this._vdoc = new VDoc({ _debug: this.settings._debug });
 };
 
 CodeMirrorDiffView.prototype.unbind = function() {
@@ -561,7 +561,7 @@ CodeMirrorDiffView.prototype._clearMarkup = function () {
 		traceTimeStart('draw#_clearMarkup');
 	}
 	this._vdoc.clear();
-	this._vdoc = new VDoc();
+	this._vdoc = new VDoc({ _debug: this.settings._debug });
 	if (this.settings._debug) {
 		traceTimeEnd('draw#_clearMarkup');
 	}
@@ -995,14 +995,10 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 		}
 	}
 	led.operation(() => {
-		for (let i = 0; i < changes.length; ++i) {
-			vdoc.update('lhs', i, led, lhsvp);
-		}
+		vdoc.update('lhs', led, lhsvp);
 	});
 	red.operation(() => {
-		for (let i = 0; i < changes.length; ++i) {
-			vdoc.update('rhs', i, red, rhsvp);
-		}
+		vdoc.update('rhs', red, rhsvp);
 	});
 	if (this.settings._debug) {
 		traceTimeEnd('draw#_markupLineChanges');
