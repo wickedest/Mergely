@@ -1,6 +1,6 @@
 {
   "name": "mergely",
-  "version": "5.0.0-alpha.2",
+  "version": "5.0.0",
   "description": "A javascript UI for diff/merge",
   "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1 OR SEE LICENSE IN LICENSE)",
   "author": {
@@ -30,12 +30,30 @@
     "diff",
     "myers"
   ],
+  "release": {
+    "branches": [
+      "main",
+      "alpha",
+      "beta",
+      "next"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      "@semantic-release/git",
+      "@semantic-release/github"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^15.0.0",
     "@commitlint/prompt-cli": "^15.0.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "babel-loader": "^8.2.3",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "chai": "^4.3.4",
