@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/wickedest/Mergely/compare/v5.0.0...v5.0.1) (2023-04-23)
+
+
+### Bug Fixes
+
+* update release ([a8b497b](https://github.com/wickedest/Mergely/commit/a8b497bc9b68beb5d8265106d9f010aa9489dd17))
+
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
