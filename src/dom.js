@@ -67,7 +67,7 @@ function getColors(el) {
 function getMergelyContainer({ clazz = '' }) {
 	const classes = [ 'mergely-editor', clazz ]
 	return htmlToElement(`\
-<div class="${classes.join(' ')}" style="display:flex;height:100%;position:relative;"></div>`);
+<div class="${classes.join(' ')}" style="display:flex;height:100%;position:relative;overflow:hidden;"></div>`);
 }
 
 function getMarginTemplate({ id }) {

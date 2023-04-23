@@ -290,11 +290,6 @@ CodeMirrorDiffView.prototype.bind = function(container) {
 		className: container.className
 	};
 	const el = dom.getMergelyContainer({ clazz: container.className });
-	// const found = document.getElementById(container.id);
-	// if (!found) {
-	// 	console.error(`Failed to find mergely: #${container.id}`);
-	// 	return;
-	// }
 	const computedStyle = window.getComputedStyle(container);
 	if (!computedStyle.height || computedStyle.height === '0px') {
 		throw new Error(
@@ -640,7 +635,10 @@ CodeMirrorDiffView.prototype._scrolling = function({ side }) {
 	const scroller = this.editor[side].getScrollerElement();
 	const { top } = scroller.getBoundingClientRect();
 	let height;
-	if (true || this.midway == undefined) {
+	if (scroller.offsetParent === null) {
+		return;
+	}
+	if (this.midway == undefined) {
 		height = scroller.clientHeight
 			- (scroller.offsetHeight - scroller.offsetParent.offsetHeight);
 		this.midway = (height / 2.0 + top).toFixed(2);

@@ -186,7 +186,7 @@ class Mergely {
 
 	diff() {
 		if (this._options._debug) {
-			trace('api#diff', side);
+			trace('api#diff');
 		}
 		const lhs_text = this.get('lhs');
 		const rhs_text = this.get('rhs');
