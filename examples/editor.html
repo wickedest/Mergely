@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Mergely - Example editor</title>
+	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta name="description" content="" />
+	<meta name="keywords" content="mergely,diff,merge,compare" />
+	<meta name="author" content="Jamie Peabody" />
+	<meta name="color-scheme" content="dark light">
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+	<!-- Bootstrap -->
+	<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+
+	<!-- jquery -->
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.slim.js"></script>
+
+	<!-- Mergely -->
+	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
+	<script type="text/javascript" src="/lib/mergely.js"></script>
+
+	<style type="text/css">
+		html, body {
+			margin: 0;
+		}
+		body.dark-mode {
+			background-color: #000;
+		}
+		body.dark-mode .btn {
+			color: white;
+		}
+		body.dark-mode .text-black-50 {
+			color: #606060 !important;
+		}
+		.mergely-editor .CodeMirror {
+			/* adjust line height for bootstrap */
+			line-height: 21px;
+		}
+		#compare {
+			height: 300px;
+			visibility: hidden;
+		}
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="/">Mergely</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+				data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<span class="p-1">
+				<button class="btn btn-secondary" id="doc-new">
+					<span class="bi-file-earmark-text" />
+					New
+				</button>
+			</span>
+			<span class="p-1">
+				<button class="btn btn-secondary" id="doc-diff">
+					<span class="bi-file-diff" />
+					Download diff
+				</button>
+			</span>
+			<span class="p-1">
+				<button class="btn btn-secondary" id="prev-change" title="Go previous change">
+					<span class="bi-arrow-up-circle-fill" />
+				</button>
+			</span>
+			<span class="p-1">
+				<button class="btn btn-secondary" id="next-change" title="Go next change">
+					<span class="bi-arrow-down-circle-fill" />
+				</button>
+			</span>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							Options
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+							<li><b class="dropdown-item">Editor options</b></li>
+							<li>
+								<div class="dropdown-item">
+									<div class="form-check form-switch">
+										<input class="form-check-input" type="checkbox" role="switch" id="dark-mode">
+										<label class="form-check-label" for="dark-mode">
+											Dark mode
+										</label>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="dropdown-item">
+									<div class="form-check form-switch">
+										<input checked class="form-check-input" type="checkbox" role="switch"
+											id="view-sidebar">
+										<label class="form-check-label" for="view-sidebar">
+											View sidebars
+										</label>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="dropdown-item">
+									<div class="form-check form-switch">
+										<input checked class="form-check-input" type="checkbox" role="switch"
+											id="wrap-lines">
+										<label class="form-check-label" for="wrap-lines">
+											Wrap lines
+										</label>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="dropdown-item">
+									<div class="form-check form-switch">
+										<input checked class="form-check-input" type="checkbox" role="switch"
+											id="line-numbers">
+										<label class="form-check-label" for="line-numbers">
+											Line numbers
+										</label>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="dropdown-item">
+									<div class="form-check form-switch">
+										<input class="form-check-input" type="checkbox" role="switch"
+											id="read-only">
+										<label class="form-check-label" for="read-only">
+											Read only
+										</label>
+									</div>
+								</div>
+							</li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+							<li><b class="dropdown-item">Diff options</b></li>
+							<li>
+								<div class="dropdown-item">
+									<div class="form-check form-switch">
+										<input class="form-check-input" type="checkbox" role="switch"
+											id="ignore-whitespace">
+										<label class="form-check-label" for="ignore-whitespace">
+											Ignore whitespace
+										</label>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="dropdown-item">
+									<div class="form-check form-switch">
+										<input class="form-check-input" type="checkbox" role="switch" id="ignore-case">
+										<label class="form-check-label" for="ignore-case">
+											Ignore case
+										</label>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="dropdown-item">
+									<div class="form-check form-switch">
+										<input class="form-check-input" type="checkbox" role="switch"
+											id="ignore-ignoreaccents">
+										<label class="form-check-label" for="ignore-ignoreaccents">
+											Ignore accent characters
+										</label>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<form class="d-flex flex-nowrap">
+					<input id="search-text" class="form-control me-2" type="search" placeholder="Search"
+						aria-label="Search">
+					<div class="btn-group">
+						<button id="search" type="button" class="btn btn-danger">Search</button>
+						<button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							<span class="visually-hidden">Toggle Dropdown</span>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li><a id="search-lhs" class="dropdown-item" href="#">
+									<span class="bi-check"></span>Search left editor</a>
+							</li>
+							<li><a id="search-rhs" class="dropdown-item" href="#">
+									<span class="bi-check" style="color:transparent"></span>Search right editor</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+		</div>
+	</nav>
+
+	<div id="compare"></div>
+	<div class="container-fluid" style="font-size:12px">
+		<div class="row">
+			<div class="col" id="lhs-info">
+				<button class="btn p-0" id="download-lhs">
+					<span class="bi-box-arrow-in-down" />
+				</button>
+				<span class="text-black-50" id="lhs-characters"></span>
+				<span class="text-black-50" id="lhs-changes"></span>
+			</div>
+			<div class="col" style="flex: 0 0 24px">
+			</div>
+			<div class="col" id="rhs-info">
+				<button class="btn p-0" id="download-rhs">
+					<span class="bi-box-arrow-in-down" />
+				</button>
+				<span class="text-black-50" id="rhs-characters"></span>
+				<span class="text-black-50" id="rhs-changes"></span>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const mergely = new Mergely('#compare', {
+			license: 'lgpl',
+			wrap_lines: true
+		});
+
+		mergely.once('updated', () => {
+			mergely.lhs('the qúíck red FOX\njumped over the hairy dog');
+			mergely.rhs('\tThe quick brown fox\njumped over the lazy dog');
+
+			mergely.once('updated', () => {
+				document.getElementById('compare').style.visibility = 'visible';
+			});
+
+			jQuery('#ignore-whitespace').on('click', (ev) => {
+				mergely.options({ ignorews: ev.target.checked });
+			});
+			jQuery('#ignore-case').on('click', (ev) => {
+				mergely.options({ ignorecase: ev.target.checked });
+			});
+			jQuery('#ignore-ignoreaccents').on('click', (ev) => {
+				mergely.options({ ignoreaccents: ev.target.checked });
+			});
+			jQuery('#view-sidebar').on('click', (ev) => {
+				mergely.options({ sidebar: ev.target.checked });
+			});
+			jQuery('#wrap-lines').on('click', (ev) => {
+				mergely.options({ wrap_lines: ev.target.checked });
+			});
+			jQuery('#line-numbers').on('click', (ev) => {
+				mergely.options({ line_numbers: ev.target.checked });
+			});
+			jQuery('#read-only').on('click', (ev) => {
+				const lhsCm = mergely.cm('lhs');
+				lhsCm.setOption('readOnly', ev.target.checked);
+				const rhsCm = mergely.cm('rhs');
+				rhsCm.setOption('readOnly', ev.target.checked);
+				mergely.options({});
+			});
+			jQuery('#next-change').on('click', (ev) => {
+				mergely.scrollToDiff('next');
+			});
+			jQuery('#prev-change').on('click', (ev) => {
+				mergely.scrollToDiff('prev');
+			});
+			jQuery('#dark-mode').on('click', (ev) => {
+				document.body.classList.toggle('dark-mode');
+				document.querySelector('.mergely-editor').classList.toggle('dark-mode');
+				// basically a no-op to force colors to be recalculated
+				mergely.options({});
+			});
+			jQuery('#doc-new').on('click', () => {
+				mergely.lhs('');
+				mergely.rhs('');
+			});
+			jQuery('#doc-diff').on('click', () => downloadText(mergely.diff(), 'doc.diff'));
+			jQuery('#download-lhs').on('click', () => downloadText(mergely.get('lhs'), 'lhs.txt'));
+			jQuery('#download-rhs').on('click', () => downloadText(mergely.diff('rhs'), 'rhs.txt'));
+			let searchLhs = true;
+			jQuery('#search-lhs').on('click', (ev) => {
+				searchLhs = true;
+				const lhs = document.getElementById('search-lhs').children[0];
+				const rhs = document.getElementById('search-rhs').children[0];
+				lhs.style = 'color:initial';
+				rhs.style = 'color:transparent';
+			});
+			jQuery('#search-rhs').on('click', (ev) => {
+				searchLhs = false;
+				const lhs = document.getElementById('search-lhs').children[0];
+				const rhs = document.getElementById('search-rhs').children[0];
+				lhs.style = 'color:transparent';
+				rhs.style = 'color:initial';
+			});
+			jQuery('#search-text').on('keypress', (ev) => {
+				console.log(ev.which)
+				if (event.which === 13) {
+					ev.preventDefault();
+					jQuery('#search').click();
+				}
+			});
+			jQuery('#search').on('click', (ev) => {
+				ev.preventDefault();
+				const text = jQuery('#search-text').get(0).value;
+				const direction = searchLhs ? 'lhs' : 'rhs';
+				mergely.search(direction, text);
+			});
+		});
+
+		mergely.on('updated', () => {
+			const info = mergely.summary();
+			jQuery('#lhs-characters').text(`${info.lhsLength} characters`);
+			jQuery('#rhs-characters').text(`${info.rhsLength} characters`);
+			if (info.numChanges) {
+				jQuery('#lhs-changes').text('(changed)');
+				jQuery('#rhs-changes').text('(changed)');
+			} else {
+				jQuery('#lhs-changes').text('(no changes)');
+				jQuery('#rhs-changes').text('(no changes)');
+			}
+		});
+
+		function downloadText(text, filename) {
+			const b64 = btoa(text);
+			const link = document.createElement('a');
+			link.download = filename;
+			link.href = 'data:text/csv;charset=utf-8;base64,' + b64;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		}
+	</script>
+</body>
+</html>

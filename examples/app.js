@@ -1,30 +1,33 @@
+require('codemirror');
+require('codemirror/addon/search/searchcursor.js');
 require('codemirror/addon/selection/mark-selection.js');
 require('codemirror/lib/codemirror.css');
 require('../src/mergely.css');
 
-var lhs = `\
+const lhs = `\
 the quick red fox
 jumped over the hairy dog
 `;
 
-var rhs = `\
+const rhs = `\
 the quick brown fox
 jumped over the lazy dog
 `;
 
-$(document).ready(function () {
-	$('#mergely').mergely({
+
+document.onreadystatechange = function () {
+	if (document.readyState !== 'complete') {
+		return;
+	}
+
+	const mergely = new Mergely('#compare', {
 		license: 'lgpl',
-		ignorews: true,
-		cmsettings: {
-			readOnly: false
-		},
-		_debug: '',
-		lhs: function(setValue) {
-			setValue(lhs);
-		},
-		rhs: function(setValue) {
-			setValue(rhs);
-		}
+		lhs,
+		rhs
 	});
-});
+
+	// On init, scroll to first diff
+	mergely.once('updated', () => {
+		mergely.scrollToDiff('next');
+	});
+};

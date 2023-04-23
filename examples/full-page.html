@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Mergely - Example full page editor</title>
+	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta name="description" content="" />
+	<meta name="keywords" content="mergely,diff,merge,compare" />
+	<meta name="author" content="Jamie Peabody" />
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+	<!-- Mergely -->
+	<link type="text/css" rel="stylesheet" href="/lib/mergely.css" />
+	<script type="text/javascript" src="/lib/mergely.js"></script>
+
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		#compare {
+			height: inherit;
+		}
+	</style>
+</head>
+<body>
+	<div id="compare"></div>
+
+	<script>
+		const mergely = new Mergely('#compare');
+		mergely.once('updated', () => {
+			fetch('/examples/macbeth.txt')
+				.then(response => response.text())
+				.then(macbeth => {
+					mergely.lhs(macbeth.replace(/filthy/g, 'dirty'));
+					mergely.rhs(macbeth);
+				});
+		});
+	</script>
+</body>
+</html>

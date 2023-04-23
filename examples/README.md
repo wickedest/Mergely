@@ -1,33 +1,23 @@
 # Mergely examples
 
-To run these examples, you need to run:
+
+## Mergely development server
+
+To run the hot dev-server for development, you need to run:
 
 ```bash
-$ npm run build
 $ npm start
 ```
 
-This runs Mergely in a hot dev-server for development.  However, only the main example is hot-reloaded when mergely is changed.  The others require a rebuild.
+After, the application can be accessed http://localhost:8080
 
-## Main example
-http://localhost:8080
+## Mergely examples
 
-Shows basic functionality.
+These examples require a build.
 
-## Ajax example
+```bash
+$ npm run build:dist
+$ npm run examples
+```
 
-http://localhost:8080/examples/ajax.html
-
-Who still says "ajax" these days?  Anyway, this example demonstrates how to load your left-hand and right-hand sources from external URL, and also how to skin your own editor, and provide drop-file functionality.
-
-## Simple example
-
-This example demonstrates how to load your left-hand and right-hand sources from static text.
-
-http://localhost:8080/examples/simple.html
-
-## Size example
-
-This example demonstrates how to size your editors, and also how to have multiple editors on the same page.
-
-http://localhost:8080/examples/size.html
+After, the examples can be accessed http://localhost:3000

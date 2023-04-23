@@ -1,19 +1,28 @@
 module.exports = function(api) {
 	return {
+		env: {
+			test: {
+				plugins: [ 'istanbul' ]
+			}
+		},
 		presets: [
 			[
-				"@babel/preset-env",
+				'@babel/preset-env',
 				{
 					targets: {
-						chrome: 59,
-						edge: 13,
-						firefox: 50,
-						ie: 11
+						browsers: [
+							"ie 11",
+							"last 5 edge versions",
+							"last 5 safari versions",
+							"last 10 chrome versions",
+							"last 10 firefox versions"
+						]
 					},
 					// for uglifyjs...
-					forceAllTransforms: api.env("production"),
-				},
-			],
+					forceAllTransforms: api.env('production')
+				}
+			]
 		],
+		retainLines: true
 	};
 };
