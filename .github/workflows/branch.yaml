@@ -3,7 +3,10 @@ name: Run tests (branch)
 on:
   push:
     branches-ignore:
-      - 'master'
+      - master
+      - alpha
+      - beta
+      - next
     tags-ignore:
       - 'v*'
 
