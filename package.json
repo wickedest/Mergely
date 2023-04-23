@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wickedest/Mergely.git"
+    "url": "git@github.com:wickedest/Mergely.git"
   },
   "main": "lib/mergely.js",
   "files": [
@@ -30,22 +30,6 @@
     "diff",
     "myers"
   ],
-  "release": {
-    "branches": [
-      "master",
-      "alpha",
-      "beta",
-      "next"
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      "@semantic-release/git",
-      "@semantic-release/github"
-    ]
-  },
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
