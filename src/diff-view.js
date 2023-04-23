@@ -440,7 +440,10 @@ CodeMirrorDiffView.prototype.bind = function(container) {
 				trace('event#lhs-scroll');
 			}
 		}
-		this._scrolling({ side: 'lhs' });
+		// firefox scroll-linked effect render issue
+		setTimeout(() => {
+			this._scrolling({ side: 'lhs' });
+		}, 1);
 	});
 	this.editor.rhs.on('change', (instance, ev) => {
 		if (this.settings._debug) {
@@ -459,7 +462,10 @@ CodeMirrorDiffView.prototype.bind = function(container) {
 				trace('event#rhs-scroll');
 			}
 		}
-		this._scrolling({ side: 'rhs' });
+		// firefox scroll-linked effect render issue
+		setTimeout(() => {
+			this._scrolling({ side: 'rhs' });
+		}, 1);
 	});
 
 	// resize event handeler
