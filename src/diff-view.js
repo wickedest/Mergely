@@ -45,6 +45,7 @@ CodeMirrorDiffView.prototype.init = function(el, options = {}) {
 		gutters: (this.settings.line_numbers && [ 'merge', 'CodeMirror-linenumbers' ]) || [],
 	};
 	this._vdoc = new VDoc({ _debug: this.settings._debug });
+	this._linkedScrollTimeout = {};
 };
 
 CodeMirrorDiffView.prototype.unbind = function() {
@@ -701,11 +702,14 @@ CodeMirrorDiffView.prototype._scrolling = function({ side }) {
 		// coming in 2s, so this will "link" scrolling the other editor to
 		// this editor until this editor stops scrolling and times out.
 		this._skipscroll[oside] = true;
-		if (this._linkedScrollTimeout) {
-			clearTimeout(this._linkedScrollTimeout);
+		trace('scroll#set oside skip set:', oside, this._skipscroll);
+		if (this._linkedScrollTimeout[oside]) {
+			clearTimeout(this._linkedScrollTimeout[oside]);
+			trace('scroll#clearing timeout:', this._skipscroll);
 		}
-		this._linkedScrollTimeout = setTimeout(() => {
+		this._linkedScrollTimeout[oside] = setTimeout(() => {
 			this._skipscroll[oside] = false;
+			trace('scroll#set oside skip unset:', oside, this._skipscroll);
 		}, 100);
 
 		const top = top_to - top_adjust;
