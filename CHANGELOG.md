@@ -1,3 +1,10 @@
+## [5.0.2](https://github.com/wickedest/Mergely/compare/v5.0.1...v5.0.2) (2023-04-24)
+
+
+### Bug Fixes
+
+* **scroll:** fixed issue where first rhs scroll was unlinked ([7b2040c](https://github.com/wickedest/Mergely/commit/7b2040c6ad17ea70a09720f54d9a255cdc57cd67))
+
 ## [5.0.1](https://github.com/wickedest/Mergely/compare/v5.0.0...v5.0.1) (2023-04-23)
 
 
