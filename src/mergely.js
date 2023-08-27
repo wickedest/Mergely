@@ -23,7 +23,8 @@ const defaultOptions = {
 	vpcolor: 'rgba(0, 0, 200, 0.5)',
 	license: 'lgpl',
 	cmsettings: {
-		styleSelectedText: true
+		styleSelectedText: true,
+		mode: null
 	},
 	lhs_cmsettings: {},
 	rhs_cmsettings: {},

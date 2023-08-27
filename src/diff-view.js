@@ -2,6 +2,12 @@ const CodeMirror = require('codemirror');
 require('codemirror/addon/search/searchcursor.js');
 require('codemirror/addon/selection/mark-selection.js');
 require('codemirror/lib/codemirror.css');
+require('codemirror/mode/go/go.js');
+require('codemirror/mode/javascript/javascript.js');
+require('codemirror/mode/htmlmixed/htmlmixed.js');
+require('codemirror/mode/markdown/markdown.js');
+require('codemirror/mode/python/python.js');
+
 const dom = require('./dom.js');
 const VDoc = require('./vdoc');
 

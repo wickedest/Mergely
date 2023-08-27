@@ -82,6 +82,16 @@ Mergely will emit an `updated` event when the editor is first initialized, and e
 </body>
 ```
 
+### Visualization modes
+
+Mergely supports the following CodeMirror visualizations for [mode](codemirror.net/5/doc/manual.html#option_mode):
+
+* go
+* javascript
+* htmlmixed
+* markdown
+* python
+
 ## Options
 
 |Option|Type|Default value|Description|
