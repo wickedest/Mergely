@@ -1,3 +1,10 @@
+## [5.0.3](https://github.com/wickedest/Mergely/compare/v5.0.2...v5.0.3) (2023-08-27)
+
+
+### Bug Fixes
+
+* Updated docs with CDN example ([254adf1](https://github.com/wickedest/Mergely/commit/254adf15ab09fe9c5c3dff542d0a7f62ce2c9782))
+
 ## [5.0.2](https://github.com/wickedest/Mergely/compare/v5.0.1...v5.0.2) (2023-04-24)
 
 
