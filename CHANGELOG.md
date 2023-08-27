@@ -1,3 +1,10 @@
+# [5.1.0](https://github.com/wickedest/Mergely/compare/v5.0.4...v5.1.0) (2023-08-27)
+
+
+### Features
+
+* support CM modes: go, javascript, htmlmixed, markdown, python ([827487a](https://github.com/wickedest/Mergely/commit/827487a5983cb89ef41415435d44239e35983b9a))
+
 ## [5.0.4](https://github.com/wickedest/Mergely/compare/v5.0.3...v5.0.4) (2023-08-27)
 
 
