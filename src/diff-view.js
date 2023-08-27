@@ -941,7 +941,6 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 	for (let i = 0; i < changes.length; ++i) {
 		const change = changes[i];
 		const isCurrent = current_diff === i;
-		const lineDiff = this.settings.lcs !== false;
 		const lhsInView = this._isChangeInView('lhs', lhsvp, change);
 		const rhsInView = this._isChangeInView('rhs', rhsvp, change);
 
@@ -952,7 +951,7 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 
 			vdoc.addRender('lhs', change, i, {
 				isCurrent,
-				lineDiff,
+				lineDiff: this.settings.inline !== 'none',
 				// TODO: move out of loop
 				getMergeHandler: (change, side, oside) => {
 					return () => this._merge_change(change, side, oside);
@@ -969,7 +968,7 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 
 			vdoc.addRender('rhs', change, i, {
 				isCurrent,
-				lineDiff,
+				lineDiff: this.settings.inline !== 'none',
 				// TODO: move out of loop
 				getMergeHandler: (change, side, oside) => {
 					return () => this._merge_change(change, side, oside);
@@ -979,13 +978,14 @@ CodeMirrorDiffView.prototype._markupLineChanges = function (changes) {
 			});
 		}
 
-		if (lineDiff
+		if (this.settings.inline !== 'none'
 			&& (lhsInView || rhsInView)
 			&& change.op === 'c') {
 			vdoc.addInlineDiff(change, i, {
 				ignoreaccents: this.settings.ignoreaccents,
 				ignorews: this.settings.ignorews,
 				ignorecase: this.settings.ignorecase,
+				split: this.settings.inline,
 				getText: (side, lineNum) => {
 					if (side === 'lhs') {
 						const text = led.getLine(lineNum);

@@ -12,6 +12,7 @@ const defaultOptions = {
 	wrap_lines: false,
 	line_numbers: true,
 	lcs: true,
+	inline: 'chars',
 	sidebar: true,
 	viewport: false,
 	ignorews: false,
@@ -119,13 +120,15 @@ class Mergely {
 		const colors = dom.getColors(this.el);
 		this._options = {
 			...defaultOptions,//lgpl
+			...{
+				// default inline based off `lcs`
+				inline: options && options.lcs === false ? 'none' : 'chars'
+			},
 			...this._initOptions,
-			...options//lgpl-separate-notice
+			...options,//lgpl-separate-notice
 		};
 		this._viewOptions = {
-			...defaultOptions,
-			...this._initOptions,
-			...options,
+			...this._options,
 			_colors: colors
 		};
 	}

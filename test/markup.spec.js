@@ -189,7 +189,6 @@ describe('markup', () => {
 				expect(editor.querySelectorAll('.mergely.rhs')).to.have.length(0);
 			}
 		},
-
 		{
 			name: 'Changed lines (lhs)',
 			lhs: 'the quick red fox\njumped over the hairy dog',
@@ -233,6 +232,46 @@ describe('markup', () => {
 				expect(rhs_spans[1].innerText).to.equal('h');
 				expect(rhs_spans[2].innerText).to.equal('ir');
 			}
+		},
+		{
+			name: 'Changed lines with inline words (lhs)',
+			lhs: 'the quick red fox\njumped over the hairy dog',
+			rhs: 'the quick brown fox\njumped over the lazy dog',
+			options: { inline: 'words' },
+			check: (editor) => {
+				expect(editor.querySelectorAll(LHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(LHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				const lhs_spans = editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0');
+				expect(lhs_spans).to.have.length(2);
+				expect(lhs_spans[0].innerText).to.equal('red');
+				expect(lhs_spans[1].innerText).to.equal('hairy');
+				const rhs_spans = editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0');
+				expect(rhs_spans).to.have.length(2);
+				expect(rhs_spans[0].innerText).to.equal('brown');
+				expect(rhs_spans[1].innerText).to.equal('lazy');
+			}
+		},
+		{
+			name: 'Changed lines (rhs)',
+			lhs: 'the quick brown fox\njumped over the lazy dog',
+			rhs: 'the quick red fox\njumped over the hairy dog',
+			options: { inline: 'words' },
+			check: (editor) => {
+				expect(editor.querySelectorAll(LHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(LHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				const lhs_spans = editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0');
+				expect(lhs_spans).to.have.length(2);
+				expect(lhs_spans[0].innerText).to.equal('brown');
+				expect(lhs_spans[1].innerText).to.equal('lazy');
+				const rhs_spans = editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0');
+				expect(rhs_spans).to.have.length(2);
+				expect(rhs_spans[0].innerText).to.equal('red');
+				expect(rhs_spans[1].innerText).to.equal('hairy');
+			}
 		}
 	];
 
@@ -246,8 +285,9 @@ describe('markup', () => {
 				license: 'lgpl-separate-notice',
 				change_timeout: 0,
 				_debug: debug,
-				lhs: (setValue) => setValue(opt.lhs),
-				rhs: (setValue) => setValue(opt.rhs)
+				lhs: opt.lhs,
+				rhs: opt.rhs,
+				...opt.options
 			});
 			const test = () => {
 				try {

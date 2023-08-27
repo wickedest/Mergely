@@ -93,7 +93,8 @@ Mergely will emit an `updated` event when the editor is first initialized, and e
 |<a name="ignorews"></a>ignorews|boolean|`false`|Ignores white-space.|
 |<a name="ignorecase"></a>ignorecase|boolean|`false`|Ignores case.|
 |<a name="ignoreaccents"></a>ignoreaccents|boolean|`false`|Ignores accented characters.|
-|<a name="lcs"></a>lcs|boolean|`true`|Enables/disables LCS computation for paragraphs (char-by-char changes). Disabling can give a performance gain for large documents.|
+|<a name="inline"></a>inline|string|`chars`|The line-by-line (inline) type of diff. Valid values are: `none`, `chars`, `words`. When `none`, inline diff is disabled. When `chars` differientiation is done on a character-by-character basis. When `words` differentiation is done on a whitespace basis.|
+|<a name="lcs"></a>lcs|boolean|`true`|:warning: **Deprecated**, use [`inline`](#inline). Enables/disables LCS computation for paragraphs (char-by-char changes). Disabling can give a performance gain for large documents.|
 |<a name="lhs"></a>lhs|boolean,`function handler(setValue)`|`null`|Sets the value of the editor on the left-hand side.|
 |<a name="license"></a>license|string|`lgpl`|The choice of license to use with Mergely.  Valid values are: `lgpl`, `gpl`, `mpl` or `lgpl-separate-notice`, `gpl-separate-notice`, `mpl-separate-notice` (the license requirements are met in a separate notice file).|
 |<a name="line_numbers"></a>line_numbers|boolean|`true`|Enables/disables line numbers. Enabling line numbers will toggle the visibility of the line number margins.|

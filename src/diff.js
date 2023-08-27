@@ -1,41 +1,50 @@
+const Encoder = require('./encoder.js');
+
 const SMS_TIMEOUT_SECONDS = 1.0;
 
-function diff(lhs, rhs, options = {}) {
+function diff(lhs, rhs, opts) {
 	const {
 		ignorews = false,
 		ignoreaccents = false,
 		ignorecase = false,
 		split = 'lines'
-	} = options;
-
-	this.codeify = new CodeifyText(lhs, rhs, {
+	} = opts || {};
+	const options = {
 		ignorews,
 		ignoreaccents,
 		ignorecase,
 		split
-	});
-	const lhs_ctx = {
-		codes: this.codeify.getCodes('lhs'),
+	};
+
+	const encoder = new Encoder();
+	const lhsCodes = encoder.encode(lhs, options);
+	const rhsCodes = encoder.encode(rhs, options);
+	const lhsCtx = {
+		codes: lhsCodes.codes,
+		length: lhsCodes.length,
+		parts: lhsCodes.parts,
 		modified: {}
 	};
-	const rhs_ctx = {
-		codes: this.codeify.getCodes('rhs'),
+	const rhsCtx = {
+		codes: rhsCodes.codes,
+		length: rhsCodes.length,
+		parts: rhsCodes.parts,
 		modified: {}
 	};
 	const vector_d = [];
 	const vector_u = [];
-	this._lcs(lhs_ctx, 0, lhs_ctx.codes.length, rhs_ctx, 0, rhs_ctx.codes.length, vector_u, vector_d);
-	this._optimize(lhs_ctx);
-	this._optimize(rhs_ctx);
-	this.items = this._create_diffs(lhs_ctx, rhs_ctx);
+	this._lcs(lhsCtx, 0, lhsCodes.length, rhsCtx, 0, rhsCodes.length, vector_u, vector_d);
+	this._optimize(lhsCtx);
+	this._optimize(rhsCtx);
+	this.items = this._create_diffs(lhsCtx, rhsCtx, options);
+	this.sides = {
+		lhs: lhsCtx,
+		rhs: rhsCtx
+	};
 };
 
 diff.prototype.changes = function() {
 	return this.items;
-};
-
-diff.prototype.getLines = function(side) {
-	return this.codeify.getLines(side);
 };
 
 diff.prototype.normal_form = function() {
@@ -57,8 +66,8 @@ diff.prototype.normal_form = function() {
 		else rhs_str = (item.rhs_start + 1) + ',' + (item.rhs_start + item.rhs_inserted_count);
 		nf += lhs_str + change + rhs_str + '\n';
 
-		const lhs_lines = this.getLines('lhs');
-		const rhs_lines = this.getLines('rhs');
+		const lhs_lines = this.sides.lhs.parts;
+		const rhs_lines = this.sides.rhs.parts;
 		if (rhs_lines && lhs_lines) {
 			let i;
 			// if rhs/lhs lines have been retained, output contextual diff
@@ -102,7 +111,7 @@ diff.prototype._lcs = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 
 diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower, rhs_upper, vector_u, vector_d) {
 	const timeout = Date.now() + SMS_TIMEOUT_SECONDS * 1000;
-	const max = lhs_ctx.codes.length + rhs_ctx.codes.length + 1;
+	const max = lhs_ctx.length + rhs_ctx.length + 1;
 	const kdown = lhs_lower - rhs_lower;
 	const kup = lhs_upper - rhs_upper;
 	const delta = (lhs_upper - lhs_lower) - (rhs_upper - rhs_lower);
@@ -115,12 +124,13 @@ diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 	const ret = { x:0, y:0 }
 	let x;
 	let y;
+	let k;
 	for (let d = 0; d <= maxd; ++d) {
 		if (SMS_TIMEOUT_SECONDS && Date.now() > timeout) {
 			// bail if taking too long
 			return { x: lhs_lower, y: rhs_upper };
 		}
-		for (let k = kdown - d; k <= kdown + d; k += 2) {
+		for (k = kdown - d; k <= kdown + d; k += 2) {
 			if (k === kdown - d) {
 				x = vector_d[ offset_down + k + 1 ];//down
 			}
@@ -178,15 +188,15 @@ diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 diff.prototype._optimize = function(ctx) {
 	let start = 0;
 	let end = 0;
-	while (start < ctx.codes.length) {
-		while ((start < ctx.codes.length) && (ctx.modified[start] === undefined || ctx.modified[start] === false)) {
+	while (start < ctx.length) {
+		while ((start < ctx.length) && (ctx.modified[start] === undefined || ctx.modified[start] === false)) {
 			start++;
 		}
 		end = start;
-		while ((end < ctx.codes.length) && (ctx.modified[end] === true)) {
+		while ((end < ctx.length) && (ctx.modified[end] === true)) {
 			end++;
 		}
-		if ((end < ctx.codes.length) && (ctx.codes[start] === ctx.codes[end])) {
+		if ((end < ctx.length) && (ctx.codes[start] === ctx.codes[end])) {
 			ctx.modified[start] = false;
 			ctx.modified[end] = true;
 		}
@@ -196,16 +206,16 @@ diff.prototype._optimize = function(ctx) {
 	}
 };
 
-diff.prototype._create_diffs = function(lhs_ctx, rhs_ctx) {
+diff.prototype._create_diffs = function(lhs_ctx, rhs_ctx, options) {
 	const items = [];
 	let lhs_start = 0;
 	let rhs_start = 0;
 	let lhs_line = 0;
 	let rhs_line = 0;
 
-	while (lhs_line < lhs_ctx.codes.length || rhs_line < rhs_ctx.codes.length) {
-		if ((lhs_line < lhs_ctx.codes.length) && (!lhs_ctx.modified[lhs_line])
-			&& (rhs_line < rhs_ctx.codes.length) && (!rhs_ctx.modified[rhs_line])) {
+	while (lhs_line < lhs_ctx.length || rhs_line < rhs_ctx.length) {
+		if ((lhs_line < lhs_ctx.length) && (!lhs_ctx.modified[lhs_line])
+			&& (rhs_line < rhs_ctx.length) && (!rhs_ctx.modified[rhs_line])) {
 			// equal lines
 			lhs_line++;
 			rhs_line++;
@@ -215,97 +225,55 @@ diff.prototype._create_diffs = function(lhs_ctx, rhs_ctx) {
 			lhs_start = lhs_line;
 			rhs_start = rhs_line;
 
-			while (lhs_line < lhs_ctx.codes.length && (rhs_line >= rhs_ctx.codes.length || lhs_ctx.modified[lhs_line]))
+			while (lhs_line < lhs_ctx.length && (rhs_line >= rhs_ctx.length || lhs_ctx.modified[lhs_line]))
 				lhs_line++;
 
-			while (rhs_line < rhs_ctx.codes.length && (lhs_line >= lhs_ctx.codes.length || rhs_ctx.modified[rhs_line]))
+			while (rhs_line < rhs_ctx.length && (lhs_line >= lhs_ctx.length || rhs_ctx.modified[rhs_line]))
 				rhs_line++;
 
 			if ((lhs_start < lhs_line) || (rhs_start < rhs_line)) {
 				// store a new difference-item
+				let deleted_count;
+				let inserted_count;
+				let lhs_start = lhs_line;
+				let rhs_start = rhs_line;
+				if (options.split === 'lines') {
+					lhs_start = lhs_line;
+					rhs_start = rhs_line;
+					deleted_count = lhs_line - lhs_start;
+					inserted_count = rhs_line - rhs_start;
+				} else {
+					const ditem_lhs_start = (lhs_start >= lhs_ctx.length)
+						? lhs_ctx.length
+						: lhs_ctx.parts[lhs_start].from;
+					const ditem_rhs_start = (rhs_start >= rhs_ctx.length)
+						? rhs_ctx.length
+						: rhs_ctx.parts[rhs_start].from;
+
+					const ditem_lhs_end = (lhs_line >= lhs_ctx.length)
+						? lhs_ctx.length
+						: lhs_ctx.parts[lhs_line].from;
+					const ditem_rhs_end = (rhs_line >= rhs_ctx.length)
+						? rhs_ctx.length
+						: rhs_ctx.parts[rhs_line];
+					// const delim_len = (options.split === 'words') ? 1 : 0;
+					// const ditemLhs
+
+					deleted_count = ditem_lhs_end - ditem_lhs_start;
+					inserted_count = ditem_rhs_end - ditem_rhs_start;
+					lhs_start = ditem_lhs_start;
+					rhs_start = ditem_rhs_start;
+				}
 				items.push({
 					lhs_start: lhs_start,
 					rhs_start: rhs_start,
-					lhs_deleted_count: lhs_line - lhs_start,
-					rhs_inserted_count: rhs_line - rhs_start
+					lhs_deleted_count: deleted_count,
+					rhs_inserted_count: inserted_count
 				});
 			}
 		}
 	}
 	return items;
 };
-
-function CodeifyText(lhs, rhs, options) {
-    this._max_code = 0;
-    this._diff_codes = {};
-	this.ctxs = {};
-	this.options = options;
-	this.options.split = this.options.split || 'lines';
-
-	if (typeof lhs === 'string') {
-		if (this.options.split === 'chars') {
-			this.lhs = lhs.split('');
-		} else if (this.options.split === 'words') {
-			this.lhs = lhs.split(/\s/);
-		} else if (this.options.split === 'lines') {
-			this.lhs = lhs.split('\n');
-		}
-	} else {
-		this.lhs = lhs;
-	}
-	if (typeof rhs === 'string') {
-		if (this.options.split === 'chars') {
-			this.rhs = rhs.split('');
-		} else if (this.options.split === 'words') {
-			this.rhs = rhs.split(/\s/);
-		} else if (this.options.split === 'lines') {
-			this.rhs = rhs.split('\n');
-		}
-	} else {
-		this.rhs = rhs;
-	}
-};
-
-CodeifyText.prototype.getCodes = function(side) {
-	if (!this.ctxs.hasOwnProperty(side)) {
-		var ctx = this._diff_ctx(this[side]);
-		this.ctxs[side] = ctx;
-		ctx.codes.length = Object.keys(ctx.codes).length;
-	}
-	return this.ctxs[side].codes;
-}
-
-CodeifyText.prototype.getLines = function(side) {
-	return this.ctxs[side].lines;
-}
-
-CodeifyText.prototype._diff_ctx = function(lines) {
-	var ctx = {i: 0, codes: {}, lines: lines};
-	this._codeify(lines, ctx);
-	return ctx;
-}
-
-CodeifyText.prototype._codeify = function(lines, ctx) {
-	for (let i = 0; i < lines.length; ++i) {
-		let line = lines[i];
-		if (this.options.ignorews) {
-			line = line.replace(/\s+/g, '');
-		}
-		if (this.options.ignorecase) {
-			line = line.toLowerCase();
-		}
-		if (this.options.ignoreaccents) {
-			line = line.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-		}
-		const aCode = this._diff_codes[line];
-		if (aCode !== undefined) {
-			ctx.codes[i] = aCode;
-		} else {
-			++this._max_code;
-			this._diff_codes[line] = this._max_code;
-			ctx.codes[i] = this._max_code;
-		}
-	}
-}
 
 module.exports = diff;

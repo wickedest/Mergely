@@ -124,7 +124,7 @@ class VDoc {
 		this._setRenderedChange(side, changeId);
 	}
 
-	addInlineDiff(change, changeId, { getText, ignorews, ignoreaccents, ignorecase }) {
+	addInlineDiff(change, changeId, { getText, ignorews, ignoreaccents, ignorecase, split = 'chars' }) {
 		if (this.options._debug) {
 			trace('vdoc#addInlineDiff', changeId, change);
 		}
@@ -152,7 +152,7 @@ class VDoc {
 					ignoreaccents,
 					ignorews,
 					ignorecase,
-					split: 'chars'
+					split
 				});
 				for (const change of results.changes()) {
 					const {

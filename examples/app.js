@@ -4,15 +4,9 @@ require('codemirror/addon/selection/mark-selection.js');
 require('codemirror/lib/codemirror.css');
 require('../src/mergely.css');
 
-const lhs = `\
-the quick red fox
-jumped over the hairy dog
-`;
+const lhs = `hello`;
 
-const rhs = `\
-the quick brown fox
-jumped over the lazy dog
-`;
+const rhs = `hello\ngoodbye`;
 
 
 document.onreadystatechange = function () {
@@ -22,6 +16,7 @@ document.onreadystatechange = function () {
 
 	const mergely = new Mergely('#compare', {
 		license: 'lgpl',
+		inline: 'words',
 		lhs,
 		rhs
 	});

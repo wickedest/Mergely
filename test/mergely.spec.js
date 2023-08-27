@@ -8,6 +8,7 @@ const defaultOptions = {
 	rhs_margin: 'right',
 	wrap_lines: false,
 	line_numbers: true,
+	inline: 'chars',
 	lcs: true,
 	sidebar: true,
 	viewport: false,
