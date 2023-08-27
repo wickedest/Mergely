@@ -36,13 +36,11 @@ rm -rf .git
 
 ### Usage via CDN
 
-Add the following to the `<head>` of your target HTML source file.
+Add the following to the `<head>` of your target HTML source file. Note that `codemirror` is bundled.
 
 ```html
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mergely/5.0.0/mergely.min.js"></script>
 <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mergely/5.0.0/mergely.css" />
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
-<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.css" />
 ```
 
 ### Synchronous initialization
