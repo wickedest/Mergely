@@ -146,7 +146,7 @@ diff.prototype._sms = function(lhs_ctx, lhs_lower, lhs_upper, rhs_ctx, rhs_lower
 			}
 		}
 		// Extend the reverse path.
-		for (k = kup - d; k <= kup + d; k += 2) {
+		for (let k = kup - d; k <= kup + d; k += 2) {
 			// find the only or better starting point
 			if (k === kup + d) {
 				x = vector_u[offset_up + k - 1]; // up
