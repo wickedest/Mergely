@@ -1,3 +1,10 @@
+## [5.1.1](https://github.com/wickedest/Mergely/compare/v5.1.0...v5.1.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* **#183:** fixes undefined 'k' due to scoped 'let' ([02e383d](https://github.com/wickedest/Mergely/commit/02e383d94d685e41cb68d945b9726bbcbfeb0ccf))
+
 # [5.1.0](https://github.com/wickedest/Mergely/compare/v5.0.4...v5.1.0) (2023-08-27)
 
 
