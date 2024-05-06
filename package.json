@@ -57,7 +57,7 @@
     "karma-sourcemap-loader": "^0.4.0",
     "karma-webpack": "^5.0.0",
     "mocha": "^9.1.4",
-    "semantic-release": "^21.0.1",
+    "semantic-release": "^21.1.2",
     "simple-mock": "^0.8.0",
     "standard-version": "^9.3.2",
     "style-loader": "^3.3.1",
