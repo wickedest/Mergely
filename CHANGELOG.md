@@ -1,3 +1,10 @@
+## [5.1.3](https://github.com/wickedest/Mergely/compare/v5.1.2...v5.1.3) (2024-05-06)
+
+
+### Bug Fixes
+
+* **chore:** updated deps ([#195](https://github.com/wickedest/Mergely/issues/195)) ([c4c6e8a](https://github.com/wickedest/Mergely/commit/c4c6e8abd8f02762d5803774789673f76a95e932))
+
 ## [5.1.2](https://github.com/wickedest/Mergely/compare/v5.1.1...v5.1.2) (2024-05-06)
 
 
