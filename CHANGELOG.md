@@ -1,3 +1,10 @@
+## [5.1.2](https://github.com/wickedest/Mergely/compare/v5.1.1...v5.1.2) (2024-05-06)
+
+
+### Bug Fixes
+
+* trace only when debug enabled ([#194](https://github.com/wickedest/Mergely/issues/194)) ([60d18f8](https://github.com/wickedest/Mergely/commit/60d18f8d5c0df349b4806b2e8a6c0f79d9f8074e))
+
 ## [5.1.1](https://github.com/wickedest/Mergely/compare/v5.1.0...v5.1.1) (2024-03-11)
 
 
