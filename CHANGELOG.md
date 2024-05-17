@@ -1,3 +1,10 @@
+## [5.1.4](https://github.com/wickedest/Mergely/compare/v5.1.3...v5.1.4) (2024-05-17)
+
+
+### Bug Fixes
+
+* removed accidental change that enabled code display modes (e.g. javascript, python, html) ([692d01f](https://github.com/wickedest/Mergely/commit/692d01f1653ae8f1163a2c6228f457549086b75d))
+
 ## [5.1.3](https://github.com/wickedest/Mergely/compare/v5.1.2...v5.1.3) (2024-05-06)
 
 
