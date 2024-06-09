@@ -1,3 +1,10 @@
+# [5.2.0](https://github.com/wickedest/Mergely/compare/v5.1.4...v5.2.0) (2024-06-09)
+
+
+### Features
+
+* Allows height to be not explicit height, e.g. 'inherit' or '100%' ([#196](https://github.com/wickedest/Mergely/issues/196)) ([b9e3641](https://github.com/wickedest/Mergely/commit/b9e3641c852a8926db5efdf33e65a607d5f2df5e))
+
 ## [5.1.4](https://github.com/wickedest/Mergely/compare/v5.1.3...v5.1.4) (2024-05-17)
 
 
