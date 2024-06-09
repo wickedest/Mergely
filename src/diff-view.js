@@ -65,7 +65,6 @@ CodeMirrorDiffView.prototype.unbind = function() {
 		this.el.removeChild(this.el.lastChild);
 	}
 	if (this._origEl) {
-		this.el.style = this._origEl.style;
 		this.el.className = this._origEl.className;
 	}
 	this._unbound = true;
@@ -257,16 +256,17 @@ CodeMirrorDiffView.prototype.resize = function() {
 
 CodeMirrorDiffView.prototype.bind = function(container) {
 	this.trace('api#bind', container);
-	this._origEl = {
-		style: container.style,
-		className: container.className
-	};
 	const el = dom.getMergelyContainer({ clazz: container.className });
 	const computedStyle = window.getComputedStyle(container);
-	if (!computedStyle.height || computedStyle.height === '0px') {
+	if (!el.style.height
+		&& (!computedStyle.height || computedStyle.height === '0px')
+	) {
 		throw new Error(
 			`The element "${container.id}" requires an explicit height`);
 	}
+	this._origEl = {
+		className: container.className
+	};
 	this.id = `${container.id}`;
 	this.lhsId = `${container.id}-lhs`;
 	this.rhsId = `${container.id}-rhs`;
@@ -753,6 +753,9 @@ CodeMirrorDiffView.prototype._set_top_offset = function (side) {
 	// this is the distance from the top of the screen to the top of the
 	// content of the first codemirror editor
 	const topnode = this._queryElement('.CodeMirror-measure');
+	if (!topnode.offsetParent) {
+		return false;
+	}
 	const top_offset = topnode.offsetParent.offsetTop + 4;
 
 	// restore editor's scroll position

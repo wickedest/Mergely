@@ -15,6 +15,10 @@ module.exports = (mode) => {
 			...webpackDevConfig.output,
 			path: path.join(__dirname, 'lib'),
 			filename: './[name].js',
+			library: {
+				name: 'mergely',
+				type: 'umd',
+			}
 		},
 		optimization: {
 			minimize: true,

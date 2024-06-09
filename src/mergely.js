@@ -46,7 +46,9 @@ class Mergely {
 		}
 
 		const computedStyle = window.getComputedStyle(element);
-		if (!computedStyle.height || computedStyle.height === '0px') {
+		if (!element.style.height
+			&& (!computedStyle.height || computedStyle.height === '0px')
+		) {
 			throw new Error(
 				`The element "${selector}" requires an explicit height`);
 		}
