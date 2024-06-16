@@ -1,3 +1,10 @@
+# [5.3.0](https://github.com/wickedest/Mergely/compare/v5.2.0...v5.3.0) (2024-06-16)
+
+
+### Features
+
+* Supports unicode diacritical marks when rendering line diff (fixes [#169](https://github.com/wickedest/Mergely/issues/169)) ([#197](https://github.com/wickedest/Mergely/issues/197)) ([a469a65](https://github.com/wickedest/Mergely/commit/a469a6510122356a7cae3fb1259e999e6cc34c94))
+
 # [5.2.0](https://github.com/wickedest/Mergely/compare/v5.1.4...v5.2.0) (2024-06-09)
 
 
