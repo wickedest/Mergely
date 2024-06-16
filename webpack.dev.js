@@ -1,4 +1,5 @@
 const path = require('path')
+const chalk = require('chalk');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -50,8 +51,8 @@ module.exports = {
 				compiler.hooks.entryOption.tap('MyPlugin', (context, entry) => {
 					console.log('-'.repeat(78));
 					console.log('Applications:');
-					console.log('http://localhost:8080/app.html');
-					console.log('http://localhost:8080/app-styles.html');
+					console.log(chalk.bold(chalk.underline(chalk.cyan('http://localhost:8080/app.html'))));
+					console.log(chalk.bold(chalk.underline(chalk.cyan('http://localhost:8080/app-styles.html'))));
 					console.log('-'.repeat(78));
 				});
 			}

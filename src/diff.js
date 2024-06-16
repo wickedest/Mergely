@@ -244,7 +244,9 @@ function CodeifyText(lhs, rhs, options) {
 
 	if (typeof lhs === 'string') {
 		if (this.options.split === 'chars') {
-			this.lhs = lhs.split('');
+			// split characters and include their diacritical marks
+			this.lhs = lhs.match(/\p{Letter}\p{Mark}*|\p{White_Space}/gu) || [];
+			// this.lhs = [...lhs];
 		} else if (this.options.split === 'words') {
 			this.lhs = lhs.split(/\s/);
 		} else if (this.options.split === 'lines') {
@@ -255,7 +257,9 @@ function CodeifyText(lhs, rhs, options) {
 	}
 	if (typeof rhs === 'string') {
 		if (this.options.split === 'chars') {
-			this.rhs = rhs.split('');
+			// split characters and include their diacritical marks
+			this.rhs = rhs.match(/\p{Letter}\p{Mark}*|\p{White_Space}/gu) || [];
+			// this.rhs = [...rhs];
 		} else if (this.options.split === 'words') {
 			this.rhs = rhs.split(/\s/);
 		} else if (this.options.split === 'lines') {

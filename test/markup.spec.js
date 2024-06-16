@@ -233,7 +233,109 @@ describe('markup', () => {
 				expect(rhs_spans[1].innerText).to.equal('h');
 				expect(rhs_spans[2].innerText).to.equal('ir');
 			}
-		}
+		},
+		{
+			name: 'single word single diacritic non-spacing marks',
+			lhs: 'كلمة',
+			rhs: 'كَلمة',
+			check: (editor) => {
+				expect(editor.querySelectorAll(LHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(LHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				const lhs_spans = editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0');
+				expect(lhs_spans).to.have.length(1);
+				expect(lhs_spans[0].innerText).to.equal('ك');
+				const rhs_spans = editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0');
+				expect(rhs_spans).to.have.length(1);
+				expect(rhs_spans[0].innerText).to.equal('كَ');
+			}
+		},
+		{
+			name: 'single word multiple diacritic non-spacing marks',
+			lhs: ['\u006E', '\u0061', '\u0314', '\u0065'].join(''), // na̔e
+			rhs: ['\u006E', '\u0061', '\u0314', '\u034A', '\u0065'].join(''), // na̔͊e
+			check: (editor) => {
+				expect(editor.querySelectorAll(LHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(LHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				const lhs_spans = editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0');
+				expect(lhs_spans).to.have.length(1);
+				expect(lhs_spans[0].innerText).to.equal(['\u0061', '\u0314'].join(''));
+				const rhs_spans = editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0');
+				expect(rhs_spans).to.have.length(1);
+				expect(rhs_spans[0].innerText).to.equal('a̔͊');
+			}
+		},
+		{
+			name: 'multiple words diacritic non-spacing marks',
+			lhs: 'كلمة اخرى',
+			rhs: 'كْلمة اخرى',
+			check: (editor) => {
+				expect(editor.querySelectorAll(LHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(LHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				const lhs_spans = editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0');
+				expect(lhs_spans).to.have.length(1);
+				expect(lhs_spans[0].innerText).to.equal('ك');
+				const rhs_spans = editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0');
+				expect(rhs_spans).to.have.length(1);
+				expect(rhs_spans[0].innerText).to.equal('كْ');
+			}
+		},
+		{
+			name: 'nonnormalizable diacritic non-spacing marks',
+			lhs: 'naeg',
+			// there are 2 marks on 'e', tilde (0303) and x (0353)
+			rhs: ['\u006E', '\u0061', '\u0353', '\u0065', '\u0353', '\u0303', '\u0067'].join(''),
+			check: (editor) => {
+				expect(editor.querySelectorAll(LHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(LHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				const lhs_spans = editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0');
+				expect(lhs_spans).to.have.length(1);
+				expect(lhs_spans[0].innerText).to.equal('ae');
+				const rhs_spans = editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0');
+				expect(rhs_spans).to.have.length(1);
+				expect(rhs_spans[0].innerText).to.equal(
+					['\u0061', '\u0353', '\u0065', '\u0353', '\u0303'].join('')
+				);
+			}
+		},
+		{
+			name: 'nonnormalizable diacritic non-spacing marks',
+			lhs: [
+				'\u0065', '\u0353', '\u0303',
+				'\u0065', '\u0353', '\u0303',
+				'\u0065', '\u0353', '\u0303',
+				'x',
+				'\u0065', '\u0353', '\u0303',
+			].join(''),
+			// there are 2 marks on 'e', tilde (0303) and x (0353)
+			rhs: [
+				'\u0065', '\u0353', '\u0303',
+				'\u0065', '\u0353', '\u0303',
+				'\u0065', '\u0353', '\u0303',
+				'y',
+				'\u0065', '\u0353', '\u0303',
+			].join(''),
+			check: (editor) => {
+				expect(editor.querySelectorAll(LHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(LHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_START + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(RHS_CHANGE_END + '.cid-0')).to.have.length(1);
+				const lhs_spans = editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0');
+				expect(lhs_spans).to.have.length(1);
+				expect(lhs_spans[0].innerText).to.equal('x');
+				const rhs_spans = editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0');
+				expect(rhs_spans).to.have.length(1);
+				expect(rhs_spans[0].innerText).to.equal('y');
+			}
+		},
+
 	];
 
 	// to debug, add `only: true` to the test `opts` above, and run `npm run debug`
