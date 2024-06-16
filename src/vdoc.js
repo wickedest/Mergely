@@ -2,6 +2,8 @@ const diff = require('./diff');
 
 const trace = console.log;
 
+const expLetters = new RegExp(/\p{Letter}\p{Mark}*|\p{White_Space}/gu);
+
 class VDoc {
 	constructor(options) {
 		this.options = options;
@@ -275,15 +277,18 @@ class VLine {
 				editor.setGutterMarker(this.id, name, item);
 			}
 			if (this.markup.length) {
+				// while Mergely diffs unicode chars (letters+mark), CM is by character,
+				// so diffs need to be mapped.
+				const mapped = mapLettersToChars(editor.getValue());
 				for (const markup of this.markup) {
 					const [ charFrom, charTo, className ] = markup;
 					const fromPos = { line: this.id };
 					const toPos = { line: this.id };
 					if (charFrom >= 0) {
-						fromPos.ch = charFrom;
+						fromPos.ch = mapped[charFrom];
 					}
 					if (charTo >= 0) {
-						toPos.ch = charTo;
+						toPos.ch = mapped[charTo];
 					}
 					this._clearMarkup.push(
 						editor.markText(fromPos, toPos, { className }));
@@ -332,6 +337,17 @@ function getExtents(side, change) {
 		olf: change[`${oside}-line-from`],
 		olt: change[`${oside}-line-to`]
 	};
+}
+
+function mapLettersToChars(text) {
+	let match;
+	let mapped = {};
+	let index = 0;
+	expLetters.lastIndex = 0;
+	while ((match = expLetters.exec(text)) !== null) {
+		mapped[index++] = match.index;
+	}
+	return mapped;
 }
 
 module.exports = VDoc;
