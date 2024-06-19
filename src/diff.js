@@ -241,11 +241,13 @@ function CodeifyText(lhs, rhs, options) {
 	this.ctxs = {};
 	this.options = options;
 	this.options.split = this.options.split || 'lines';
+	const exp = /\p{Letter}\p{Mark}*|\p{Number}\p{Mark}*|\p{Punctuation}\p{Mark}*|\p{Symbol}\p{Mark}*|\p{White_Space}/gu;
 
 	if (typeof lhs === 'string') {
 		if (this.options.split === 'chars') {
+			console.log('HERE')
 			// split characters and include their diacritical marks
-			this.lhs = lhs.match(/\p{Letter}\p{Mark}*|\p{White_Space}/gu) || [];
+			this.lhs = lhs.match(exp) || [];
 			// this.lhs = [...lhs];
 		} else if (this.options.split === 'words') {
 			this.lhs = lhs.split(/\s/);
@@ -258,7 +260,7 @@ function CodeifyText(lhs, rhs, options) {
 	if (typeof rhs === 'string') {
 		if (this.options.split === 'chars') {
 			// split characters and include their diacritical marks
-			this.rhs = rhs.match(/\p{Letter}\p{Mark}*|\p{White_Space}/gu) || [];
+			this.rhs = rhs.match(exp) || [];
 			// this.rhs = [...rhs];
 		} else if (this.options.split === 'words') {
 			this.rhs = rhs.split(/\s/);
