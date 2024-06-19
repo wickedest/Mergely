@@ -1,3 +1,10 @@
+## [5.3.1](https://github.com/wickedest/Mergely/compare/v5.3.0...v5.3.1) (2024-06-19)
+
+
+### Bug Fixes
+
+* Fixed a regression rendering inline markup for numbers, punctuation, and symbols ([#199](https://github.com/wickedest/Mergely/issues/199)) ([c40672c](https://github.com/wickedest/Mergely/commit/c40672c458723bdd0d9a0062ef1457e435866765))
+
 # [5.3.0](https://github.com/wickedest/Mergely/compare/v5.2.0...v5.3.0) (2024-06-16)
 
 
