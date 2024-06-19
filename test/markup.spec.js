@@ -42,6 +42,7 @@ describe('markup', () => {
 
 	const LHS_CHANGE_START = '.mergely.lhs.c.CodeMirror-linebackground.start';
 	const LHS_CHANGE_END = '.mergely.lhs.c.CodeMirror-linebackground.end';
+	const LHS_CHANGE_START_AND_END = '.mergely.lhs.c.CodeMirror-linebackground.start.end';
 	const RHS_CHANGE_START = '.mergely.rhs.c.CodeMirror-linebackground.start';
 	const RHS_CHANGE_END = '.mergely.rhs.c.CodeMirror-linebackground.end';
 
@@ -335,7 +336,31 @@ describe('markup', () => {
 				expect(rhs_spans[0].innerText).to.equal('y');
 			}
 		},
-
+		{
+			name: 'Changes with non-letter chars',
+			lhs: '~# 00 == ! (dog) \n',
+			rhs: '~? 11 ++ ] (fox) .\n',
+			only: true,
+			check: (editor) => {
+				expect(editor.querySelectorAll(LHS_CHANGE_START_AND_END + '.cid-0')).to.have.length(1);
+				expect(editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0')).to.have.length(6);
+				expect(editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0')).to.have.length(7);
+				const lhs_changes = editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0');
+				const rhs_changes = editor.querySelectorAll(RHS_INLINE_TEXT + '.cid-0');
+				const lhs_values = [];
+				for (const value of lhs_changes.values()) {
+					lhs_values.push(value.innerText);
+				}
+				const rhs_values = [];
+				for (const value of rhs_changes.values()) {
+					rhs_values.push(value.innerText);
+				}
+				console.log(lhs_values);
+				console.log(rhs_values);
+				expect(lhs_values).to.deep.equal(['#', '00', '==', '!', 'd', 'g']);
+				expect(rhs_values).to.deep.equal(['?', '11', '++', ']', 'f', 'x', '.']);
+			}
+		},
 	];
 
 	// to debug, add `only: true` to the test `opts` above, and run `npm run debug`

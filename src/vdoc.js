@@ -2,7 +2,9 @@ const diff = require('./diff');
 
 const trace = console.log;
 
-const expLetters = new RegExp(/\p{Letter}\p{Mark}*|\p{White_Space}/gu);
+const expLetters = new RegExp(
+	/\p{Letter}\p{Mark}*|\p{Number}\p{Mark}*|\p{Punctuation}\p{Mark}*|\p{Symbol}\p{Mark}*|\p{White_Space}/gu
+);
 
 class VDoc {
 	constructor(options) {
