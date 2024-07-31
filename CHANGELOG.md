@@ -1,3 +1,10 @@
+## [5.3.2](https://github.com/wickedest/Mergely/compare/v5.3.1...v5.3.2) (2024-07-31)
+
+
+### Bug Fixes
+
+* Removed debug code ([c7b0fd0](https://github.com/wickedest/Mergely/commit/c7b0fd03b01cb3267d292c2985ca8b62adda11e0))
+
 ## [5.3.1](https://github.com/wickedest/Mergely/compare/v5.3.0...v5.3.1) (2024-06-19)
 
 
