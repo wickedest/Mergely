@@ -245,7 +245,6 @@ function CodeifyText(lhs, rhs, options) {
 
 	if (typeof lhs === 'string') {
 		if (this.options.split === 'chars') {
-			console.log('HERE')
 			// split characters and include their diacritical marks
 			this.lhs = lhs.match(exp) || [];
 			// this.lhs = [...lhs];
