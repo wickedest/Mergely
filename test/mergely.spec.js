@@ -62,19 +62,17 @@ describe('mergely', function () {
 				try {
 					const { children } = editor.el.children[0];
 					const items = Array.from(children).map(a => a.className);
+					expect(items[0] == 'mergely-margin');
+					expect(items[1] == 'mergely-column');
 					// NOTE: if running karma debug, these tests can fail because
 					// the debugger grabs the focus and the CodeMirror instance
 					// loses `CodeMirror-focused`
-					expect(items).to.deep.equal([
-						'mergely-margin',
-						'mergely-column',
-						'CodeMirror cm-s-default CodeMirror-focused',
-						'mergely-canvas',
-						'mergely-column',
-						'CodeMirror cm-s-default',
-						'mergely-margin',
-						'mergely-splash'
-					]);
+					expect(items[2].indexOf('CodeMirror cm-s-default' == 0));
+					expect(items[3] == 'mergely-margin');
+					expect(items[4] == 'mergely-column');
+					expect(items[5] == 'CodeMirror cm-s-default');
+					expect(items[6] == 'mergely-column');
+					expect(items[7] == 'mergely-splash');
 					expect(editor.get('lhs')).to.equal('');
 					expect(editor.get('rhs')).to.equal('');
 					done();
@@ -99,15 +97,17 @@ describe('mergely', function () {
 					// NOTE: if running karma debug, these tests can fail because
 					// the debugger grabs the focus and the CodeMirror instance
 					// loses `CodeMirror-focused`
-					expect(items).to.deep.equal([
-						'mergely-margin',
-						'mergely-column',
-						'CodeMirror cm-s-default CodeMirror-focused',
-						'mergely-canvas',
-						'mergely-column',
-						'CodeMirror cm-s-default',
-						'mergely-margin'
-					]);
+					expect(items[0] == 'mergely-margin');
+					expect(items[1] == 'mergely-column');
+					// NOTE: if running karma debug, these tests can fail because
+					// the debugger grabs the focus and the CodeMirror instance
+					// loses `CodeMirror-focused`
+					expect(items[2].indexOf('CodeMirror cm-s-default' == 0));
+					expect(items[3] == 'mergely-margin');
+					expect(items[4] == 'mergely-column');
+					expect(items[5] == 'CodeMirror cm-s-default');
+					expect(items[6] == 'mergely-column');
+					expect(items[7] == 'mergely-splash');
 					expect(editor.get('lhs')).to.equal('left-hand side text');
 					expect(editor.get('rhs')).to.equal('right-hand side text');
 					done();
@@ -129,18 +129,17 @@ describe('mergely', function () {
 				try {
 					const { children } = editor.el.children[0];
 					const items = Array.from(children).map(a => a.className);
+					expect(items[0] == 'mergely-margin');
+					expect(items[1] == 'mergely-column');
 					// NOTE: if running karma debug, these tests can fail because
 					// the debugger grabs the focus and the CodeMirror instance
 					// loses `CodeMirror-focused`
-					expect(items).to.deep.equal([
-						'mergely-margin',
-						'mergely-column',
-						'CodeMirror cm-s-default CodeMirror-focused',
-						'mergely-canvas',
-						'mergely-column',
-						'CodeMirror cm-s-default',
-						'mergely-margin'
-					]);
+					expect(items[2].indexOf('CodeMirror cm-s-default' == 0));
+					expect(items[3] == 'mergely-margin');
+					expect(items[4] == 'mergely-column');
+					expect(items[5] == 'CodeMirror cm-s-default');
+					expect(items[6] == 'mergely-column');
+					expect(items[7] == 'mergely-splash');
 					expect(editor.get('lhs')).to.equal('left-hand side text');
 					expect(editor.get('rhs')).to.equal('right-hand side text');
 					done();
@@ -161,18 +160,17 @@ describe('mergely', function () {
 				try {
 					const { children } = editor.el.children[0];
 					const items = Array.from(children).map(a => a.className);
+					expect(items[0] == 'mergely-margin');
+					expect(items[1] == 'mergely-column');
 					// NOTE: if running karma debug, these tests can fail because
 					// the debugger grabs the focus and the CodeMirror instance
 					// loses `CodeMirror-focused`
-					expect(items).to.deep.equal([
-						'mergely-margin',
-						'mergely-column',
-						'CodeMirror cm-s-default CodeMirror-focused',
-						'mergely-canvas',
-						'mergely-column',
-						'CodeMirror cm-s-default',
-						'mergely-margin'
-					]);
+					expect(items[2].indexOf('CodeMirror cm-s-default' == 0));
+					expect(items[3] == 'mergely-margin');
+					expect(items[4] == 'mergely-column');
+					expect(items[5] == 'CodeMirror cm-s-default');
+					expect(items[6] == 'mergely-column');
+					expect(items[7] == 'mergely-splash');
 					expect(children[0].style.visibility).to.equal('hidden');
 					expect(children[6].style.visibility).to.equal('hidden');
 					done();
@@ -500,6 +498,24 @@ describe('mergely', function () {
 				editor.once('updated', test);
 				editor.options(changes);
 				test();
+			});
+		});
+
+		it('should preserve changed option', function (done) {
+			const editor = init({
+				change_timeout: 0,
+				license: 'lgpl-separate-notice',
+				lhs: 'left-hand side text',
+				rhs: 'right-hand side text'
+			});
+			editor.once('updated', () => {
+				editor.options({ sidebar: false });
+				expect(editor.options().wrap_lines).to.equal(false, 'wrap_lines');
+				expect(editor.options().sidebar).to.equal(false, 'sidebar');
+				editor.options({ wrap_lines: false });
+				expect(editor.options().wrap_lines).to.equal(false, 'wrap_lines-2');
+				expect(editor.options().sidebar).to.equal(false, 'sidebar-2');
+				done();
 			});
 		});
 

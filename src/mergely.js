@@ -122,13 +122,11 @@ class Mergely {
 		const colors = dom.getColors(this.el);
 		this._options = {
 			...defaultOptions,//lgpl
-			...this._initOptions,
+			...(this._options || this._initOptions),
 			...options//lgpl-separate-notice
 		};
 		this._viewOptions = {
-			...defaultOptions,
-			...this._initOptions,
-			...options,
+			...this._options,
 			_colors: colors
 		};
 	}
