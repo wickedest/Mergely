@@ -1,3 +1,10 @@
+## [5.3.6](https://github.com/wickedest/Mergely/compare/v5.3.5...v5.3.6) (2024-10-11)
+
+
+### Bug Fixes
+
+* **#207:** Updated documentation for search method. ([#214](https://github.com/wickedest/Mergely/issues/214)) ([350e5af](https://github.com/wickedest/Mergely/commit/350e5af2e8b2e852364dc5a5729e03e3bc75358b)), closes [#207](https://github.com/wickedest/Mergely/issues/207)
+
 ## [5.3.5](https://github.com/wickedest/Mergely/compare/v5.3.4...v5.3.5) (2024-10-11)
 
 
