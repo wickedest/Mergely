@@ -449,7 +449,6 @@ CodeMirrorDiffView.prototype.bind = function(container) {
 			ev.preventDefault();
 			return;
 		}
-		const ed = this.editor[side];
 		// See if the user clicked the line number of a difference:
 		let found = false;
 		for (let i = 0; i < this.changes.length; ++i) {

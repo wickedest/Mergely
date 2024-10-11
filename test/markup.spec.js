@@ -340,7 +340,6 @@ describe('markup', () => {
 			name: 'Changes with non-letter chars',
 			lhs: '~# 00 == ! (dog) \n',
 			rhs: '~? 11 ++ ] (fox) .\n',
-			only: true,
 			check: (editor) => {
 				expect(editor.querySelectorAll(LHS_CHANGE_START_AND_END + '.cid-0')).to.have.length(1);
 				expect(editor.querySelectorAll(LHS_INLINE_TEXT + '.cid-0')).to.have.length(6);
@@ -355,8 +354,6 @@ describe('markup', () => {
 				for (const value of rhs_changes.values()) {
 					rhs_values.push(value.innerText);
 				}
-				console.log(lhs_values);
-				console.log(rhs_values);
 				expect(lhs_values).to.deep.equal(['#', '00', '==', '!', 'd', 'g']);
 				expect(rhs_values).to.deep.equal(['?', '11', '++', ']', 'f', 'x', '.']);
 			}
