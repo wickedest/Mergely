@@ -353,7 +353,7 @@ Scrolls to the next change specified by `direction`.
 doc.scrollToDiff('next');
 ```
 
-### <a name="search"></a>search(side: string, needle: string)
+### <a name="search"></a>search(side: string, needle: string, direction: string = 'next')
 
 Search the editor for `needle`, scrolling to the next available match. Repeating the call will find the next available token.
 
@@ -363,6 +363,7 @@ Search the editor for `needle`, scrolling to the next available match. Repeating
 |----|----|-----------|
 |side|string|The editor side, either `lhs` or `rhs`.|
 |needle|string|The text for which to search.|
+|direction|string|The direction to search, either `prev` or `next`.|
 
 #### Example
 
