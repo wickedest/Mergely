@@ -1,3 +1,10 @@
+## [5.3.3](https://github.com/wickedest/Mergely/compare/v5.3.2...v5.3.3) (2024-10-11)
+
+
+### Bug Fixes
+
+* **#209:** Fixes issue with options not being preserved when individually set. ([#211](https://github.com/wickedest/Mergely/issues/211)) ([4cd8897](https://github.com/wickedest/Mergely/commit/4cd8897c6b157d506560bb09f508f9debe2a4211))
+
 ## [5.3.2](https://github.com/wickedest/Mergely/compare/v5.3.1...v5.3.2) (2024-07-31)
 
 
