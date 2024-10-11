@@ -1,3 +1,10 @@
+## [5.3.4](https://github.com/wickedest/Mergely/compare/v5.3.3...v5.3.4) (2024-10-11)
+
+
+### Reverts
+
+* Revert "build(deps-dev): bump webpack from 5.91.0 to 5.94.0 (#203)" ([c36d2a7](https://github.com/wickedest/Mergely/commit/c36d2a7ba9ca895844126711aa00b9634814e1dc)), closes [#203](https://github.com/wickedest/Mergely/issues/203)
+
 ## [5.3.3](https://github.com/wickedest/Mergely/compare/v5.3.2...v5.3.3) (2024-10-11)
 
 
