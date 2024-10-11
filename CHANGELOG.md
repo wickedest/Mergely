@@ -1,3 +1,10 @@
+## [5.3.5](https://github.com/wickedest/Mergely/compare/v5.3.4...v5.3.5) (2024-10-11)
+
+
+### Bug Fixes
+
+* bump dependencies ([#213](https://github.com/wickedest/Mergely/issues/213)) ([83df02d](https://github.com/wickedest/Mergely/commit/83df02d967ce3100a33216f8ca77c2168bd53234))
+
 ## [5.3.4](https://github.com/wickedest/Mergely/compare/v5.3.3...v5.3.4) (2024-10-11)
 
 
