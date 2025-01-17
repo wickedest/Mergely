@@ -84,13 +84,15 @@ Mergely will emit an `updated` event when the editor is first initialized, and e
 
 ### Visualization modes
 
-Mergely supports the following CodeMirror visualizations for [mode](codemirror.net/5/doc/manual.html#option_mode):
-
-* go
-* javascript
-* htmlmixed
-* markdown
-* python
+Mergely does not support any CodeMirror highlighting for different languages (xml, html, javascript etc.) out of the box.
+You can compile your own Mergely-Version with support for the desired modes by adding them to diff-view.js. For example:
+```
+require('codemirror/mode/go/go.js');
+require('codemirror/mode/javascript/javascript.js');
+require('codemirror/mode/htmlmixed/htmlmixed.js');
+require('codemirror/mode/markdown/markdown.js');
+require('codemirror/mode/python/python.js');
+```
 
 ## Options
 
