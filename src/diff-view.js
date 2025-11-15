@@ -18,9 +18,11 @@ function CodeMirrorDiffView(el, options) {
 		const coords = this.cursorCoords(null, 'local');
 		this.scrollTo(null,
 			(coords.top + coords.bottom) / 2 - (this.getScrollerElement().clientHeight / 2));
-	});
-	this.init(el, options);
-};
+		});
+		this.init(el, options);
+	};
+
+CodeMirrorDiffView.CodeMirror = CodeMirror;
 
 const trace = console.log;
 const traceTimeStart = console.time;

@@ -253,6 +253,8 @@ class Mergely {
 	}
 }
 
+Mergely.CodeMirror = CodeMirrorDiffView.CodeMirror;
+
 window.Mergely = Mergely;
 
 module.exports = Mergely;
