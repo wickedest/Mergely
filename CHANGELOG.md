@@ -1,3 +1,10 @@
+# [5.4.0](https://github.com/wickedest/Mergely/compare/v5.3.6...v5.4.0) (2025-11-15)
+
+
+### Features
+
+* **#220:** Exposes Mergely's instance of CodeMirror as Mergely.CodeMirror ([#221](https://github.com/wickedest/Mergely/issues/221)) ([d6d8d06](https://github.com/wickedest/Mergely/commit/d6d8d06accaa4fa3a4352b95620e3e456226d444)), closes [#220](https://github.com/wickedest/Mergely/issues/220)
+
 ## [5.3.6](https://github.com/wickedest/Mergely/compare/v5.3.5...v5.3.6) (2024-10-11)
 
 
