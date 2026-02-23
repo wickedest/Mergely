@@ -740,6 +740,10 @@ CodeMirrorDiffView.prototype._isChangeInView = function(side, vp, change) {
 		return true;
 	}
 
+	// there are 3 conditions to test
+	// 1: the change "from" is within the viewport from/to
+	// 2: the change "to" is within the viewport from/to
+	// 3: the change is so big that the viewport is within
 	return (change[`${side}-line-from`] >= vp.from && change[`${side}-line-from`] <= vp.to) ||
 		(change[`${side}-line-to`] >= vp.from && change[`${side}-line-to`] <= vp.to) ||
 		(vp.from >= change[`${side}-line-from`] && vp.to <= change[`${side}-line-to`]);
@@ -1090,8 +1094,8 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 		ctx_lhs.strokeRect(1.5, mkr_lhs_y_start, 4.5, Math.max(mkr_lhs_y_end - mkr_lhs_y_start, 5));
 		ctx_lhs.stroke();
 
-		const mkr_rhs_y_start = change['rhs-y-start'] * lratio;
-		const mkr_rhs_y_end = Math.max(change['rhs-y-end'] * lratio, 5);
+		const mkr_rhs_y_start = change['rhs-y-start'] * rratio;
+		const mkr_rhs_y_end = Math.max(change['rhs-y-end'] * rratio, 5);
 		ctx_rhs.beginPath();
 		ctx_rhs.fillStyle = '#a3a3a3';
 		ctx_rhs.strokeStyle = '#000';
