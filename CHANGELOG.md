@@ -1,3 +1,10 @@
+## [5.4.5](https://github.com/wickedest/Mergely/compare/v5.4.4...v5.4.5) (2026-02-23)
+
+
+### Bug Fixes
+
+* **#222:** Fixed issue with poor rendering performance and marker misalignment ([27778f0](https://github.com/wickedest/Mergely/commit/27778f0840895bf5e029d8c962e99890b8a0a8f6)), closes [#222](https://github.com/wickedest/Mergely/issues/222) [#227](https://github.com/wickedest/Mergely/issues/227)
+
 ## [5.4.4](https://github.com/wickedest/Mergely/compare/v5.4.3...v5.4.4) (2026-02-23)
 
 
