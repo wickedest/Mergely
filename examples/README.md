@@ -1,6 +1,5 @@
 # Mergely examples
 
-
 ## Mergely development server
 
 To run the hot dev-server for development, you need to run:
