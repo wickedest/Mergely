@@ -14,7 +14,6 @@ the quick brown fox
 jumped over the lazy dog
 `;
 
-
 document.onreadystatechange = function () {
 	if (document.readyState !== 'complete') {
 		return;
