@@ -1,3 +1,10 @@
+## [5.4.2](https://github.com/wickedest/Mergely/compare/v5.4.1...v5.4.2) (2026-02-23)
+
+
+### Bug Fixes
+
+* Removed whitespace from example ([00a7917](https://github.com/wickedest/Mergely/commit/00a79170a8d4b701d6da98c1d6ea921b592fb3d1))
+
 ## [5.4.1](https://github.com/wickedest/Mergely/compare/v5.4.0...v5.4.1) (2026-02-23)
 
 
