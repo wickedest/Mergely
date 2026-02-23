@@ -1,3 +1,10 @@
+## [5.4.1](https://github.com/wickedest/Mergely/compare/v5.4.0...v5.4.1) (2026-02-23)
+
+
+### Bug Fixes
+
+* **#225:** Fixes rendering issue when there are multiple editors ([1a2ee6a](https://github.com/wickedest/Mergely/commit/1a2ee6af3d7d87160e72e8faca5e38cf01b36fcb))
+
 # [5.4.0](https://github.com/wickedest/Mergely/compare/v5.3.6...v5.4.0) (2025-11-15)
 
 
