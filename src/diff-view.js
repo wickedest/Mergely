@@ -318,7 +318,7 @@ CodeMirrorDiffView.prototype.bind = function(container) {
 			if (!notice) {
 				notice = noticeTypes.lgpl;
 			}
-			const editor = this._queryElement(`#${this.id}`);
+			const editor = this.el;
 			const splash = dom.getSplash({
 				notice,
 				left: (editor.offsetWidth - 300) / 2,
@@ -1200,7 +1200,7 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 
 CodeMirrorDiffView.prototype._queryElement = function(selector) {
 	const cacheName = `_element:${selector}`;
-	const element = this[cacheName] || document.querySelector(selector);
+	const element = this[cacheName] || this.el.querySelector(selector);
 	if (!this[cacheName]) {
 		this[cacheName] = element;
 	}
