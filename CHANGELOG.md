@@ -1,3 +1,10 @@
+## [5.4.4](https://github.com/wickedest/Mergely/compare/v5.4.3...v5.4.4) (2026-02-23)
+
+
+### Bug Fixes
+
+* Updated examples README.md ([f1e58f5](https://github.com/wickedest/Mergely/commit/f1e58f58fea85628b1dd345b98b23923f05d8c2e))
+
 ## [5.4.3](https://github.com/wickedest/Mergely/compare/v5.4.2...v5.4.3) (2026-02-23)
 
 
