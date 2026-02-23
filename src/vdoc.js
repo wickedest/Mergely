@@ -205,9 +205,13 @@ class VDoc {
 		if (this.options._debug) {
 			trace('vdoc#update', side, editor, viewport);
 		}
-		const lines = Object.keys(this._lines[side]);
-		for (let i = 0; i < lines.length; ++i) {
-			const id = lines[i];
+		const keys = Object.keys(this._lines[side]);
+		// while Mergely diffs unicode diacritic chars (letters+mark),
+		// CM is by character, so diffs need to be mapped.
+		const mappedChars = mapLettersToChars(editor.getValue());
+
+		for (const key of keys) {
+			const { id } = this._lines[side][key];
 			if (id < viewport.from || id > viewport.to) {
 				continue;
 			}
@@ -216,7 +220,7 @@ class VDoc {
 			if (vline.rendered) {
 				continue;
 			}
-			vline.update(editor);
+			vline.update(editor, mappedChars);
 		}
 	}
 
@@ -257,7 +261,7 @@ class VLine {
 		this.markup.push([ charFrom, charTo, className ]);
 	}
 
-	update(editor) {
+	update(editor, mappedChars) {
 		if (this.rendered) {
 			// FIXME: probably do not need this now
 			console.log('already rendered', this.id);
@@ -279,18 +283,17 @@ class VLine {
 				editor.setGutterMarker(this.id, name, item);
 			}
 			if (this.markup.length) {
-				// while Mergely diffs unicode chars (letters+mark), CM is by character,
-				// so diffs need to be mapped.
-				const mapped = mapLettersToChars(editor.getValue());
+				// while Mergely diffs unicode diacritic chars (letters+mark),
+				// CM is by character, so diffs need to be mapped.
 				for (const markup of this.markup) {
 					const [ charFrom, charTo, className ] = markup;
 					const fromPos = { line: this.id };
 					const toPos = { line: this.id };
 					if (charFrom >= 0) {
-						fromPos.ch = mapped[charFrom];
+						fromPos.ch = mappedChars[charFrom];
 					}
 					if (charTo >= 0) {
-						toPos.ch = mapped[charTo];
+						toPos.ch = mappedChars[charTo];
 					}
 					this._clearMarkup.push(
 						editor.markText(fromPos, toPos, { className }));
