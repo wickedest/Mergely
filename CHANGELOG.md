@@ -1,3 +1,10 @@
+## [5.4.6](https://github.com/wickedest/Mergely/compare/v5.4.5...v5.4.6) (2026-02-24)
+
+
+### Bug Fixes
+
+* **#228:** Clicking on edit marker in gutter now accounts for top position of editor. ([cc7df68](https://github.com/wickedest/Mergely/commit/cc7df68aea62e2e3a18c996fa56048f1e583faa5)), closes [#228](https://github.com/wickedest/Mergely/issues/228)
+
 ## [5.4.5](https://github.com/wickedest/Mergely/compare/v5.4.4...v5.4.5) (2026-02-23)
 
 
