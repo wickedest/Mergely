@@ -1190,7 +1190,9 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 		ex.lhs_scroller.scrollTo({ top: sto });
 	};
 	this._handleRhsMarginClick = function (ev) {
-		const y = ev.pageY - ex.rhs_xyoffset.top - (rto / 2);
+		// `top` accounts for the editor starting at position other than 0 on page
+		const { top } = ev.currentTarget.offsetParent.getBoundingClientRect();
+		const y = (ev.pageY - top) - ex.rhs_xyoffset.top - (rto / 2);
 		const sto = Math.max(0, (y / mcanvas_rhs.height) * ex.rhs_scroller.scrollHeight);
 		ex.rhs_scroller.scrollTo({ top: sto });
 	};
