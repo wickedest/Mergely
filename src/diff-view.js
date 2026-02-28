@@ -130,7 +130,6 @@ CodeMirrorDiffView.prototype.scrollToDiff = function(direction) {
 	this.trace('change', 'current-diff', this._current_diff);
 	// _current_diff changed, refresh the view
 	this._scroll_to_change(this.changes[this._current_diff]);
-	this.setChanges(this.changes);
 };
 
 CodeMirrorDiffView.prototype.mergeCurrentChange = function(side) {
@@ -149,7 +148,6 @@ CodeMirrorDiffView.prototype.scrollTo = function(side, num) {
 	const ed = this.editor[side];
 	ed.setCursor(num);
 	ed.centerOnCursor();
-	this._renderChanges();
 	this.el.dispatchEvent(new Event('updated'));
 };
 
@@ -556,20 +554,12 @@ CodeMirrorDiffView.prototype._scroll_to_change = function(change) {
 	if (!change) {
 		return;
 	}
-	const {
-		lhs: led,
-		rhs: red
-	} = this.editor;
-	// set cursors
-	const llf = Math.max(change['lhs-line-from'], 0);
-	const rlf = Math.max(change['rhs-line-from'], 0);
-	led.setCursor(llf, 0);
-	red.setCursor(rlf, 0);
 	if (change['lhs-line-to'] >= 0) {
 		this.scrollTo('lhs', change['lhs-line-to']);
 	} else if (change['rhs-line-to'] >= 0) {
 		this.scrollTo('rhs', change['rhs-line-to']);
 	}
+	const { lhs: led } = this.editor;
 	led.focus();
 };
 
@@ -1185,7 +1175,9 @@ CodeMirrorDiffView.prototype._renderDiff = function(changes) {
 	ctx_rhs.fillRect(1.5, rfrom, 4.5, rto);
 
 	this._handleLhsMarginClick = function (ev) {
-		const y = ev.pageY - ex.lhs_xyoffset.top - (lto / 2);
+		// `top` accounts for the editor starting at position other than 0 on page
+		const { top } = ev.currentTarget.offsetParent.getBoundingClientRect();
+		const y = (ev.pageY - top) - ex.lhs_xyoffset.top - (lto / 2);
 		const sto = Math.max(0, (y / mcanvas_lhs.height) * ex.lhs_scroller.scrollHeight);
 		ex.lhs_scroller.scrollTo({ top: sto });
 	};
