@@ -1,3 +1,10 @@
+## [5.4.7](https://github.com/wickedest/Mergely/compare/v5.4.6...v5.4.7) (2026-02-28)
+
+
+### Bug Fixes
+
+* **#228:** Fixes issue where a single scroll event would cause multiple updates and calculate view placement incorrectly ([9834f09](https://github.com/wickedest/Mergely/commit/9834f0964abeac88a4af83cde40b1deb29b8fe5d))
+
 ## [5.4.6](https://github.com/wickedest/Mergely/compare/v5.4.5...v5.4.6) (2026-02-24)
 
 
